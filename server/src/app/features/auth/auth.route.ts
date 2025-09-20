@@ -1,7 +1,13 @@
 import { Router } from "express";
 import passport from "passport";
 import { env } from "../../../env";
-import { getProfile, oauthLogin } from "./auth.controller";
+import {
+  getProfile,
+  logout,
+  oauthLogin,
+  refreshAccessToken,
+} from "./auth.controller";
+import { isAuthenticated } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
@@ -21,6 +27,8 @@ router.get(
   }),
   oauthLogin
 );
-router.get("/me", getProfile);
+router.get("/me", isAuthenticated, getProfile);
+router.delete("/logout", isAuthenticated, logout);
+router.put("/", refreshAccessToken);
 
 export { router as authRouter };

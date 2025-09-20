@@ -96,4 +96,75 @@ const getProfile = AsyncHandler(async (req, res) => {
   ).send(res);
 });
 
-export { oauthLogin, getProfile };
+const logout = AsyncHandler(async (req, res) => {
+  if (req.user) {
+    const refreshToken = req.cookies["refresh-token"];
+
+    if (refreshToken) {
+      await db.session.deleteMany({
+        where: {
+          token: refreshToken,
+        },
+      });
+    }
+  }
+  res.clearCookie("access-token", CORS_OPTIONS);
+  res.clearCookie("refresh-token", CORS_OPTIONS);
+
+  new ApiResponse(200, null, "Logged out successfully").send(res);
+});
+
+const refreshAccessToken = AsyncHandler(async (req, res) => {
+  const refreshToken = req.cookies["refresh-token"];
+
+  if (!refreshToken) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const session = await db.session.findUnique({
+    where: {
+      token: refreshToken,
+    },
+    include: {
+      user: true,
+    },
+  });
+
+  if (
+    !session ||
+    !session.user ||
+    session.sessionExpiry < new Date() // Check if session is expired
+  ) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const newAccessToken = generateJWT(
+    session.user.id,
+    env.JWT_SECRET,
+    env.JWT_EXPIRES_IN
+  );
+
+  const newRefreshToken = generateJWT(
+    session.user.id,
+    env.JWT_REFRESH_SECRET,
+    env.JWT_REFRESH_EXPIRES_IN
+  );
+
+  await db.session.update({
+    where: {
+      id: session.id,
+    },
+    data: {
+      // Extend session expiry on refresh
+      token: newRefreshToken,
+      sessionExpiry: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+    },
+  });
+
+  res.cookie("access-token", newAccessToken, CORS_OPTIONS);
+  res.cookie("refresh-token", newRefreshToken, CORS_OPTIONS);
+
+  new ApiResponse(200, null, "Access token refreshed successfully").send(res);
+});
+
+export { oauthLogin, getProfile, logout, refreshAccessToken };

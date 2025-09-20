@@ -19,4 +19,12 @@ app.use(
 import { initPassport } from "./libs/passport.lib";
 initPassport();
 
+//Routes
+import { authRouter } from "./features/auth/auth.route";
+app.use("/api/auth", authRouter);
+
+//Global Error Handler
+import { globalErrorHandler } from "./middlewares/error.middleware";
+app.use(globalErrorHandler);
+
 export { app };
