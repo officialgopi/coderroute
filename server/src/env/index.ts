@@ -9,9 +9,13 @@ function parseEnv(env: NodeJS.ProcessEnv) {
       .enum(["development", "test", "production"])
       .default("development"),
     PORT: z.coerce.number().default(3000),
+    CLIENT_URL: z.url(),
     DATABASE_URL: z.url(),
     JUDGE0_BASE_URL: z.url(),
     JUDGE0_API_KEY: z.string(),
+    GOOGLE_CLIENT_ID: z.string(),
+    GOOGLE_CLIENT_SECRET: z.string(),
+    GOOGLE_REDIRECT_URI: z.string(),
   });
 
   const parsed = envSchema.safeParse(env);
