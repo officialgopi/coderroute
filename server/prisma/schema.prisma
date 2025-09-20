@@ -1,14 +1,405 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider               = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+enum USER_ROLE {
+  ADMIN
+  USER
+}
+
+enum DIFFICULTY {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum AuthProvider {
+  GOOGLE
+  GITHUB
+  LOCAL
+}
+
+enum LANGUAGE {
+  PYTHON
+  JAVASCRIPT
+}
+
+model User {
+  id                           String    @id @default(uuid())
+  name                         String
+  username                     String    @unique
+  email                        String    @unique
+  avatar                       String?
+  role                         USER_ROLE @default(USER)
+  authProvider                 AuthProvider @default(GOOGLE)
+  password                     String?
+  isEmailVerified              Boolean   @default(false)
+  emailVerificationToken       String?   @unique
+  emailVerificationTokenExpiry DateTime?
+  forgotPasswordToken          String?   @unique
+  forgotPasswordTokenExpiry    DateTime?
+  createdAt                    DateTime  @default(now())
+  updatedAt                    DateTime  @updatedAt
+
+  //RELATIONSHIPS
+  problems             Problem[]
+  submissions          Submission[]
+  problemsSolved       ProblemSolved[]
+  playlists            Playlist[]
+  dashboardStats       DashboardStats[]
+  sessions             Session[]
+  discussions          Discussion[]
+  contests             Contest[]
+  contestParticipations ContestParticipation[]
+  userActivities       UserActivity[]
+
+  //INDEXES
+  @@index([username])
+  @@index([email])
+}
+
+
+model UserActivity {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  date      DateTime   // exact timestamp
+  noOfSubmissionsDone Int @default(0) // to track if any submission was done in this login session
+}
+
+model Session {
+  id            String   @id @default(uuid())
+  userId        String
+  token         String   @unique
+  sessionExpiry DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  //RELATIONSHIPS
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  //INDEXES
+  @@index([userId])
+  @@index([token])
+  @@index([token,userId])
+}
+
+model DashboardStats {
+  id               String    @id @default(uuid())
+  userId           String    @unique
+  totalSubmissions Int       @default(0)
+  problemsSolved   Int       @default(0)
+  easySolved       Int       @default(0)
+  mediumSolved     Int       @default(0)
+  hardSolved       Int       @default(0)
+  accuracy         Float     @default(0.0)
+  lastActive       DateTime?
+  updatedAt        DateTime  @updatedAt
+
+  //RELATIONSHIPS
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  //INDEXES
+  @@index([userId])
+}
+
+model Problem {
+  id          String     @id @default(uuid())
+  userId      String
+  title       String
+  description String
+  difficulty  DIFFICULTY
+  tags        String[]   @default([]) // ["tag1", "tag2", "tag3"] 
+  constraints String[]   @default([])
+  hints       String[]   @default([])
+  editorial   String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  //RELATIONSHIPS
+  user               User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  //RELATIONSHIPS
+  testcases          TestCases[]
+  codeSnippets       ProblemCodeSnippets[]
+  referenceSolutions ProblemReferenceSolutions[]
+  backgroundCodes    ProblemBackgroundCode[]
+  submissions        Submission[]
+  solvedBy           ProblemSolved[]
+  playlist           ProblemInPlaylist[]
+  discussions        Discussion[]
+  contestProblem     ContestProblem[]
+
+  //INDEXES
+  @@index([userId])
+  @@index([title])
+  @@index([difficulty])
+  @@index([tags])
+}
+
+model TestCases {
+  id        Int      @id @default(autoincrement())
+  problemId String
+  input     String
+  output    String
+  explanation String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //RELATIONSHIPS
+  problem Problem @relation(fields: [problemId], references: [id])
+
+  //INDEXES
+  @@index([problemId])
+}
+
+
+
+model ProblemCodeSnippets {
+  id        Int      @id @default(autoincrement())
+  problemId String
+  language  LANGUAGE
+  code      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //RELATIONSHIPS
+  problem Problem @relation(fields: [problemId], references: [id])
+
+  //INDEXES
+  @@unique([problemId, language])
+  @@index([problemId])
+  @@index([language])
+}
+
+model ProblemReferenceSolutions {
+  id        Int      @id @default(autoincrement())
+  problemId String
+  language  LANGUAGE
+  code      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //RELATIONSHIPS
+  problem Problem @relation(fields: [problemId], references: [id])
+
+  //INDEXES
+  @@unique([problemId, language])
+  @@index([language])
+  @@index([problemId])
+}
+
+model ProblemBackgroundCode {
+  id               Int      @id @default(autoincrement())
+  problemId        String
+  language         LANGUAGE
+  code             String
+  whereToWriteCode String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  //RELATIONSHIPS
+  problem Problem @relation(fields: [problemId], references: [id])
+
+  //INDEXES
+  @@unique([problemId, language])
+  @@index([language])
+  @@index([problemId])
+}
+
+model Submission {
+  id            String   @id @default(uuid())
+  userId        String
+  problemId     String
+  sourceCode    String
+  language      LANGUAGE
+  stdin         String?
+  stdout        String?
+  stderr        String?
+  compileOutput String?
+  status        String // Accepted , wrong answer
+  memory        String?
+  time          String?
+  contestId     String? // <- Add this
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  //RELATIONSHIPS
+  contest Contest? @relation(fields: [contestId], references: [id])
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  //RELATIONSHIPS
+  testCases TestCaseResult[]
+
+  //INDEXES
+  @@index([problemId, contestId, userId])
+  @@index([contestId, userId])
+  @@index([problemId, userId])
+  @@index([problemId, contestId])
+  @@index([problemId])
+  @@index([contestId])
+  @@index([userId])
+  @@index([status])
+}
+
+model TestCaseResult {
+  id            String   @id @default(uuid())
+  submissionId  String
+  testCase      Int
+  passed        Boolean
+  stdout        String?
+  expected      String
+  stderr        String?
+  compileOutput String?
+  status        String
+  memory        String?
+  time          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  //RELATIONSHIPS
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  //INDEXES
+  @@index([submissionId])
+}
+
+model ProblemSolved {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //RELATIONSHIPS
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  //INDEXES
+  @@unique([userId, problemId])
+  @@index([userId])
+}
+
+model Playlist {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  //RELATIONSHIPS
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  //RELATIONSHIPS
+  problems ProblemInPlaylist[]
+
+  //INDEXES
+  @@unique([name, userId]) // unique playlist names per user
+}
+
+model ProblemInPlaylist {
+  id         String   @id @default(uuid())
+  playlistId String
+  problemId  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  //RELATIONSHIPS
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  //INDEXES
+  @@unique([playlistId, problemId])
+}
+
+model Discussion {
+  id        String   @id @default(uuid())
+  content   String
+  userId    String
+  problemId String? // Optional: allows general discussions
+  parentId  String? // If this is a reply, it links to a parent discussion
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deleted   Boolean  @default(false) // Soft delete support
+
+  //RELATIONSHIPS
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem?     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  parent  Discussion?  @relation("ReplyRelation", fields: [parentId], references: [id])
+  replies Discussion[] @relation("ReplyRelation")
+
+  //INDEXES
+  @@index([problemId])
+  @@index([parentId])
+  @@index([userId])
+}
+
+model Contest {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  startTime       DateTime
+  endTime         DateTime
+  visibility      Boolean  @default(true)
+  isRated         Boolean  @default(false)
+  durationMinutes Int?
+  rules           String?
+  creatorId       String
+  deleted         Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  //RELATIONSHIPS
+  creator User @relation(fields: [creatorId], references: [id])
+
+  //RELATIONSHIPS
+  problems       ContestProblem[]
+  participations ContestParticipation[]
+  submissions    Submission[]
+
+  //INDEXES
+  @@index([name])
+  @@index([visibility])
+  @@index([isRated])
+}
+
+model ContestProblem {
+  id        String @id @default(uuid())
+  contestId String
+  problemId String
+  order     Int?
+  points    Int    @default(100)
+
+  //RELATIONSHIPS
+  contest Contest @relation(fields: [contestId], references: [id])
+  problem Problem @relation(fields: [problemId], references: [id])
+
+  //INDEXES
+  @@unique([contestId, problemId])
+}
+
+model ContestParticipation {
+  id           String    @id @default(uuid())
+  userId       String
+  contestId    String
+  startedAt    DateTime
+  submittedAt  DateTime?
+  score        Float     @default(0.0)
+  submissionId String?
+
+  //RELATIONSHIPS
+  user    User    @relation(fields: [userId], references: [id])
+  contest Contest @relation(fields: [contestId], references: [id])
+
+  //INDEXES
+  @@unique([userId, contestId])
+  @@index([contestId])
+  @@index([userId])
 }
