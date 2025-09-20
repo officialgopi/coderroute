@@ -16,6 +16,10 @@ function parseEnv(env: NodeJS.ProcessEnv) {
     GOOGLE_CLIENT_ID: z.string(),
     GOOGLE_CLIENT_SECRET: z.string(),
     GOOGLE_REDIRECT_URI: z.string(),
+    JWT_SECRET: z.string(),
+    JWT_EXPIRES_IN: z.string(),
+    JWT_REFRESH_SECRET: z.string(),
+    JWT_REFRESH_EXPIRES_IN: z.string(),
   });
 
   const parsed = envSchema.safeParse(env);
