@@ -10,6 +10,8 @@ function parseEnv(env: NodeJS.ProcessEnv) {
       .default("development"),
     PORT: z.coerce.number().default(3000),
     DATABASE_URL: z.url(),
+    JUDGE0_BASE_URL: z.url(),
+    JUDGE0_API_KEY: z.string(),
   });
 
   const parsed = envSchema.safeParse(env);
