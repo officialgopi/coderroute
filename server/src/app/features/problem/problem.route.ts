@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { checkAdmin, isAuthenticated } from "../../middlewares/auth.middleware";
-import { createProblem, getProblems } from "./problem.controller";
+import {
+  createProblem,
+  deleteProblem,
+  getProblemBySlug,
+  getProblems,
+  getSolvedProblems,
+} from "./problem.controller";
 
 const router = Router();
 
@@ -8,9 +14,10 @@ router.use(isAuthenticated);
 
 router.post("/", checkAdmin, createProblem);
 router.get("/", getProblems);
-router.get("/get-problem/:slug");
-router.get("/get-solved-problems");
+router.get("/get-problem/:slug", getProblemBySlug);
+router.get("/get-solved-problems", getSolvedProblems);
+router.delete("/:slug", checkAdmin, deleteProblem);
+
 router.put("/:slug", checkAdmin);
-router.delete("/:slug", checkAdmin);
 
 export { router as problemRouter };

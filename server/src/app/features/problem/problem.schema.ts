@@ -29,7 +29,14 @@ const createProblemBodySchema = z.object({
 
 const updateProblemBodySchema = createProblemBodySchema.partial();
 const updateProblemParamsSchema = z.object({
-  problemId: z.string(),
+  slug: z.string(),
+});
+
+const getProblemBySlugParamsSchema = z.object({
+  slug: z.string(),
+});
+const deleteProblemBySlugParamsSchema = z.object({
+  slug: z.string(),
 });
 
 const getProblemsQuerySchema = z.object({
@@ -50,4 +57,6 @@ export {
   updateProblemBodySchema,
   getProblemsQuerySchema,
   updateProblemParamsSchema,
+  getProblemBySlugParamsSchema,
+  deleteProblemBySlugParamsSchema,
 };

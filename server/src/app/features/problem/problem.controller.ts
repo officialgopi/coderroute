@@ -3,6 +3,8 @@ import { Judge0 } from "../../libs/judge0.lib";
 import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
 import {
   createProblemBodySchema,
+  deleteProblemBySlugParamsSchema,
+  getProblemBySlugParamsSchema,
   getProblemsQuerySchema,
 } from "./problem.schema";
 import { generateFormattedInputForJudge0ForCreatingProblem } from "./problem.service";
@@ -186,4 +188,92 @@ const getProblems = AsyncHandler(async (req, res) => {
   new ApiResponse(200, { problems }).send(res);
 });
 
-export { createProblem, getProblems };
+const getProblemBySlug = AsyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const { data, success } = getProblemBySlugParamsSchema.safeParse(req.params);
+  if (!success || !data) {
+    throw new ApiError(400, "Invalid request data", data);
+  }
+  const problem = await db.problem.findUnique({
+    where: {
+      slug: data.slug,
+    },
+    include: {
+      problemDetails: true,
+      testcases: true,
+    },
+  });
+  if (!problem) {
+    throw new ApiError(404, "Problem not found");
+  }
+
+  new ApiResponse(200, {
+    problem,
+  }).send(res);
+});
+
+const deleteProblem = AsyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const { data, success } = deleteProblemBySlugParamsSchema.safeParse(
+    req.params
+  );
+  if (!success || !data) {
+    throw new ApiError(400, "Invalid request data", data);
+  }
+  const problem = await db.problem.findUnique({
+    where: {
+      slug: data.slug,
+    },
+  });
+  if (!problem) {
+    throw new ApiError(404, "Problem not found");
+  }
+  await db.problem.delete({
+    where: {
+      id: problem.id,
+    },
+  });
+
+  new ApiResponse(200, {}, "Problem deleted successfully").send(res);
+});
+
+const getSolvedProblems = AsyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const problems = await db.problem.findMany({
+    where: {
+      submissions: {
+        some: {
+          userId: req.user.id,
+          status: "ACCEPTED",
+        },
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      difficulty: true,
+      tags: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  new ApiResponse(200, { problems }).send(res);
+});
+
+export {
+  createProblem,
+  getProblems,
+  getProblemBySlug,
+  deleteProblem,
+  getSolvedProblems,
+};
