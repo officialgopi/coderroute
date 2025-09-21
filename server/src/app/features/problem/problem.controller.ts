@@ -1,0 +1,127 @@
+import { db } from "../../../db";
+import { Judge0 } from "../../libs/judge0.lib";
+import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
+import { createProblemBodySchema } from "./problem.schema";
+import { generateFormattedInputForJudge0ForCreatingProblem } from "./problem.service";
+
+const createProblem = AsyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const { data, success } = createProblemBodySchema.safeParse(req.body);
+
+  if (!success || !data) {
+    throw new ApiError(400, "Invalid request data", data);
+  }
+
+  /**
+   * First run in judge0 to get the stdin and stdout
+   * Then store the problem in the database
+   * Return the problem id
+   */
+
+  const formattedParameter =
+    generateFormattedInputForJudge0ForCreatingProblem(data);
+
+  if (!formattedParameter) {
+    throw new ApiError(500, "Failed to generate formatted input for Judge0");
+  }
+
+  // Send this to judge0 to verify the testcases
+
+  for (const submissionBatchParameter of formattedParameter) {
+    const responseFromJudge0AfterCreatingSubmissionBatch =
+      await Judge0.createSubmissionBatch(submissionBatchParameter);
+
+    if (
+      !responseFromJudge0AfterCreatingSubmissionBatch.success ||
+      !responseFromJudge0AfterCreatingSubmissionBatch.data
+    ) {
+      throw new ApiError(500, "Failed to create submission batch in Judge0");
+    }
+
+    const tokens = responseFromJudge0AfterCreatingSubmissionBatch.data.map(
+      (submission) => submission.token
+    );
+
+    const responseFromJudge0AfterPoolingBatchResults =
+      await Judge0.poolBatchResults(tokens);
+
+    if (
+      !responseFromJudge0AfterPoolingBatchResults.success ||
+      !responseFromJudge0AfterPoolingBatchResults.data
+    ) {
+      throw new ApiError(500, "Failed to pool batch results in Judge0");
+    }
+
+    const submissions = responseFromJudge0AfterPoolingBatchResults.data;
+
+    for (let i = 0; i < submissions.length; i++) {
+      const result = submissions[i];
+      console.log("Submission result---------", result);
+
+      if (result.status.id !== 3) {
+        throw new ApiError(
+          400,
+          `Test case ${
+            i + 1
+          } failed for language ${Judge0.getJudge0LanguageName(
+            submissionBatchParameter[0].language_id
+          )}`
+        );
+      }
+    }
+  }
+
+  //SAVE TO THE DATABASE
+  const problem = await db.problem.create({
+    data: {
+      title: data.title,
+      description: data.description,
+      difficulty: data.difficulty,
+      tags: data.tags,
+      constraints: data.constraints as string[],
+      editorial: data.editorial,
+      hints: data.hints as string[],
+      createdByUserId: req.user.id,
+    },
+  });
+  try {
+    await db.problemDetails.createMany({
+      data: data.details.map((detail) => {
+        return {
+          problemId: problem.id,
+          language: detail.language,
+          codeSnippet: detail.codeSnippet,
+          backgroundCode: detail.backgroundCode,
+          whereToWriteCode: detail.whereToWriteCode,
+          referenceSolution: detail.referenceSolution,
+        };
+      }),
+    });
+    await db.testCases.createMany({
+      data: data.testcases.map((testcase) => {
+        return {
+          problemId: problem.id,
+          input: testcase.input,
+          output: testcase.output,
+          explanation: testcase.explaination,
+        };
+      }),
+    });
+  } catch (error) {
+    await db.problem.delete({
+      where: {
+        id: problem.id,
+      },
+    }); // DELETE CASCADE WORKS HERE FOR PROBLEM DETAILS AND TESTCASES ERRORS THEY ARE DELETED AUTOMATICALLY
+    throw new ApiError(500, "Failed to create problem details");
+  }
+
+  new ApiResponse(201, {
+    problem: problem,
+  }).send(res);
+});
+
+export { createProblem };

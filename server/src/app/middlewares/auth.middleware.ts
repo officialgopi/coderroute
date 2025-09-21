@@ -37,4 +37,16 @@ const isAuthenticated = AsyncHandler(async (req, res, next) => {
   next();
 });
 
-export { isAuthenticated };
+const checkAdmin = AsyncHandler(async (req, res, next) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  if (req.user.role !== "ADMIN") {
+    throw new ApiError(403, "Forbidden");
+  }
+
+  next();
+});
+
+export { isAuthenticated, checkAdmin };
