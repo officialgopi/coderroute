@@ -1,7 +1,10 @@
 import { db } from "../../../db";
 import { Judge0 } from "../../libs/judge0.lib";
 import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
-import { createProblemBodySchema } from "./problem.schema";
+import {
+  createProblemBodySchema,
+  getProblemsQuerySchema,
+} from "./problem.schema";
 import { generateFormattedInputForJudge0ForCreatingProblem } from "./problem.service";
 import slugify from "slugify";
 
@@ -132,8 +135,55 @@ const createProblem = AsyncHandler(async (req, res) => {
 });
 
 const getProblems = AsyncHandler(async (req, res) => {
-  const problems = await db.problem.findMany();
+  const { data, success } = getProblemsQuerySchema.safeParse(req.query);
+  if (!success || !data) {
+    throw new ApiError(400, "Invalid request data", data);
+  }
+
+  const query = {} as any;
+  if (data.difficulty) {
+    query.difficulty = data.difficulty;
+  }
+  if (data.tags && data.tags.length > 0) {
+    query.tags = {
+      hasEvery: data.tags,
+    };
+  }
+  if (data.search) {
+    query.OR = [
+      {
+        title: {
+          contains: data.search,
+          mode: "insensitive",
+        },
+      },
+      {
+        description: {
+          contains: data.search,
+          mode: "insensitive",
+        },
+      },
+    ];
+  }
+
+  const problems = await db.problem.findMany({
+    where: query,
+    skip: (data.page - 1) * data.limit,
+    take: data.limit,
+    orderBy: {
+      [data.sortBy!.toLowerCase()]: data.sortOrder,
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      difficulty: true,
+      tags: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
   new ApiResponse(200, { problems }).send(res);
 });
 
-export { createProblem };
+export { createProblem, getProblems };

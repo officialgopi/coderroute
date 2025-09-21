@@ -35,10 +35,19 @@ const updateProblemParamsSchema = z.object({
 const getProblemsQuerySchema = z.object({
   limit: z.number().default(10),
   page: z.number().default(1),
+  difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).optional(),
+  tags: z.string().optional(),
+  search: z.string().optional(),
+  sortBy: z
+    .enum(["CREATED_AT", "TITLE", "DIFFICULTY"])
+    .default("CREATED_AT")
+    .optional(),
+  sortOrder: z.enum(["asc", "desc"]).default("desc").optional(),
 });
 
 export {
   createProblemBodySchema,
   updateProblemBodySchema,
+  getProblemsQuerySchema,
   updateProblemParamsSchema,
 };

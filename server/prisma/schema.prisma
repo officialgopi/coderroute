@@ -136,6 +136,7 @@ model Problem {
 
   //INDEXES
   @@index([createdByUserId])
+  @@index([slug])
   @@index([title])
   @@index([difficulty])
   @@index([tags])
