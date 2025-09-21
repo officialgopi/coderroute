@@ -27,4 +27,18 @@ const createProblemBodySchema = z.object({
   ),
 });
 
-export { createProblemBodySchema };
+const updateProblemBodySchema = createProblemBodySchema.partial();
+const updateProblemParamsSchema = z.object({
+  problemId: z.string(),
+});
+
+const getProblemsQuerySchema = z.object({
+  limit: z.number().default(10),
+  page: z.number().default(1),
+});
+
+export {
+  createProblemBodySchema,
+  updateProblemBodySchema,
+  updateProblemParamsSchema,
+};

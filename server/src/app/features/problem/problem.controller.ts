@@ -3,6 +3,7 @@ import { Judge0 } from "../../libs/judge0.lib";
 import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
 import { createProblemBodySchema } from "./problem.schema";
 import { generateFormattedInputForJudge0ForCreatingProblem } from "./problem.service";
+import slugify from "slugify";
 
 const createProblem = AsyncHandler(async (req, res) => {
   if (!req.user) {
@@ -78,6 +79,12 @@ const createProblem = AsyncHandler(async (req, res) => {
   const problem = await db.problem.create({
     data: {
       title: data.title,
+      slug: slugify(data.title, {
+        lower: true,
+        strict: true,
+        replacement: "-",
+        trim: true,
+      }),
       description: data.description,
       difficulty: data.difficulty,
       tags: data.tags,
@@ -122,6 +129,11 @@ const createProblem = AsyncHandler(async (req, res) => {
   new ApiResponse(201, {
     problem: problem,
   }).send(res);
+});
+
+const getProblems = AsyncHandler(async (req, res) => {
+  const problems = await db.problem.findMany();
+  new ApiResponse(200, { problems }).send(res);
 });
 
 export { createProblem };

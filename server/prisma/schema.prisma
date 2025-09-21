@@ -111,6 +111,7 @@ model DashboardStats {
 model Problem {
   id          String     @id @default(uuid())
   createdByUserId      String
+  slug       String     @unique
   title       String
   description String
   difficulty  DIFFICULTY
