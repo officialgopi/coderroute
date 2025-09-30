@@ -20,8 +20,8 @@ import { initPassport } from "./libs/passport.lib";
 initPassport();
 
 //Routes
-import { authRouter } from "./features/auth/auth.route";
-app.use("/api/auth", authRouter);
+import { allRoutes } from "./features";
+app.use("/api", allRoutes);
 
 //Global Error Handler
 import { globalErrorHandler } from "./middlewares/error.middleware";

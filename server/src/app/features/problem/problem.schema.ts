@@ -27,9 +27,18 @@ const createProblemBodySchema = z.object({
   ),
 });
 
-const updateProblemBodySchema = createProblemBodySchema.partial();
 const updateProblemParamsSchema = z.object({
   slug: z.string(),
+});
+
+const updateProblemBodySchema = z.object({
+  title: z.string().min(1).max(255).optional(),
+  description: z.string().min(1).optional(),
+  difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).optional(),
+  tags: z.array(z.string()).optional(),
+  constraints: z.array(z.string().optional()).optional(),
+  hints: z.array(z.string()).optional(),
+  editorial: z.string().optional(),
 });
 
 const getProblemBySlugParamsSchema = z.object({
@@ -52,11 +61,17 @@ const getProblemsQuerySchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).default("desc").optional(),
 });
 
+const deleteTestcaseByProblemSlugAndTestcaseIdParamsSchema = z.object({
+  slug: z.string(),
+  testcaseId: z.number(),
+});
+
 export {
   createProblemBodySchema,
-  updateProblemBodySchema,
   getProblemsQuerySchema,
   updateProblemParamsSchema,
+  updateProblemBodySchema,
   getProblemBySlugParamsSchema,
   deleteProblemBySlugParamsSchema,
+  deleteTestcaseByProblemSlugAndTestcaseIdParamsSchema,
 };

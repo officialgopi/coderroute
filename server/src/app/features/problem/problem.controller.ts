@@ -4,8 +4,11 @@ import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
 import {
   createProblemBodySchema,
   deleteProblemBySlugParamsSchema,
+  deleteTestcaseByProblemSlugAndTestcaseIdParamsSchema,
   getProblemBySlugParamsSchema,
   getProblemsQuerySchema,
+  updateProblemBodySchema,
+  updateProblemParamsSchema,
 } from "./problem.schema";
 import { generateFormattedInputForJudge0ForCreatingProblem } from "./problem.service";
 import slugify from "slugify";
@@ -70,9 +73,9 @@ const createProblem = AsyncHandler(async (req, res) => {
       if (result.status.id !== 3) {
         throw new ApiError(
           400,
-          `Test case ${
-            i + 1
-          } failed for language ${Judge0.getJudge0LanguageName(
+          `Test case ${(
+            i + Number(1)
+          ).toString()} failed for language ${Judge0.getJudge0LanguageName(
             submissionBatchParameter[0].language_id
           )}`
         );
@@ -270,10 +273,63 @@ const getSolvedProblems = AsyncHandler(async (req, res) => {
   new ApiResponse(200, { problems }).send(res);
 });
 
+const updateProblemMetadata = AsyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const { data, success } = updateProblemBodySchema.safeParse(req.body);
+
+  if (!success || !data) {
+    throw new ApiError(400, "Invalid request data", data);
+  }
+
+  /**
+   * TODO: Implement this function
+   */
+});
+
+const deleteTestcaseByProblemId = AsyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const { data, success } =
+    deleteTestcaseByProblemSlugAndTestcaseIdParamsSchema.safeParse(req.params);
+
+  if (!success || !data) {
+    throw new ApiError(400, "Invalid request data", data);
+  }
+
+  const problem = await db.problem.findUnique({
+    where: {
+      slug: data.slug,
+    },
+  });
+
+  if (!problem) {
+    throw new ApiError(404, "Problem not found");
+  }
+
+  const testcase = await db.testCases.delete({
+    where: {
+      id: data.testcaseId,
+      problemId: problem.id,
+    },
+  });
+
+  if (!testcase) {
+    throw new ApiError(404, "Testcase not found");
+  }
+
+  new ApiResponse(200, {}, "Testcase deleted successfully").send(res);
+});
+
 export {
   createProblem,
   getProblems,
   getProblemBySlug,
   deleteProblem,
   getSolvedProblems,
+  deleteTestcaseByProblemId,
 };
