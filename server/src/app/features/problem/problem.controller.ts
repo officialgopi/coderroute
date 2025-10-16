@@ -2,9 +2,12 @@ import { db } from "../../../db";
 import { Judge0 } from "../../libs/judge0.lib";
 import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
 import {
+  addTestcaseToProblemBodySchema,
+  addTestcaseToProblemParamsSchema,
   createProblemBodySchema,
   deleteProblemBySlugParamsSchema,
-  deleteTestcaseByProblemSlugAndTestcaseIdParamsSchema,
+  deleteTestcaseFromProblemByIdAndTestcaseIdBodySchema,
+  deleteTestcaseFromProblemByIdAndTestcaseIdParamsSchema,
   getProblemBySlugParamsSchema,
   getProblemsQuerySchema,
   updateProblemBodySchema,
@@ -231,7 +234,7 @@ const deleteProblem = AsyncHandler(async (req, res) => {
   }
   const problem = await db.problem.findUnique({
     where: {
-      slug: data.slug,
+      id: data.problemId,
     },
   });
   if (!problem) {
@@ -278,24 +281,75 @@ const updateProblemMetadata = AsyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized");
   }
 
+  const paramsData = updateProblemParamsSchema.safeParse(req.params);
+  if (!paramsData.success || !paramsData.data) {
+    throw new ApiError(400, "Invalid request data", paramsData.data);
+  }
+
+  const problem = await db.problem.findUnique({
+    where: {
+      id: paramsData.data.problemId,
+    },
+  });
+
+  if (!problem) {
+    throw new ApiError(404, "Problem not found");
+  }
+
   const { data, success } = updateProblemBodySchema.safeParse(req.body);
 
   if (!success || !data) {
     throw new ApiError(400, "Invalid request data", data);
   }
 
-  /**
-   * TODO: Implement this function
-   */
+  const updateData = {};
+
+  if (data.title) {
+    (updateData as any).title = data.title;
+    (updateData as any).slug = slugify(data.title, {
+      lower: true,
+      strict: true,
+      replacement: "-",
+      trim: true,
+    });
+  }
+  if (data.description) (updateData as any).description = data.description;
+  if (data.difficulty) (updateData as any).difficulty = data.difficulty;
+  if (data.tags) (updateData as any).tags = data.tags;
+  if (data.constraints) (updateData as any).constraints = data.constraints;
+  if (data.editorial) (updateData as any).editorial = data.editorial;
+  if (data.hints) (updateData as any).hints = data.hints;
+
+  const updatedProblem = await db.problem.update({
+    where: {
+      id: problem.id,
+    },
+    data: updateData,
+  });
+
+  new ApiResponse(
+    200,
+    {
+      problem: updatedProblem,
+    },
+    "Problem updated successfully"
+  ).send(res);
 });
 
-const deleteTestcaseByProblemId = AsyncHandler(async (req, res) => {
+//Testcase
+const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
   if (!req.user) {
     throw new ApiError(401, "Unauthorized");
   }
+  const body = addTestcaseToProblemBodySchema.safeParse(req.body);
 
-  const { data, success } =
-    deleteTestcaseByProblemSlugAndTestcaseIdParamsSchema.safeParse(req.params);
+  if (!body.success || !body.data) {
+    throw new ApiError(400, "Invalid request data", body.data);
+  }
+
+  const { data, success } = addTestcaseToProblemParamsSchema.safeParse(
+    req.params
+  );
 
   if (!success || !data) {
     throw new ApiError(400, "Invalid request data", data);
@@ -303,7 +357,120 @@ const deleteTestcaseByProblemId = AsyncHandler(async (req, res) => {
 
   const problem = await db.problem.findUnique({
     where: {
-      slug: data.slug,
+      id: data.problemId,
+    },
+    include: {
+      problemDetails: true,
+    },
+  });
+
+  if (!problem) {
+    throw new ApiError(404, "Problem not found");
+  }
+
+  const formattedParameterArgData = {
+    details: problem.problemDetails.map((detail) => ({
+      language: detail.language,
+      backgroundCode: detail.backgroundCode,
+      whereToWriteCode: detail.whereToWriteCode,
+      referenceSolution: detail.referenceSolution,
+      codeSnippet: detail.codeSnippet,
+    })),
+    testcases: body.data.testcases,
+  };
+
+  const formattedParameter = generateFormattedInputForJudge0ForCreatingProblem(
+    formattedParameterArgData
+  );
+
+  if (!formattedParameter) {
+    throw new ApiError(500, "Failed to generate formatted input for Judge0");
+  }
+
+  // Send this to judge0 to verify the testcases
+
+  for (const submissionBatchParameter of formattedParameter) {
+    const responseFromJudge0AfterCreatingSubmissionBatch =
+      await Judge0.createSubmissionBatch(submissionBatchParameter);
+
+    if (
+      !responseFromJudge0AfterCreatingSubmissionBatch.success ||
+      !responseFromJudge0AfterCreatingSubmissionBatch.data
+    ) {
+      throw new ApiError(500, "Failed to create submission batch in Judge0");
+    }
+
+    const tokens = responseFromJudge0AfterCreatingSubmissionBatch.data.map(
+      (submission) => submission.token
+    );
+
+    const responseFromJudge0AfterPoolingBatchResults =
+      await Judge0.poolBatchResults(tokens);
+
+    if (
+      !responseFromJudge0AfterPoolingBatchResults.success ||
+      !responseFromJudge0AfterPoolingBatchResults.data
+    ) {
+      throw new ApiError(500, "Failed to pool batch results in Judge0");
+    }
+
+    const submissions = responseFromJudge0AfterPoolingBatchResults.data;
+
+    for (let i = 0; i < submissions.length; i++) {
+      const result = submissions[i];
+      console.log("Submission result---------", result);
+
+      if (result.status.id !== 3) {
+        throw new ApiError(
+          400,
+          `Test case ${(
+            i + Number(1)
+          ).toString()} failed for language ${Judge0.getJudge0LanguageName(
+            submissionBatchParameter[0].language_id
+          )}`
+        );
+      }
+    }
+  }
+
+  //Save to database
+  await db.testCases.createMany({
+    data: body.data.testcases.map((testcase) => ({
+      problemId: problem.id,
+      input: testcase.input,
+      output: testcase.output,
+      explanation: testcase.explaination,
+    })),
+  });
+
+  new ApiResponse(201, {}, "Testcases added successfully").send(res);
+});
+
+const deleteTestcaseFromProblemById = AsyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const { data, success } =
+    deleteTestcaseFromProblemByIdAndTestcaseIdParamsSchema.safeParse(
+      req.params
+    );
+
+  if (!success || !data) {
+    throw new ApiError(400, "Invalid request data", data);
+  }
+
+  const body = deleteTestcaseFromProblemByIdAndTestcaseIdBodySchema.safeParse(
+    req.body
+  );
+
+  if (!body.success || !body.data) {
+    throw new ApiError(400, "Invalid request data", body.data);
+  }
+
+  const problem = await db.problem.findUnique({
+    where: {
+      id: data.problemId,
     },
   });
 
@@ -313,7 +480,7 @@ const deleteTestcaseByProblemId = AsyncHandler(async (req, res) => {
 
   const testcase = await db.testCases.delete({
     where: {
-      id: data.testcaseId,
+      id: body.data.testcaseId,
       problemId: problem.id,
     },
   });
@@ -331,5 +498,7 @@ export {
   getProblemBySlug,
   deleteProblem,
   getSolvedProblems,
-  deleteTestcaseByProblemId,
+  deleteTestcaseFromProblemById,
+  updateProblemMetadata,
+  addTestcaseToProblemById,
 };

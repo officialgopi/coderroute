@@ -2,9 +2,20 @@ import z from "zod";
 import { createProblemBodySchema } from "./problem.schema";
 import { Judge0 } from "../../libs/judge0.lib";
 
-function generateFormattedInputForJudge0ForCreatingProblem(
-  problem: z.infer<typeof createProblemBodySchema>
-) {
+function generateFormattedInputForJudge0ForCreatingProblem(problem: {
+  details: {
+    language: string;
+    codeSnippet: string;
+    backgroundCode: string;
+    whereToWriteCode: string;
+    referenceSolution: string;
+  }[];
+  testcases: {
+    input: string;
+    output: string;
+    explaination?: string;
+  }[];
+}) {
   try {
     let formattedSubmissionBatchParameter: {
       language_id: number;

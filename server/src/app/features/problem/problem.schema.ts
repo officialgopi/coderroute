@@ -28,7 +28,7 @@ const createProblemBodySchema = z.object({
 });
 
 const updateProblemParamsSchema = z.object({
-  slug: z.string(),
+  problemId: z.string(),
 });
 
 const updateProblemBodySchema = z.object({
@@ -45,7 +45,7 @@ const getProblemBySlugParamsSchema = z.object({
   slug: z.string(),
 });
 const deleteProblemBySlugParamsSchema = z.object({
-  slug: z.string(),
+  problemId: z.string(),
 });
 
 const getProblemsQuerySchema = z.object({
@@ -61,9 +61,25 @@ const getProblemsQuerySchema = z.object({
   sortOrder: z.enum(["asc", "desc"]).default("desc").optional(),
 });
 
-const deleteTestcaseByProblemSlugAndTestcaseIdParamsSchema = z.object({
-  slug: z.string(),
+const deleteTestcaseFromProblemByIdAndTestcaseIdParamsSchema = z.object({
+  problemId: z.string(),
+});
+const deleteTestcaseFromProblemByIdAndTestcaseIdBodySchema = z.object({
   testcaseId: z.number(),
+});
+
+const addTestcaseToProblemParamsSchema = z.object({
+  problemId: z.string(),
+});
+
+const addTestcaseToProblemBodySchema = z.object({
+  testcases: z.array(
+    z.object({
+      input: z.string(),
+      output: z.string(),
+      explaination: z.string().optional(),
+    })
+  ),
 });
 
 export {
@@ -73,5 +89,8 @@ export {
   updateProblemBodySchema,
   getProblemBySlugParamsSchema,
   deleteProblemBySlugParamsSchema,
-  deleteTestcaseByProblemSlugAndTestcaseIdParamsSchema,
+  addTestcaseToProblemParamsSchema,
+  addTestcaseToProblemBodySchema,
+  deleteTestcaseFromProblemByIdAndTestcaseIdParamsSchema,
+  deleteTestcaseFromProblemByIdAndTestcaseIdBodySchema,
 };
