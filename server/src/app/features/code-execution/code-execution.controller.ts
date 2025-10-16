@@ -144,7 +144,7 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
     throw new ApiError(400, result.message || "Code execution failed");
   }
 
-  await db.submission.create({
+  const submission = await db.submission.create({
     data: {
       userId: req.user.id,
       problemId: problem.id,
@@ -167,12 +167,42 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
     },
   });
 
-  /**
-   *
-   * TODO: Save to the problem solved table and send the res
-   *
-   * TODO: save the testcase results
-   */
+  const testcaseResults = result.data?.detailedResults?.map((tr, index) => ({
+    submissionId: submission.id,
+    testCaseId: problem.testcases[index].id,
+    passed: tr.passed,
+    expected: tr.expected,
+    actual: tr.actual,
+    time: tr.time,
+    memory: tr.memory,
+    status: tr.status,
+    stderr: tr.stderr,
+    compile_output: tr.compile_output,
+  }));
+
+  if (!testcaseResults) {
+    throw new ApiError(500, "Failed to save testcase results");
+  }
+  await db.testCaseResult.createMany({
+    data: testcaseResults,
+  });
+
+  const submissionWithTestCaseResults = await db.submission.findUnique({
+    where: {
+      id: submission.id,
+    },
+    include: {
+      testCasesResults: true,
+    },
+  });
+
+  new ApiResponse(
+    200,
+    {
+      submission: submissionWithTestCaseResults,
+    },
+    "Code Submitted Successfully"
+  ).send(res);
 });
 
 export { codeRunExecute };
