@@ -205,4 +205,4 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
   ).send(res);
 });
 
-export { codeRunExecute };
+export { codeRunExecute, codeSubmitExecute };
