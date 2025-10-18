@@ -1,7 +1,6 @@
-import express from "express";
 import dotenv from "dotenv";
 import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
-import { liveblocks } from "../../libs/;iveblocks.lib";
+import { liveblocks } from "../../libs/liveblocks.lib";
 dotenv.config();
 
 const createSessionForUserUsingLiveblocks = AsyncHandler(async (req, res) => {
