@@ -21,6 +21,7 @@ function parseEnv(env: NodeJS.ProcessEnv) {
     JWT_REFRESH_SECRET: z.string(),
     JWT_REFRESH_EXPIRES_IN: z.string(),
     GROQ_API_KEY: z.string(),
+    LIVEBLOCKS_SECRET_KEY: z.string(),
   });
 
   const parsed = envSchema.safeParse(env);
