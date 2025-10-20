@@ -157,19 +157,29 @@ const getChatsWithAiByParamsAssistant = AsyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid request data");
   }
 
-  const chatHistories = await db.aiChatHistory.findUnique({
+  const problem = await db.problem.findUnique({
+    where: {
+      id: data.problemId,
+    },
+  });
+  if (!problem) {
+    throw new ApiError(404, "Problem not found");
+  }
+
+  const chatHistories = await db.aiChatHistory.upsert({
     where: {
       userId_problemId: {
         userId: req.user.id,
         problemId: data.problemId,
       },
     },
+    update: {},
+    create: {
+      userId: req.user.id,
+      problemId: data.problemId,
+    },
     include: {
-      messages: {
-        orderBy: {
-          createdAt: "asc",
-        },
-      },
+      messages: true,
     },
   });
 
