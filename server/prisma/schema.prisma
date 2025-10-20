@@ -139,6 +139,7 @@ model Problem {
   sheets         ProblemInSheet[]
   discussions    Discussion[]
   contestProblem ContestProblem[]
+  aiChatHistories AiChatHistory[]
 
   //INDEXES
   @@index([createdByUserId])
@@ -390,11 +391,12 @@ model AiChatHistory {
 
   //RELATIONSHIPS
   user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem  Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
   messages AiChatMessages[]
 
-  @@unique([userId, problemId])
   //INDEXES
   @@index([userId, problemId])
+  @@unique([userId, problemId])
 }
 
 model AiChatMessages {
