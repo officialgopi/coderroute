@@ -11,7 +11,7 @@ import cors from "cors";
 app.use(cookieParser());
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: env.NODE_ENV === "development" ? "*" : env.CLIENT_URL,
     credentials: true,
   })
 );
