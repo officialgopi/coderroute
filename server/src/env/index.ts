@@ -20,7 +20,7 @@ function parseEnv(env: NodeJS.ProcessEnv) {
     JWT_EXPIRES_IN: z.string(),
     JWT_REFRESH_SECRET: z.string(),
     JWT_REFRESH_EXPIRES_IN: z.string(),
-    GROQ_API_KEY: z.string(),
+    GEMINI_API_KEY: z.string(),
     LIVEBLOCKS_SECRET_KEY: z.string(),
   });
 
