@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
 
-      let authRes = await apiCallHandler<IUser, undefined>("/auth/me", "GET");
+      let authRes = await apiCallHandler<undefined, IUser>("/auth/me", "GET");
 
       if (authRes.success && authRes.data) {
         set({
@@ -53,7 +53,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         toast.error("Session expired. Please log in again.");
         return;
       }
-      authRes = await apiCallHandler<IUser, undefined>("/auth/me", "GET");
+      authRes = await apiCallHandler<undefined, IUser>("/auth/me", "GET");
 
       if (authRes.success && authRes.data) {
         set({
