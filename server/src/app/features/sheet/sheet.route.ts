@@ -9,8 +9,11 @@ import {
   getSheets,
   updateSheet,
 } from "./sheet.controller";
+import { isAuthenticated } from "../../middlewares/auth.middleware";
 
 const sheetRouter = Router();
+
+sheetRouter.use(isAuthenticated);
 
 sheetRouter.post("/", createSheet);
 sheetRouter.post("/copy", copySheet);
