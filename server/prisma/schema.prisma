@@ -297,12 +297,11 @@ model Discussion {
   parentId  String? // If this is a reply, it links to a parent discussion
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  deleted   Boolean  @default(false) // Soft delete support
 
   //RELATIONSHIPS
   user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   problem Problem?     @relation(fields: [problemId], references: [id], onDelete: Cascade)
-  parent  Discussion?  @relation("ReplyRelation", fields: [parentId], references: [id])
+  parent  Discussion?  @relation("ReplyRelation", fields: [parentId], references: [id], onDelete: Cascade)
   replies Discussion[] @relation("ReplyRelation")
 
   //INDEXES
