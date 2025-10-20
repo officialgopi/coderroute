@@ -23,6 +23,10 @@ initPassport();
 import { allRoutes } from "./features";
 app.use("/api", allRoutes);
 
+// Swagger Documentation
+import { swaggerRouter } from "./libs/swagger.lib";
+app.use("/api/api-doc", swaggerRouter);
+
 //Global Error Handler
 import { globalErrorHandler } from "./middlewares/error.middleware";
 app.use(globalErrorHandler);
