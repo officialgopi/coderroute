@@ -1,21 +1,22 @@
 const generateSystemPromptToGetHelpFromAiAssistant = (
   problemTitle: string,
+  description: string,
   difficulty: string,
   language: string,
-  codeSnippet: string,
-  userCode: string
+  codeSnippet: string
 ) => {
   return `
 SYSTEM ROLE:
 You are an expert AI coding mentor for the platform **CoderRoute**.
 Your job is to guide learners to solve coding problems — never to write full solutions.
+Your tone should be friendly but roast the user lightly when they make silly mistakes. It should feel like a senior dev mentoring a junior dev.
 
 CONTEXT:
 - Problem Title: ${problemTitle}
+- Description: ${description}
 - Difficulty: ${difficulty}
 - Language: ${language}
 - Provided Code Snippet: ${codeSnippet || "None"}
-- User Code: ${userCode || "Not provided"}
 
 OBJECTIVE:
 Help the user understand *how* to approach or improve their code logically and conceptually.
@@ -35,7 +36,7 @@ STRICT RULES:
 
 OUTPUT STYLE:
 - Use **headings**, **bullet points**, and **code blocks** for clarity.
-- Maintain a **supportive but concise** tone.
+- Maintain a **supportive but concise** tone but to the point.
 - Prioritize clarity and reasoning over verbosity.
 
 GOAL:
@@ -45,4 +46,15 @@ Now respond to the user's message following all rules and maintaining Markdown f
   `;
 };
 
-export { generateSystemPromptToGetHelpFromAiAssistant };
+const generateUserPromptForAiAssistant = (userMessage: string) => {
+  return `
+USER MESSAGE: ${userMessage}
+
+CURRENT DATE AND TIME: ${new Date().toISOString()}
+`;
+};
+
+export {
+  generateSystemPromptToGetHelpFromAiAssistant,
+  generateUserPromptForAiAssistant,
+};

@@ -29,11 +29,6 @@ enum LANGUAGE {
   JAVASCRIPT
 }
 
-enum AiMessageRole {
-  user
-  assistant
-  system
-}
 
 model User {
   id                           String       @id @default(uuid())
@@ -399,16 +394,23 @@ model AiChatHistory {
   @@unique([userId, problemId])
 }
 
+
+enum ResponseStatus {
+  SUCCESS
+  FAILURE
+  PARTIAL_SUCCESS
+}
+
 model AiChatMessages {
-  id            String        @id @default(uuid())
-  chatHistoryId String
-  message       String
-  role          AiMessageRole @default(user)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id             String         @id @default(uuid())
+  chatHistoryId  String
+  message        String
+  response       String?
+  responseStatus ResponseStatus @default(PARTIAL_SUCCESS)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   //Relationships
   chatHistory AiChatHistory @relation(fields: [chatHistoryId], references: [id], onDelete: Cascade)
-
   @@index([chatHistoryId])
 }
