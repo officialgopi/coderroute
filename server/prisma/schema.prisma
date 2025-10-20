@@ -29,6 +29,12 @@ enum LANGUAGE {
   JAVASCRIPT
 }
 
+enum AiMessageRole{
+  user
+  assistant
+  system
+}
+
 model User {
   id                           String    @id @default(uuid())
   name                         String
@@ -57,7 +63,7 @@ model User {
   contests             Contest[]
   contestParticipations ContestParticipation[]
   userActivities       UserActivity[]
-
+  aiChatHistories      AiChatHistory[]
   //INDEXES
   @@index([username])
   @@index([email])
@@ -375,4 +381,33 @@ model ContestParticipation {
   @@unique([userId, contestId])
   @@index([contestId])
   @@index([userId])
+}
+
+
+
+
+model AiChatHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //RELATIONSHIPS
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages AiChatMessages[]
+  //INDEXES
+  @@index([userId])
+}
+
+model AiChatMessages {
+  id        String   @id @default(uuid())
+  chatHistoryId String
+  message   String
+  role      AiMessageRole @default(user)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+  chatHistory AiChatHistory @relation(fields: [chatHistoryId], references: [id], onDelete: Cascade)
 }
