@@ -6,4 +6,9 @@ const gemini = new OpenAI({
   baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
 });
 
-export { gemini };
+const GEMINI_MODELS = {
+  GEMINI_PRO_2_5: "gemini-2.5-pro",
+  GEMINI_FLASH_2_5: "gemini-2.5-flash",
+};
+
+export { gemini, GEMINI_MODELS };
