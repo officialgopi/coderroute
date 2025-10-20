@@ -18,6 +18,6 @@ allRoutes.use("/code-execution", rateLimitting(), codeExecutionRouter);
 allRoutes.use("/liveblocks", liveblocksRoutes);
 allRoutes.use("/discussion", discussionRouter);
 allRoutes.use("/sheet", sheetRouter);
-allRoutes.use("/ai", aiRouter);
+allRoutes.use("/ai", rateLimitting(), aiRouter);
 
 export { allRoutes };

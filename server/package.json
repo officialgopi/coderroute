@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --watch src --exec ts-node src/index.ts",
-    "build": "tsc -b",
+    "dev": "prisma migrate dev && prisma generate --no-engine && nodemon --watch src --exec ts-node src/index.ts",
+    "build": "prisma migrate deploy && prisma generate --no-engine && tsc -b",
     "start": "node dist/index.js",
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
