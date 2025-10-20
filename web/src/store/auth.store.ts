@@ -1,21 +1,24 @@
 import { create } from "zustand";
 import { toast } from "sonner";
 import { apiCallHandler } from "../utils/api-call-handler.util";
+
+interface IUser {
+  id: string;
+  name: string;
+  email: string;
+  username: string;
+  role: string;
+  avatar?: string;
+  isEmailVerified: boolean;
+  authProvider: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface AuthState {
   isAuthLoading: boolean;
   isAuthenticated: boolean;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    username: string;
-    role: string;
-    avatar?: string;
-    isEmailVerified: boolean;
-    authProvider: string;
-    createdAt: string;
-    updatedAt: string;
-  } | null;
+  user: IUser | null;
 
   getMe: () => void;
   logout: () => void;
@@ -34,26 +37,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
 
-      let authRes = await apiCallHandler<
-        {
-          id: string;
-          name: string;
-          email: string;
-          username: string;
-          role: string;
-          avatar?: string;
-          isEmailVerified: boolean;
-          authProvider: string;
-          createdAt: string;
-          updatedAt: string;
-        },
-        undefined
-      >("/auth/me", "GET");
+      let authRes = await apiCallHandler<IUser, undefined>("/auth/me", "GET");
 
       if (authRes.success && authRes.data) {
         set({
           isAuthenticated: true,
           user: authRes.data,
+          isAuthLoading: false,
         });
         return;
       }
@@ -63,35 +53,23 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         toast.error("Session expired. Please log in again.");
         return;
       }
-      authRes = await apiCallHandler<
-        {
-          id: string;
-          name: string;
-          email: string;
-          username: string;
-          role: string;
-          avatar?: string;
-          isEmailVerified: boolean;
-          authProvider: string;
-          createdAt: string;
-          updatedAt: string;
-        },
-        undefined
-      >("/auth/me", "GET");
+      authRes = await apiCallHandler<IUser, undefined>("/auth/me", "GET");
 
       if (authRes.success && authRes.data) {
         set({
           isAuthenticated: true,
           user: authRes.data,
+          isAuthLoading: false,
         });
         return;
       }
       toast.error("Session expired. Please log in again.");
     } catch (error) {
+      toast.error("An error occurred while fetching user data");
     } finally {
-      set({
-        isAuthLoading: false,
-      });
+      if (get().isAuthLoading) {
+        set({ isAuthLoading: false });
+      }
     }
   },
 
@@ -103,6 +81,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         set({
           isAuthenticated: false,
           user: null,
+          isAuthLoading: false,
         });
         toast.success("Logged out successfully");
       } else {
@@ -111,9 +90,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch (error) {
       toast.error("An error occurred while logging out");
     } finally {
-      set({
-        isAuthLoading: false,
-      });
+      if (get().isAuthLoading) {
+        set({ isAuthLoading: false });
+      }
     }
   },
 }));
