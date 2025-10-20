@@ -261,14 +261,18 @@ model Sheet {
   name        String
   description String?
   userId      String
+  isPublic    Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  copyFromSheetId String?
 
   //RELATIONSHIPS
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  copiedFromSheet Sheet? @relation("SheetCopyRelation", fields: [copyFromSheetId], references: [id], onDelete: SetNull)
 
   //RELATIONSHIPS
   problems ProblemInSheet[]
+  copiedSheets Sheet[] @relation("SheetCopyRelation")
 
   //INDEXES
   @@unique([name, userId]) // unique playlist names per user
