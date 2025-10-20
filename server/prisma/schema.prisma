@@ -1,5 +1,5 @@
 generator client {
-  provider               = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -29,53 +29,53 @@ enum LANGUAGE {
   JAVASCRIPT
 }
 
-enum AiMessageRole{
+enum AiMessageRole {
   user
   assistant
   system
 }
 
 model User {
-  id                           String    @id @default(uuid())
+  id                           String       @id @default(uuid())
   name                         String
-  username                     String    @unique
-  email                        String    @unique
+  username                     String       @unique
+  email                        String       @unique
   avatar                       String?
-  role                         USER_ROLE @default(USER)
+  role                         USER_ROLE    @default(USER)
   authProvider                 AuthProvider @default(GOOGLE)
   password                     String?
-  isEmailVerified              Boolean   @default(false)
-  emailVerificationToken       String?   @unique
+  isEmailVerified              Boolean      @default(false)
+  emailVerificationToken       String?      @unique
   emailVerificationTokenExpiry DateTime?
-  forgotPasswordToken          String?   @unique
+  forgotPasswordToken          String?      @unique
   forgotPasswordTokenExpiry    DateTime?
-  createdAt                    DateTime  @default(now())
-  updatedAt                    DateTime  @updatedAt
+  createdAt                    DateTime     @default(now())
+  updatedAt                    DateTime     @updatedAt
 
   //RELATIONSHIPS
-  problemsCreated             Problem[]
-  submissions          Submission[]
-  problemsSolved       ProblemSolved[]
-  sheets               Sheet[]
-  dashboardStats       DashboardStats[]
-  sessions             Session[]
-  discussions          Discussion[]
-  contests             Contest[]
+  problemsCreated       Problem[]
+  submissions           Submission[]
+  problemsSolved        ProblemSolved[]
+  sheets                Sheet[]
+  dashboardStats        DashboardStats[]
+  sessions              Session[]
+  discussions           Discussion[]
+  contests              Contest[]
   contestParticipations ContestParticipation[]
-  userActivities       UserActivity[]
-  aiChatHistories      AiChatHistory[]
+  userActivities        UserActivity[]
+  aiChatHistories       AiChatHistory[]
+
   //INDEXES
   @@index([username])
   @@index([email])
 }
 
-
 model UserActivity {
-  id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    String
-  date      DateTime   // exact timestamp
-  noOfSubmissionsDone Int @default(0) // to track if any submission was done in this login session
+  id                  String   @id @default(uuid())
+  user                User     @relation(fields: [userId], references: [id])
+  userId              String
+  date                DateTime // exact timestamp
+  noOfSubmissionsDone Int      @default(0) // to track if any submission was done in this login session
 }
 
 model Session {
@@ -92,7 +92,7 @@ model Session {
   //INDEXES
   @@index([userId])
   @@index([token])
-  @@index([token,userId])
+  @@index([token, userId])
 }
 
 model DashboardStats {
@@ -115,30 +115,30 @@ model DashboardStats {
 }
 
 model Problem {
-  id          String     @id @default(uuid())
-  createdByUserId      String
-  slug       String     @unique
-  title       String
-  description String
-  difficulty  DIFFICULTY
-  tags        String[]   @default([]) // ["tag1", "tag2", "tag3"] 
-  constraints String[]   @default([])
-  hints       String[]   @default([])
-  editorial   String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id              String     @id @default(uuid())
+  createdByUserId String
+  slug            String     @unique
+  title           String
+  description     String
+  difficulty      DIFFICULTY
+  tags            String[]   @default([]) // ["tag1", "tag2", "tag3"] 
+  constraints     String[]   @default([])
+  hints           String[]   @default([])
+  editorial       String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   //RELATIONSHIPS
-  createdByUser               User                        @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
+  createdByUser User @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
 
   //RELATIONSHIPS
-  testcases          TestCases[]
-  problemDetails     ProblemDetails[]
-  submissions        Submission[]
-  solvedBy           ProblemSolved[]
-  sheets             ProblemInSheet[]
-  discussions        Discussion[]
-  contestProblem     ContestProblem[]
+  testcases      TestCases[]
+  problemDetails ProblemDetails[]
+  submissions    Submission[]
+  solvedBy       ProblemSolved[]
+  sheets         ProblemInSheet[]
+  discussions    Discussion[]
+  contestProblem ContestProblem[]
 
   //INDEXES
   @@index([createdByUserId])
@@ -149,34 +149,32 @@ model Problem {
 }
 
 model TestCases {
-  id        Int      @id @default(autoincrement())
-  problemId String
-  input     String
-  output    String
+  id          Int      @id @default(autoincrement())
+  problemId   String
+  input       String
+  output      String
   explanation String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   //RELATIONSHIPS
-  problem Problem @relation(fields: [problemId], references: [id])
+  problem         Problem          @relation(fields: [problemId], references: [id])
   testCaseResults TestCaseResult[]
 
   //INDEXES
   @@index([problemId])
 }
 
-
-
 model ProblemDetails {
-  id               Int      @id @default(autoincrement())
-  problemId        String
-  language         LANGUAGE
-  codeSnippet      String
-  backgroundCode             String
+  id                Int      @id @default(autoincrement())
+  problemId         String
+  language          LANGUAGE
+  codeSnippet       String
+  backgroundCode    String
   referenceSolution String
-  whereToWriteCode String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  whereToWriteCode  String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   //RELATIONSHIPS
   problem Problem @relation(fields: [problemId], references: [id])
@@ -226,7 +224,7 @@ model Submission {
 model TestCaseResult {
   id            String   @id @default(uuid())
   submissionId  String
-  testCaseId      Int
+  testCaseId    Int
   passed        Boolean
   stdout        String?
   expected      String
@@ -239,7 +237,7 @@ model TestCaseResult {
   updatedAt     DateTime @updatedAt
 
   //RELATIONSHIPS
-  testcase TestCases @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+  testcase   TestCases  @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
   submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   //INDEXES
@@ -263,37 +261,37 @@ model ProblemSolved {
 }
 
 model Sheet {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  userId      String
-  isPublic    Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  userId          String
+  isPublic        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   copyFromSheetId String?
 
   //RELATIONSHIPS
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   copiedFromSheet Sheet? @relation("SheetCopyRelation", fields: [copyFromSheetId], references: [id], onDelete: SetNull)
 
   //RELATIONSHIPS
-  problems ProblemInSheet[]
-  copiedSheets Sheet[] @relation("SheetCopyRelation")
+  problems     ProblemInSheet[]
+  copiedSheets Sheet[]          @relation("SheetCopyRelation")
 
   //INDEXES
   @@unique([name, userId]) // unique playlist names per user
 }
 
 model ProblemInSheet {
-  id         String   @id @default(uuid())
-  sheetId    String
-  problemId  String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(uuid())
+  sheetId   String
+  problemId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   //RELATIONSHIPS
-  sheet Sheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
-  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  sheet   Sheet   @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   //INDEXES
   @@unique([sheetId, problemId])
@@ -383,9 +381,6 @@ model ContestParticipation {
   @@index([userId])
 }
 
-
-
-
 model AiChatHistory {
   id        String   @id @default(uuid())
   userId    String
@@ -394,20 +389,24 @@ model AiChatHistory {
   updatedAt DateTime @updatedAt
 
   //RELATIONSHIPS
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages AiChatMessages[]
+
+  @@unique([userId, problemId])
   //INDEXES
-  @@index([userId])
+  @@index([userId, problemId])
 }
 
 model AiChatMessages {
-  id        String   @id @default(uuid())
+  id            String        @id @default(uuid())
   chatHistoryId String
-  message   String
-  role      AiMessageRole @default(user)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  message       String
+  role          AiMessageRole @default(user)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-
+  //Relationships
   chatHistory AiChatHistory @relation(fields: [chatHistoryId], references: [id], onDelete: Cascade)
+
+  @@index([chatHistoryId])
 }
