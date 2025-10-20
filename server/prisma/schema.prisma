@@ -50,7 +50,7 @@ model User {
   problemsCreated             Problem[]
   submissions          Submission[]
   problemsSolved       ProblemSolved[]
-  playlists            Playlist[]
+  sheets               Sheet[]
   dashboardStats       DashboardStats[]
   sessions             Session[]
   discussions          Discussion[]
@@ -130,7 +130,7 @@ model Problem {
   problemDetails     ProblemDetails[]
   submissions        Submission[]
   solvedBy           ProblemSolved[]
-  playlist           ProblemInPlaylist[]
+  sheets             ProblemInSheet[]
   discussions        Discussion[]
   contestProblem     ContestProblem[]
 
@@ -256,7 +256,7 @@ model ProblemSolved {
   @@index([userId])
 }
 
-model Playlist {
+model Sheet {
   id          String   @id @default(uuid())
   name        String
   description String?
@@ -268,25 +268,25 @@ model Playlist {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   //RELATIONSHIPS
-  problems ProblemInPlaylist[]
+  problems ProblemInSheet[]
 
   //INDEXES
   @@unique([name, userId]) // unique playlist names per user
 }
 
-model ProblemInPlaylist {
+model ProblemInSheet {
   id         String   @id @default(uuid())
-  playlistId String
+  sheetId    String
   problemId  String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   //RELATIONSHIPS
-  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  sheet Sheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
   problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   //INDEXES
-  @@unique([playlistId, problemId])
+  @@unique([sheetId, problemId])
 }
 
 model Discussion {
