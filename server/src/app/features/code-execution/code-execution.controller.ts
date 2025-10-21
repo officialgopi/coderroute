@@ -5,6 +5,8 @@ import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
 import {
   codeRunExecutionBodySchema,
   codeRunExecutionParamsSchema,
+  codeSubmitExecutionBodySchema,
+  codeSubmitExecutionParamsSchema,
 } from "./code-execution.schema";
 import { executeCodeService } from "./code-execution.service";
 
@@ -86,7 +88,9 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized");
   }
 
-  const paramsSchemaData = codeRunExecutionParamsSchema.safeParse(req.params);
+  const paramsSchemaData = codeSubmitExecutionParamsSchema.safeParse(
+    req.params
+  );
 
   if (!paramsSchemaData.success || !paramsSchemaData.data) {
     throw new ApiError(400, "Invalid request data");
@@ -94,7 +98,7 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
 
   const { problemId } = paramsSchemaData.data;
 
-  const bodySchemaData = codeRunExecutionBodySchema.safeParse(req.body);
+  const bodySchemaData = codeSubmitExecutionBodySchema.safeParse(req.body);
 
   if (!bodySchemaData.success || !bodySchemaData.data) {
     throw new ApiError(400, "Invalid request data");
