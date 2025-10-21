@@ -187,9 +187,6 @@ model Submission {
   problemId     String
   sourceCode    String
   language      LANGUAGE
-  stdin         String?
-  stdout        String?
-  stderr        String?
   compileOutput String?
   status        String // Accepted , wrong answer
   memory        String?
