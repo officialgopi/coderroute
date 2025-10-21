@@ -29,10 +29,13 @@ const codeRunExecute = AsyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid request data");
   }
 
-  const { source_code, languageId, stdin, expectedOutput } =
-    bodySchemaData.data;
+  const { source_code, language, stdin, expectedOutput } = bodySchemaData.data;
 
-  const language = Judge0.getJudge0LanguageName(languageId) as LANGUAGE;
+  const languageId = Judge0.getJudge0LanguageId(language);
+
+  if (!languageId) {
+    throw new ApiError(400, "Invalid language");
+  }
 
   const problem = await db.problem.findUnique({
     where: {
@@ -41,7 +44,7 @@ const codeRunExecute = AsyncHandler(async (req, res) => {
     include: {
       problemDetails: {
         where: {
-          language: language,
+          language: language as LANGUAGE,
         },
       },
     },
@@ -104,9 +107,12 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid request data");
   }
 
-  const { source_code, languageId } = bodySchemaData.data;
+  const { source_code, language } = bodySchemaData.data;
 
-  const language = Judge0.getJudge0LanguageName(languageId) as LANGUAGE;
+  const languageId = Judge0.getJudge0LanguageId(language);
+  if (!languageId) {
+    throw new ApiError(400, "Invalid language");
+  }
 
   const problem = await db.problem.findUnique({
     where: {
@@ -116,7 +122,7 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
       testcases: true,
       problemDetails: {
         where: {
-          language: language,
+          language: language as LANGUAGE,
         },
       },
     },
@@ -152,7 +158,7 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
     data: {
       userId: req.user.id,
       problemId: problem.id,
-      language: language,
+      language: language as LANGUAGE,
       sourceCode: source_code,
       status: result.data?.allPassed ? "ACCEPTED" : "WRONG_ANSWER",
       compileOutput: result.data?.detailedResults?.some(
