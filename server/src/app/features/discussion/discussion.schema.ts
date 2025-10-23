@@ -8,6 +8,10 @@ const createDiscussionBodySchema = z.object({
 
 const getDiscussionsQuerySchema = z.object({
   problemId: z.string().optional(),
+  page: z
+    .string()
+    .transform((val) => parseInt(val))
+    .optional(),
 });
 
 const getDiscussionRepliesParamsSchema = z.object({

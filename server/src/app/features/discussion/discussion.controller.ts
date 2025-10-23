@@ -63,6 +63,8 @@ const getDiscussions = AsyncHandler(async (req, res) => {
             problemId: null,
           }),
     },
+    skip: 10 * ((data?.page ?? 1) - 1),
+    take: 10,
     include: {
       user: true,
       _count: {
