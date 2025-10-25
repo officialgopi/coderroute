@@ -1,5 +1,4 @@
-import { cn } from "../../utils/cn.util";
-
+import { cn } from "../../lib/utils";
 const Container = ({
   className,
   children,
@@ -10,7 +9,7 @@ const Container = ({
   return (
     <div
       className={cn(
-        "container mx-auto px-4 ",
+        " mx-auto px-4 ",
         "lg:max-w-5xl  md:max-w-3xl sm:max-w-xl w-full",
         className
       )}

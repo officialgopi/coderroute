@@ -2,6 +2,8 @@ import { lazy } from "react";
 import { Routes, Route } from "react-router-dom";
 import AuthLayout from "../components/layouts/AuthLayout";
 import ProtectedRoute from "../components/protected-route/ProtectedRoute";
+import MainLayout from "@/components/layouts/MainLayout";
+import ProblemsPage from "@/pages/(problems)/ProblemsPage";
 
 // PAGES
 const LandingPage = lazy(() => import("../pages/LandingPage"));
@@ -16,7 +18,11 @@ const Router = () => {
           <Route path="/login" element={<LoginPage />} />
         </Route>
       </Route>
-      <Route element={<ProtectedRoute />}></Route>
+      <Route element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/problems" element={<ProblemsPage />} />
+        </Route>
+      </Route>
     </Routes>
   );
 };
