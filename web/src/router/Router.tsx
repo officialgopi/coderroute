@@ -5,7 +5,6 @@ import ProtectedRoute from "../components/protected-route/ProtectedRoute";
 
 // PAGES
 const LandingPage = lazy(() => import("../pages/LandingPage"));
-const SignupPage = lazy(() => import("../pages/(auth)/Signup"));
 const LoginPage = lazy(() => import("../pages/(auth)/Login"));
 
 const Router = () => {
@@ -14,7 +13,6 @@ const Router = () => {
       <Route path="/" element={<LandingPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AuthLayout />}>
-          <Route path="/signup" element={<SignupPage />} />
           <Route path="/login" element={<LoginPage />} />
         </Route>
       </Route>

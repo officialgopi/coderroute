@@ -8,7 +8,7 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative min-h-[90vh] flex flex-col items-center justify-center  bg-white dark:bg-neutral-950 transition-colors "
+      className="relative min-h-screen flex flex-col items-center justify-center  bg-white dark:bg-neutral-950 transition-colors "
       ref={sectionRef}
     >
       {/* === Background Gradient Glow Layers === */}
