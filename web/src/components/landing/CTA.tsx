@@ -79,7 +79,7 @@ export const CTA = () => {
                    hover:bg-neutral-800 dark:hover:bg-neutral-200
                    transition duration-300"
           >
-            <Link to="/sign-up">✦ Start Training</Link>
+            <Link to="/login">✦ Start Training</Link>
           </Button>
         </motion.div>
 

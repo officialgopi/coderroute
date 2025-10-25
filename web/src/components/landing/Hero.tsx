@@ -63,7 +63,7 @@ export default function HeroSection() {
           <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
             <motion.a
               whileTap={{ scale: 0.97 }}
-              href="/signup"
+              href="/login"
               className="relative px-6 py-3 rounded-xl font-medium text-sm bg-neutral-900 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 shadow-md transition-colors hover:bg-neutral-800 dark:hover:bg-neutral-200"
             >
               {/* subtle glow */}

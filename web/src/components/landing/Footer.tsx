@@ -1,5 +1,3 @@
-"use client";
-
 import { motion, type Variants } from "framer-motion";
 
 export const Footer = () => {
@@ -32,7 +30,7 @@ export const Footer = () => {
   return (
     <footer
       id="footer"
-      className="relative p-2 px-6 pt-20 pb-12 border-t border-neutral-300 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 transition-colors"
+      className="relative p-2 px-6 pt-20 pb-12 border-t border-neutral-300 dark:border-neutral-800 bg-neutral-50 overflow-hidden dark:bg-neutral-950 transition-colors"
     >
       {/* background glows */}
       <motion.div
