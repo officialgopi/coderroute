@@ -96,3 +96,5 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 }));
+
+export type { IUser };
