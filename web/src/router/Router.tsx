@@ -6,6 +6,7 @@ import MainLayout from "@/components/layouts/MainLayout";
 import ProblemsPage from "@/pages/(problems)/ProblemsPage";
 import CodeEditorLayout from "@/components/layouts/CodeEditorLayout";
 import CodeEditorPage from "@/pages/(problems)/CodeEditorPage";
+import DiscussionsPage from "@/pages/(discussions)/DiscussionsPage";
 
 // PAGES
 const LandingPage = lazy(() => import("../pages/LandingPage"));
@@ -23,6 +24,7 @@ const Router = () => {
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/problems" element={<ProblemsPage />} />
+          <Route path="/discussions" element={<DiscussionsPage />} />
         </Route>
       </Route>
       <Route element={<CodeEditorLayout />}>
