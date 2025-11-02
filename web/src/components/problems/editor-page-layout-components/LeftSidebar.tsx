@@ -8,7 +8,7 @@ const tabs = [
   { label: "Submissions", icon: ListChecks },
 ];
 
-export const LeftSidebar = ({
+const LeftSidebar = ({
   activeTab,
   setActiveTab,
 }: {
@@ -36,3 +36,5 @@ export const LeftSidebar = ({
     ))}
   </motion.div>
 );
+
+export default LeftSidebar;

@@ -1,4 +1,4 @@
-export const ProblemDescription = () => (
+const ProblemDescription = () => (
   <div className="p-6 ">
     <h2 className="text-xl font-semibold mb-2 ">1. Two Sum</h2>
     <p className="mb-3">
@@ -12,3 +12,5 @@ export const ProblemDescription = () => (
     </div>
   </div>
 );
+
+export default ProblemDescription;

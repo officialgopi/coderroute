@@ -1,6 +1,15 @@
 import { motion, type Variants } from "framer-motion";
 
 export const Footer = () => {
+  const socialLinks = [
+    {
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/gopikanta-mondal/",
+    },
+    { label: "Twitter", href: "https://x.com/devofficialgopi" },
+    { label: "GitHub", href: "https://github.com/officialgopi" },
+  ];
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -95,26 +104,15 @@ export const Footer = () => {
             Connect
           </h3>
           <ul className="space-y-2 text-neutral-600 dark:text-neutral-400">
-            {[
-              {
-                name: "LinkedIn",
-                href: "https://www.linkedin.com/in/officialgopi/",
-              },
-              { name: "Twitter", href: "https://x.com/officialgopi" },
-              { name: "GitHub", href: "https://github.com/officialgopi" },
-              {
-                name: "YouTube",
-                href: "https://www.youtube.com/@officialgopi",
-              },
-            ].map((social) => (
-              <li key={social.name}>
+            {socialLinks.map((social) => (
+              <li key={social.label}>
                 <a
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
                 >
-                  {social.name}
+                  {social.label}
                 </a>
               </li>
             ))}

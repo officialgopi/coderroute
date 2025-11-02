@@ -74,6 +74,7 @@ const FeaturesSection = () => {
     <section
       ref={ref}
       className="relative  px-6 sm:px-10 lg:px-20  transition-colors duration-300 w-full"
+      id="features"
     >
       {/* background glow */}
       {/* <div className="absolute inset-0 flex justify-center">

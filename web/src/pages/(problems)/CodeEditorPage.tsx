@@ -1,9 +1,26 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { LeftSidebar } from "@/components/problems/editor-page-layout-components/LeftSidebar";
-import { ProblemDescription } from "@/components/problems/editor-page-layout-components/ProblemDescription";
-import { CodeEditorPane } from "@/components/problems/editor-page-layout-components/CodeEditorPane";
-import TestCases from "@/components/problems/editor-page-layout-components/TestCases";
+
+const LeftSidebar = lazy(
+  () =>
+    import("@/components/problems/editor-page-layout-components/LeftSidebar")
+);
+
+const ProblemDescription = lazy(
+  () =>
+    import(
+      "@/components/problems/editor-page-layout-components/ProblemDescription"
+    )
+);
+
+const CodeEditorPane = lazy(
+  () =>
+    import("@/components/problems/editor-page-layout-components/CodeEditorPane")
+);
+
+const TestCases = lazy(
+  () => import("@/components/problems/editor-page-layout-components/TestCases")
+);
 
 const CodeEditorPage = () => {
   const [activeTab, setActiveTab] = useState("Description");
@@ -35,14 +52,19 @@ const CodeEditorPage = () => {
         autoSaveId="coderroute-problem-layout"
       >
         {/* Left Panel */}
+
         <Panel
           defaultSize={40}
           minSize={25}
           maxSize={55}
           className="overflow-y-auto border-r border-neutral-800"
         >
-          <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-          {activeTab === "Description" && <ProblemDescription />}
+          <Suspense fallback={<div>Loading...</div>}>
+            <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+          </Suspense>
+          <Suspense fallback={<div>Loading...</div>}>
+            {activeTab === "Description" && <ProblemDescription />}
+          </Suspense>
         </Panel>
 
         {/* Resize Handle */}
@@ -53,7 +75,9 @@ const CodeEditorPage = () => {
           <PanelGroup direction="vertical">
             {/* Code Editor */}
             <Panel defaultSize={70} minSize={50}>
-              <CodeEditorPane />
+              <Suspense fallback={<div>Loading...</div>}>
+                <CodeEditorPane />
+              </Suspense>
             </Panel>
 
             {/* Resize Handle */}
@@ -62,7 +86,9 @@ const CodeEditorPage = () => {
             {/* Testcase Section */}
             <Panel defaultSize={30} minSize={15}>
               {/* <TestcasePanel /> */}
-              <TestCases testCases={testCases} />
+              <Suspense fallback={<div>Loading...</div>}>
+                <TestCases testCases={testCases} />
+              </Suspense>
             </Panel>
           </PanelGroup>
         </Panel>

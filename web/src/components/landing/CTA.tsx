@@ -27,6 +27,7 @@ export const CTA = () => {
       ref={sectionRef}
       className="relative flex flex-col items-center justify-center py-32 px-6 sm:px-10 lg:px-20 text-center 
                transition-colors duration-300  font-[Inter]"
+      id="cta"
     >
       {/* Background glow gradients */}
       <Glow />

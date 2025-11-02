@@ -5,14 +5,14 @@ import { AnimatedGridPattern } from "../ui/animated-grid-pattern";
 
 const MainLayout = () => {
   return (
-    <div className="w-full flex flex-col justify-center items-center overflow-x-hidden relative  ">
+    <div className="w-full  flex flex-col justify-center items-center overflow-x-hidden relative  mx-auto">
       <MainNavbar />
       <AnimatedGridPattern
         toLeft
         className="hidden  sm:block fixed z-0 left-0  top-0 sm:w-[100px] xl:w-[200px] "
       />
-      <div className="w-full flex    mt-16">
-        <Container className="min-h-[calc(100vh-64px)] border-x  ">
+      <div className="w-full flex    max-w-3xl  mt-16 ">
+        <Container className="min-h-[calc(100vh-64px)] pt-8 border-x  ">
           <Outlet />
         </Container>
       </div>

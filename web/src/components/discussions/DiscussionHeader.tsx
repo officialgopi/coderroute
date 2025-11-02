@@ -24,7 +24,7 @@ export const DiscussionHeader = () => {
         </div>
         <Button
           variant={"outline"}
-          onClick={() => navigate("/discussion/create")}
+          onClick={() => navigate("/discussions/create")}
           className="flex items-center gap-2 text-sm "
         >
           ✨ Start Discussion

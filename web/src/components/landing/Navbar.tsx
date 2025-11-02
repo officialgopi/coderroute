@@ -1,30 +1,45 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, Loader2 } from "lucide-react";
 import { useThemeStore } from "@/lib/theme.lib";
+import { Link } from "react-router-dom";
+import { useAuthStore } from "@/store/auth.store";
 
 export default function Navbar() {
   const { theme, toggleTheme } = useThemeStore();
+  const { user, isAuthLoading } = useAuthStore();
 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navLinks = [
-    { name: "Features", href: "#features" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "Community", href: "#community" },
+  const navLinks: {
+    label: string;
+    href: string;
+  }[] = [
+    {
+      label: "Features",
+      href: "#features",
+    },
+    {
+      label: "Faqs",
+      href: "#faqs",
+    },
+    {
+      label: "CTA",
+      href: "#cta",
+    },
   ];
 
   return (
     <motion.nav
-      initial={{ opacity: 0, filter: "blur(6px)", scale: 0.97 }}
-      animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
+      initial={{ opacity: 0, filter: "blur(6px)" }}
+      animate={{ opacity: 1, filter: "blur(0px)" }}
       transition={{ duration: 0.5, ease: "easeOut" }}
       className="fixed top-0 left-0 w-full z-50 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-950/60"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* --- Logo Area --- */}
-          <div className="flex items-center gap-3 w-1/3 ">
+          <a href="/#hero" className="flex items-center gap-3 w-1/3 ">
             <div className="w-9 h-9 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
               {/* Replace this with your logo */}
               <img
@@ -39,21 +54,21 @@ export default function Navbar() {
                 Route
               </span>
             </h1>
-          </div>
+          </a>
 
           {/* --- Desktop Menu --- */}
           <div className="hidden md:flex items-center gap-8 w-1/3 justify-center">
             {navLinks.map((link) => (
               <a
-                key={link.name}
+                key={link.label}
                 href={link.href}
                 className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-950 dark:hover:text-white transition-colors font-sans"
               >
-                {link.name}
+                {link.label}
               </a>
             ))}
           </div>
-          <div className="hidden md:flex items-center gap-8 w-1/3 justify-end">
+          <div className="hidden md:flex items-center gap-2 w-1/3 justify-end">
             {/* --- Theme Toggle --- */}
             <button
               onClick={() => toggleTheme()}
@@ -61,6 +76,27 @@ export default function Navbar() {
             >
               {theme === "dark" ? <Moon size={18} /> : <Sun size={18} />}
             </button>
+            {isAuthLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : user ? (
+              <Link to={`/${user.username}`}>
+                <motion.img
+                  whileHover={{ opacity: 0.9 }}
+                  src={user.avatar} // replace with user's avatar
+                  alt="User Avatar"
+                  className="w-9 h-9 rounded-full border border-neutral-300 dark:border-neutral-700"
+                />
+              </Link>
+            ) : (
+              <Link to={"/login"}>
+                <motion.div
+                  whileHover={{ opacity: 0.9 }}
+                  className="px-4 py-2 rounded-full bg-neutral-900 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 font-medium text-sm"
+                >
+                  Login
+                </motion.div>
+              </Link>
+            )}
           </div>
 
           {/* --- Mobile Menu Button --- */}
@@ -93,11 +129,11 @@ export default function Navbar() {
           <div className="px-4 pt-3 pb-4 space-y-2">
             {navLinks.map((link) => (
               <a
-                key={link.name}
+                key={link.label}
                 href={link.href}
                 className="block px-3 py-2 rounded-md text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
               >
-                {link.name}
+                {link.label}
               </a>
             ))}
           </div>

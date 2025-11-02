@@ -1,8 +1,11 @@
 import { useThemeStore } from "@/lib/theme.lib";
+import { useAuthStore } from "@/store/auth.store";
 import { Moon, Settings, Sun } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const RightSection = ({ onOpenSettings }: { onOpenSettings: () => void }) => {
   const { theme, toggleTheme } = useThemeStore();
+  const { user } = useAuthStore();
   return (
     <div className="flex items-center gap-4 flex-1 justify-end">
       <div className=" md:flex items-center gap-8   ">
@@ -20,11 +23,13 @@ const RightSection = ({ onOpenSettings }: { onOpenSettings: () => void }) => {
       >
         <Settings className="w-5 h-5 " />
       </button>
-      <img
-        src="/avatar.png"
-        alt="User Avatar"
-        className="w-8 h-8 rounded-full border border-neutral-700"
-      />
+      <Link to={`/{user?.username}`}>
+        <img
+          src={user?.avatar}
+          alt="User Avatar"
+          className="w-8 h-8 rounded-full border border-neutral-700"
+        />
+      </Link>
     </div>
   );
 };

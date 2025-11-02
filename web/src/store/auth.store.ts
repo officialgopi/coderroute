@@ -20,12 +20,12 @@ interface AuthState {
   isAuthenticated: boolean;
   user: IUser | null;
 
-  getMe: () => void;
-  logout: () => void;
+  getMe: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  isAuthLoading: false,
+  isAuthLoading: true,
   isAuthenticated: false,
   user: null,
 
@@ -37,12 +37,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         return;
       }
 
-      let authRes = await apiCallHandler<undefined, IUser>("/auth/me", "GET");
+      let authRes = await apiCallHandler<undefined, { user: IUser }>(
+        "/auth/me",
+        "GET"
+      );
 
       if (authRes.success && authRes.data) {
         set({
           isAuthenticated: true,
-          user: authRes.data,
+          user: authRes.data.user,
           isAuthLoading: false,
         });
         return;
@@ -53,12 +56,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         toast.error("Session expired. Please log in again.");
         return;
       }
-      authRes = await apiCallHandler<undefined, IUser>("/auth/me", "GET");
+      authRes = await apiCallHandler<undefined, { user: IUser }>(
+        "/auth/me",
+        "GET"
+      );
 
       if (authRes.success && authRes.data) {
         set({
           isAuthenticated: true,
-          user: authRes.data,
+          user: authRes.data.user,
           isAuthLoading: false,
         });
         return;

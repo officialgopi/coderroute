@@ -33,10 +33,10 @@ const ProblemsPage = () => {
   ];
 
   return (
-    <div className="w-full   px-6 py-8 ">
+    <div className="w-full    ">
       <div className=" mx-auto space-y-6">
         <div className="flex flex-col sm:flex-row gap-2 sm:items-center justify-between">
-          <h1 className="text-lg font-semibold  ">Problems</h1>
+          <h1 className="text-2xl font-semibold  ">Problems</h1>
           <ProblemSearchModal problems={problems} />
         </div>
 

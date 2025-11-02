@@ -31,7 +31,7 @@ const discussions = [
 
 export const DiscussionList = () => {
   return (
-    <div className="pt-5 max-w-3xl mx-auto">
+    <div className=" mx-auto">
       <DiscussionHeader />
       <div className=" flex flex-col gap-2 px-5">
         {discussions.map((d) => (

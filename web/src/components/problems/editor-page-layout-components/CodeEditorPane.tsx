@@ -1,6 +1,6 @@
 import Editor from "@monaco-editor/react";
 
-export const CodeEditorPane = () => (
+const CodeEditorPane = () => (
   <div className="h-full flex flex-col ">
     <div className="flex items-center justify-between px-4 py-2 border-b border-neutral-800">
       <select className=" rounded px-2 py-1 text-sm">
@@ -19,3 +19,5 @@ export const CodeEditorPane = () => (
     />
   </div>
 );
+
+export default CodeEditorPane;

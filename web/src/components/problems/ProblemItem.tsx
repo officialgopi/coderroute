@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import type { IProblem } from "@/store/problem.store";
+import { Link } from "react-router-dom";
 
 export type { IProblem };
 
@@ -36,9 +37,9 @@ export const ProblemItem: React.FC<ProblemItemProps> = ({ problem, index }) => {
       <div className="flex items-center gap-3 hover:text-neutral-500 dark:hover:text-neutral-200">
         <Check className="w-4 h-4  opacity-70 text-emerald-600" />
         <span className="text-neutral-400">{index + 1}.</span>
-        <a href={`/problems/${problem.id}`} className="  transition-colors">
+        <Link to={`/problems/${problem.id}`} className="  transition-colors">
           {problem.title}
-        </a>
+        </Link>
       </div>
 
       {/* Right section */}
