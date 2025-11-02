@@ -92,6 +92,13 @@ const getSheetById = AsyncHandler(async (req, res) => {
     where: {
       id: sheetId,
     },
+    include: {
+      problems: {
+        include: {
+          problem: true,
+        },
+      },
+    },
   });
 
   if (!sheet) {
