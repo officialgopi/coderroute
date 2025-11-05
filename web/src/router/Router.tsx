@@ -45,12 +45,10 @@ const SheetsDetailsPage = lazy(
 const UserProfilePage = lazy(() => import("@/pages/(profile)/UserProfilePage"));
 
 const Router = () => {
-  const { isAuthLoading, getMe, user } = useAuthStore();
+  const { isAuthLoading, getMe } = useAuthStore();
 
   useEffect(() => {
-    getMe().then(() => {
-      console.log(user);
-    });
+    getMe();
   }, []);
 
   return (

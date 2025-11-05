@@ -31,6 +31,8 @@ interface SheetState {
   }) => Promise<void>;
 
   getSheets: () => Promise<void>;
+
+  getSheetById: (sheetId: string) => Promise<ISheet | undefined>;
 }
 
 export const useSheetStore = create<SheetState>((set, get) => ({
@@ -91,6 +93,47 @@ export const useSheetStore = create<SheetState>((set, get) => ({
       toast.error("An error occurred while fetching sheets");
     } finally {
       if (get().isSheetsLoading) set({ isSheetsLoading: false });
+    }
+  },
+
+  getSheetById: async (sheetId: string) => {
+    if (get().sheets?.find((sheet) => sheet.id === sheetId)?.problems) {
+      return get().sheets?.find((sheet) => sheet.id === sheetId);
+    }
+    try {
+      const res = await apiCallHandler<null, { sheet: ISheet }>(
+        `/sheet/${sheetId}`,
+        "GET"
+      );
+
+      if (!res.success || !res.data) {
+        toast.error("Failed to fetch sheet");
+        return undefined;
+      }
+
+      const newSheet = res.data.sheet;
+      const currentSheets = get().sheets || [];
+      const sheetExists = currentSheets.find(
+        (sheet) => sheet.id === newSheet.id
+      );
+
+      let updatedSheets: ISheet[];
+      if (sheetExists) {
+        updatedSheets = currentSheets.map((sheet) =>
+          sheet.id === newSheet.id ? newSheet : sheet
+        );
+      } else {
+        updatedSheets = [newSheet, ...currentSheets];
+      }
+
+      set({
+        sheets: updatedSheets,
+      });
+
+      return res.data.sheet;
+    } catch (error) {
+      toast.error("An error occurred while fetching the sheet");
+      return undefined;
     }
   },
 }));
