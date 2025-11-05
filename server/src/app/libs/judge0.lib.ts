@@ -43,7 +43,8 @@ class Judge0Sdk {
         "Content-Type": "application/json",
         ...(apiKey
           ? {
-              Authorization: `Bearer ${apiKey}`,
+              "x-rapidapi-key": `${apiKey}`,
+              "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
             }
           : {}),
       },
