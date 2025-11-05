@@ -36,6 +36,12 @@ const createDiscussion = AsyncHandler(async (req, res) => {
       problemId: data.problemId ?? undefined,
       userId: req.user.id,
     },
+    include: {
+      user: true,
+      _count: {
+        select: { replies: true },
+      },
+    },
   });
 
   new ApiResponse(
@@ -71,6 +77,9 @@ const getDiscussions = AsyncHandler(async (req, res) => {
         select: { replies: true },
       },
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   new ApiResponse(
@@ -99,8 +108,16 @@ const getDiscussionReplies = AsyncHandler(async (req, res) => {
     where: {
       parentId: data.discussionId,
     },
+
     include: {
       user: true,
+      _count: {
+        select: { replies: true },
+      },
+    },
+
+    orderBy: {
+      createdAt: "desc",
     },
   });
 

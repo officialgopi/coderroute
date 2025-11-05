@@ -54,8 +54,15 @@ export const useDiscussionStore = create<DiscussionState>((set, get) => ({
       });
 
       if (response.success && response.data) {
+        const newResponses = response.data.discussions.filter(
+          (newDiscussion) =>
+            !get()
+              .discussions.map((d) => d.id)
+              .includes(newDiscussion.id)
+        );
+
         set({
-          discussions: [...get().discussions, ...response.data.discussions],
+          discussions: [...get().discussions, ...newResponses],
           isDiscussionsLoading: false,
           page: get().page + 1,
         });
@@ -80,10 +87,11 @@ export const useDiscussionStore = create<DiscussionState>((set, get) => ({
       });
 
       if (response.success && response.data) {
-        set({
-          discussions: [response.data.discussion, ...get().discussions],
-          isDiscussionCreating: false,
-        });
+        if (!response.data.discussion.parentId)
+          set({
+            discussions: [response.data.discussion, ...get().discussions],
+            isDiscussionCreating: false,
+          });
         toast.success("Discussion created successfully.");
       }
     } catch (error) {
@@ -122,35 +130,14 @@ export const useDiscussionStore = create<DiscussionState>((set, get) => ({
   },
 
   getDiscussionReplies: async (parentId: string): Promise<IDiscussion[]> => {
-    if (
-      get().discussions.find((discussion) => discussion.id === parentId)
-        ?.replies?.length
-    ) {
-      return (
-        get().discussions.find((discussion) => discussion.id === parentId)
-          ?.replies || []
-      );
-    }
-
-    set({ isDiscussionDetailsLoading: true });
     try {
       const response = await apiCallHandler<
         undefined,
         { replies: IDiscussion[] }
-      >(`/discussion/replies/${parentId}`, "GET", undefined);
+      >(`/discussion/${parentId}/replies`, "GET", undefined);
 
       if (response.success && response.data) {
         const replies = response.data.replies;
-        const parentDiscussion = get().discussions.find(
-          (discussion) => discussion.id === parentId
-        );
-        if (parentDiscussion) {
-          parentDiscussion.replies = replies;
-          set({
-            discussions: [...get().discussions],
-            isDiscussionDetailsLoading: false,
-          });
-        }
         return replies;
       }
     } catch (error) {
