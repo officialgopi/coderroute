@@ -11,7 +11,7 @@ const ProtectedRoute = ({
   if (authenticationPage) {
     return user ? <Navigate to="/problems" /> : <Outlet />;
   } else {
-    return user ? <Outlet /> : <Navigate to="/auth" />;
+    return user ? <Outlet /> : <Navigate to="/login" />;
   }
 };
 

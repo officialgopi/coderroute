@@ -1,17 +1,21 @@
 import { useState } from "react";
-import { DiscussionTitleInput } from "./DiscussionTitleInput";
-import { DiscussionTagsInput } from "./DiscussionTagsInput";
-import { DiscussionEditor } from "./DiscussionEditor";
+// import { DiscussionTitleInput } from "./DiscussionTitleInput";
+// import { DiscussionTagsInput } from "./DiscussionTagsInput";
 import { motion } from "framer-motion";
+import { useDiscussionStore } from "@/store/discussion.store";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
-export const DiscussionForm = () => {
-  const [title, setTitle] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
+const DiscussionForm = () => {
+  const { isDiscussionCreating, createDiscussion } = useDiscussionStore();
+
   const [content, setContent] = useState("");
 
-  const handleSubmit = () => {
-    console.log({ title, tags, content });
-    // TODO: submit to API
+  const handleSubmit = async () => {
+    if (!content.trim()) {
+      toast.error("Discussion content cannot be empty.");
+    }
+    await createDiscussion({ content });
   };
 
   return (
@@ -20,16 +24,31 @@ export const DiscussionForm = () => {
       animate={{ opacity: 1 }}
       className="flex flex-col gap-6"
     >
-      <DiscussionTitleInput value={title} onChange={setTitle} />
-      <DiscussionTagsInput tags={tags} setTags={setTags} />
-      <DiscussionEditor content={content} onChange={setContent} />
+      <textarea
+        name="content"
+        id="content"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder="Enter your discussion content here..."
+        className="w-full h-40 p-4 border border-neutral-500/50 rounded-lg focus:outline-none resize-y "
+      />
 
       <button
         onClick={handleSubmit}
-        className="self-end mt-4 px-5 py-2 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 rounded-xl text-sm text-neutral-100 transition-colors"
+        className="self-end mt-4 px-5 py-2  border  rounded-xl text-sm  transition-colors hover:bg-neutral-500/10 border-neutral-500/50"
+        disabled={isDiscussionCreating}
       >
-        Publish Discussion
+        {isDiscussionCreating ? (
+          <div className="w-full flex items-center justify-center gap-1">
+            <Loader2 className="animate-spin " />
+            <span>Publishing...</span>
+          </div>
+        ) : (
+          "Publish Discussion"
+        )}
       </button>
     </motion.div>
   );
 };
+
+export default DiscussionForm;

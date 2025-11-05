@@ -1,11 +1,10 @@
-"use client";
 import React, { useEffect, useState } from "react";
 import { CommandModal } from "../ui/CommandModal";
 import { ProblemSearchResult } from "./ProblemSearchResult";
 import type { IProblem } from "@/store/problem.store";
 import { Search } from "lucide-react";
 
-export const ProblemSearchModal: React.FC<{ problems: IProblem[] }> = ({
+const ProblemSearchModal: React.FC<{ problems: IProblem[] }> = ({
   problems,
 }) => {
   const [open, setOpen] = useState(false);
@@ -78,3 +77,5 @@ export const ProblemSearchModal: React.FC<{ problems: IProblem[] }> = ({
     </>
   );
 };
+
+export default ProblemSearchModal;

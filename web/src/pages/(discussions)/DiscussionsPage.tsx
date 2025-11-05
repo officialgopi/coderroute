@@ -1,10 +1,15 @@
-import { DiscussionList } from "@/components/discussions/DiscussionList";
+import PageLoader from "@/components/loaders/PageLoader";
+import { lazy, Suspense } from "react";
+
+const DiscussionList = lazy(
+  () => import("@/components/discussions/DiscussionList")
+);
 
 const DiscussionsPage = () => {
   return (
-    <div className="">
+    <Suspense fallback={<PageLoader />}>
       <DiscussionList />
-    </div>
+    </Suspense>
   );
 };
 

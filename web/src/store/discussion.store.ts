@@ -2,14 +2,14 @@ import { create } from "zustand";
 import type { IUser } from "./auth.store";
 import { apiCallHandler } from "../utils/api-call-handler.util";
 import { toast } from "sonner";
-type DiscussionType = {
+type IDiscussion = {
   id: string;
   content: string;
   problemId?: string;
   parentId?: string;
   createdAt: string;
   updatedAt: string;
-  replies?: DiscussionType[];
+  replies?: IDiscussion[];
   user: IUser;
   _count?: {
     replies: number;
@@ -17,14 +17,25 @@ type DiscussionType = {
 };
 
 interface DiscussionState {
+  isDiscussionDetailsLoading?: boolean;
   isDiscussionsLoading: boolean;
-  discussions: DiscussionType[];
+  isDiscussionCreating?: boolean;
+  discussions: IDiscussion[];
   page: number;
   getDiscussions: (problemId?: string) => Promise<void>;
+  createDiscussion: (args: {
+    content: string;
+    problemId?: string;
+    parentId?: string;
+  }) => Promise<void>;
+  getDiscussionById: (id: string) => Promise<IDiscussion | undefined>;
+  getDiscussionReplies: (parentId: string) => Promise<IDiscussion[]>;
 }
 
 export const useDiscussionStore = create<DiscussionState>((set, get) => ({
-  isDiscussionsLoading: false,
+  isDiscussionsLoading: true,
+  isDiscussionCreating: false,
+  isDiscussionDetailsLoading: false,
   discussions: [],
   page: 0,
 
@@ -34,19 +45,17 @@ export const useDiscussionStore = create<DiscussionState>((set, get) => ({
     });
 
     try {
-      const response = await apiCallHandler<undefined, DiscussionType[]>(
-        `/discussions`,
-        "GET",
+      const response = await apiCallHandler<
         undefined,
-        {
-          ...(problemId ? { problemId } : {}),
-          page: get().page + 1,
-        }
-      );
+        { discussions: IDiscussion[] }
+      >(`/discussion`, "GET", undefined, {
+        ...(problemId ? { problemId } : {}),
+        page: get().page + 1,
+      });
 
       if (response.success && response.data) {
         set({
-          discussions: [...get().discussions, ...response.data],
+          discussions: [...get().discussions, ...response.data.discussions],
           isDiscussionsLoading: false,
           page: get().page + 1,
         });
@@ -58,16 +67,13 @@ export const useDiscussionStore = create<DiscussionState>((set, get) => ({
     }
   },
 
-  createDiscussion: async (
-    content: string,
-    problemId?: string,
-    parentId?: string
-  ) => {
+  createDiscussion: async ({ content, parentId, problemId }) => {
+    set({ isDiscussionCreating: true });
     try {
       const response = await apiCallHandler<
         { content: string; problemId?: string; parentId?: string },
-        DiscussionType
-      >(`/discussions`, "POST", {
+        { discussion: IDiscussion }
+      >(`/discussion`, "POST", {
         content,
         ...(problemId ? { problemId } : {}),
         ...(parentId ? { parentId } : {}),
@@ -75,12 +81,86 @@ export const useDiscussionStore = create<DiscussionState>((set, get) => ({
 
       if (response.success && response.data) {
         set({
-          discussions: [response.data, ...get().discussions],
+          discussions: [response.data.discussion, ...get().discussions],
+          isDiscussionCreating: false,
         });
         toast.success("Discussion created successfully.");
       }
     } catch (error) {
       toast.error("An error occurred while creating discussion.");
+    } finally {
+      if (get().isDiscussionCreating) set({ isDiscussionCreating: false });
     }
   },
+
+  getDiscussionById: async (id: string) => {
+    if (get().discussions.find((discussion) => discussion.id === id)) {
+      return get().discussions.find((discussion) => discussion.id === id);
+    }
+
+    set({ isDiscussionDetailsLoading: true });
+    try {
+      const response = await apiCallHandler<
+        undefined,
+        { discussion: IDiscussion }
+      >(`/discussion/${id}`, "GET", undefined);
+
+      if (response.success && response.data) {
+        const discussion = response.data.discussion;
+        set({
+          discussions: [discussion, ...get().discussions],
+          isDiscussionDetailsLoading: false,
+        });
+        return discussion;
+      }
+    } catch (error) {
+      toast.error("An error occurred while fetching discussion details.");
+    } finally {
+      if (get().isDiscussionDetailsLoading)
+        set({ isDiscussionDetailsLoading: false });
+    }
+  },
+
+  getDiscussionReplies: async (parentId: string): Promise<IDiscussion[]> => {
+    if (
+      get().discussions.find((discussion) => discussion.id === parentId)
+        ?.replies?.length
+    ) {
+      return (
+        get().discussions.find((discussion) => discussion.id === parentId)
+          ?.replies || []
+      );
+    }
+
+    set({ isDiscussionDetailsLoading: true });
+    try {
+      const response = await apiCallHandler<
+        undefined,
+        { replies: IDiscussion[] }
+      >(`/discussion/replies/${parentId}`, "GET", undefined);
+
+      if (response.success && response.data) {
+        const replies = response.data.replies;
+        const parentDiscussion = get().discussions.find(
+          (discussion) => discussion.id === parentId
+        );
+        if (parentDiscussion) {
+          parentDiscussion.replies = replies;
+          set({
+            discussions: [...get().discussions],
+            isDiscussionDetailsLoading: false,
+          });
+        }
+        return replies;
+      }
+    } catch (error) {
+      toast.error("An error occurred while fetching discussion replies.");
+    } finally {
+      if (get().isDiscussionDetailsLoading)
+        set({ isDiscussionDetailsLoading: false });
+    }
+    return [];
+  },
 }));
+
+export type { IDiscussion };

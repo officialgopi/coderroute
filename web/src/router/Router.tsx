@@ -31,6 +31,9 @@ const DiscussionsPage = lazy(
 const CreateDiscussionPage = lazy(
   () => import("@/pages/(discussions)/CreateDiscussionPage")
 );
+const DiscussionDetailPage = lazy(
+  () => import("@/pages/(discussions)/DiscussionDetailPage")
+);
 
 //Sheets Page
 const SheetsPage = lazy(() => import("@/pages/(sheets)/SheetsPage"));
@@ -62,11 +65,17 @@ const Router = () => {
             <Route element={<ProtectedRoute authenticationPage={false} />}>
               <Route element={<MainLayout />}>
                 <Route path="/problems" element={<ProblemsPage />} />
+
                 <Route path="/discussions" element={<DiscussionsPage />} />
                 <Route
                   path="/discussions/create"
                   element={<CreateDiscussionPage />}
                 />
+                <Route
+                  path="/discussions/:discussionId"
+                  element={<DiscussionDetailPage />}
+                />
+
                 <Route path="/sheets" element={<SheetsPage />} />
               </Route>
 
