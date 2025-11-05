@@ -1,10 +1,11 @@
 import CreateSheetModal from "@/components/sheets/CreateSheetModal";
-import SheetsCard from "@/components/sheets/SheetCard";
+import SheetsList from "@/components/sheets/SheetsList";
 import { useState } from "react";
 
 const SheetsPage = () => {
   const [isCreateSheetModalOpen, setIsCreateSheetModalOpen] =
     useState<boolean>(false);
+
   return (
     <div className="w-full flex flex-col gap-6">
       <CreateSheetModal
@@ -24,9 +25,7 @@ const SheetsPage = () => {
           + Create New Sheet
         </button>
       </div>
-      <div className="w-full flex justify-between flex-wrap">
-        <SheetsCard />
-      </div>
+      <SheetsList />
     </div>
   );
 };

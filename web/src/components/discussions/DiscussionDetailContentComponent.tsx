@@ -93,7 +93,7 @@ const DiscussionDetailContentComponent = ({ discussion }: Props) => {
       transition={{ duration: 0.15 }}
     >
       {discussion?.parentId && (
-        <ReplyIcon className="absolute top-[40px] left-[-15px] size-[17px] stroke-2 text-neutral-500/50 rotate-y-180 rotate-x-180" />
+        <ReplyIcon className="absolute top-[40px] left-[-15px] size-[17px] z-0 stroke-2 text-neutral-500/50 rotate-y-180 rotate-x-180" />
       )}
 
       <motion.div
@@ -182,7 +182,7 @@ const DiscussionDetailContentComponent = ({ discussion }: Props) => {
 
       {(!discussion.parentId || showChildren) && (
         <motion.div
-          className="ml-10 pl-3 py-2 border-l border-neutral-500/50 space-y-2"
+          className="ml-10 pl-3 py-2 relative border-l-2 z-1 border-neutral-300 dark:border-neutral-700 space-y-2"
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}

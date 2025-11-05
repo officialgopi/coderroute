@@ -1,10 +1,13 @@
 import { useDiscussionStore } from "@/store/discussion.store";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import type { IDiscussion } from "@/types/types";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
-import DiscussionDetailContentComponent from "@/components/discussions/DiscussionDetailContentComponent";
+
+const DiscussionDetailContentComponent = lazy(
+  () => import("@/components/discussions/DiscussionDetailContentComponent")
+);
 
 const DiscussionDetailPage = () => {
   const { discussions, getDiscussionById, isDiscussionDetailsLoading } =
@@ -40,7 +43,13 @@ const DiscussionDetailPage = () => {
       </div>
       <div className="w-full flex flex-col gap-4">
         {!isDiscussionDetailsLoading && discussion ? (
-          <DiscussionDetailContentComponent discussion={discussion} />
+          <Suspense
+            fallback={
+              <div className="w-full flex justify-center py-10 bg-neutral-500/10 animate-pulse rounded-md" />
+            }
+          >
+            <DiscussionDetailContentComponent discussion={discussion} />
+          </Suspense>
         ) : !isDiscussionDetailsLoading && !discussion ? (
           <div>No discussion found.</div>
         ) : (

@@ -37,6 +37,9 @@ const DiscussionDetailPage = lazy(
 
 //Sheets Page
 const SheetsPage = lazy(() => import("@/pages/(sheets)/SheetsPage"));
+const SheetsDetailsPage = lazy(
+  () => import("@/pages/(sheets)/SheetsDetailsPage")
+);
 
 //Profile Page
 const UserProfilePage = lazy(() => import("@/pages/(profile)/UserProfilePage"));
@@ -77,6 +80,10 @@ const Router = () => {
                 />
 
                 <Route path="/sheets" element={<SheetsPage />} />
+                <Route
+                  path="/sheets/:sheetId"
+                  element={<SheetsDetailsPage />}
+                />
               </Route>
 
               <Route element={<CodeEditorLayout />}>
