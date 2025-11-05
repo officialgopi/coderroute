@@ -57,7 +57,7 @@ const oauthLogin = AsyncHandler(async (req, res) => {
   res.cookie("access-token", accessToken, CORS_OPTIONS);
   res.cookie("refresh-token", refreshToken, CORS_OPTIONS);
 
-  return res.redirect(env.CLIENT_URL);
+  return res.redirect(`${env.CLIENT_URL}/problems`);
 });
 
 const getProfile = AsyncHandler(async (req, res) => {

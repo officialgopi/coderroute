@@ -46,7 +46,7 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", {
-    failureRedirect: `${env.CLIENT_URL}`,
+    failureRedirect: `${env.CLIENT_URL}/login`,
     session: false,
   }),
   oauthLogin
