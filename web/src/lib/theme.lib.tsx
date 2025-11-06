@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { create, type StateCreator } from "zustand";
+import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface ThemeState {

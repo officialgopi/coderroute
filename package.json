@@ -1,0 +1,25 @@
+{
+  "name": "coderroute",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix web\"",
+    "build": "npm run build --prefix web/ && npm run build --prefix server/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/officialgopi/coderroute.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/officialgopi/coderroute/issues"
+  },
+  "homepage": "https://github.com/officialgopi/coderroute#readme",
+  "dependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
