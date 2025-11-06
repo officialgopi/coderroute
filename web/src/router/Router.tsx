@@ -48,7 +48,13 @@ const UserProfilePage = lazy(() => import("@/pages/(profile)/UserProfilePage"));
 
 //ADMIN PAGES
 const AdminPanelPage = lazy(() => import("@/pages/(admin)/AdminPanelPage"));
-
+const CreateProblemPage = lazy(
+  () => import("@/pages/(admin)/CreateProblemPage")
+);
+const ManageProblemsPage = lazy(
+  () => import("@/pages/(admin)/ManageProblemsPage")
+);
+const ViewMetricsPage = lazy(() => import("@/pages/(admin)/ViewMetricsPage"));
 const Router = () => {
   const { isAuthLoading, getMe } = useAuthStore();
 
@@ -69,6 +75,29 @@ const Router = () => {
               </Route>
             </Route>
             <Route element={<ProtectedRoute authenticationPage={false} />}>
+              <Route>
+                <Route
+                  path="/admin-panel/create-problem"
+                  element={<CreateProblemPage />}
+                />
+                <Route
+                  path="/admin-panel/manage-problem"
+                  element={<ManageProblemsPage />}
+                />
+                <Route path="/admin-panel/manage-problem/:problemId" />
+                <Route
+                  path="/admin-panel/view-metrics"
+                  element={<ViewMetricsPage />}
+                />
+              </Route>
+
+              <Route element={<CodeEditorLayout />}>
+                <Route
+                  path="/problems/:problemId"
+                  element={<CodeEditorPage />}
+                />
+              </Route>
+
               <Route element={<MainLayout />}>
                 <Route path="/problems" element={<ProblemsPage />} />
 
@@ -90,17 +119,8 @@ const Router = () => {
                   element={<RoleBasedProtectedRoute fallback="/problems" />}
                 >
                   <Route path="/admin-panel" element={<AdminPanelPage />} />
-                </Route>  
-              </Route>
+                </Route>
 
-              <Route element={<CodeEditorLayout />}>
-                <Route
-                  path="/problems/:problemId"
-                  element={<CodeEditorPage />}
-                />
-              </Route>
-
-              <Route element={<MainLayout />}>
                 <Route path="/:username" element={<UserProfilePage />} />
               </Route>
             </Route>
