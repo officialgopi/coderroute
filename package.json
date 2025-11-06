@@ -5,12 +5,12 @@
   "main": "index.js",
   "scripts": {
     "start:web": "npm run dev --prefix web/",
-    "start:server": "npm run dev --prefix server/",
-    "build": "npm run build --prefix web/ && npm run build --prefix server/",
+    "start:server": "npm run db:generate && npm run dev --prefix server/",
+    "build": "npm run db:generate && npm run build --prefix web/ && npm run build --prefix server/",
     "dev:web": "npm run dev --prefix web/",
     "dev:server": "npm run dev --prefix server/",
-    "db:migrate": "npm run migrate --prefix server/",
-    "db:generate": "npm run generate --prefix server/"
+    "db:migrate": "npm run migrate:db --prefix server/",
+    "db:generate": "npm run generate:db --prefix server/"
   },
   "repository": {
     "type": "git",
