@@ -20,16 +20,6 @@ export default function UserProfilePage() {
     tags: ["java", "javascript", "sql", "mongodb", "reactjs"],
   };
 
-  const problemData = {
-    labels: ["Easy", "Medium", "Hard"],
-    datasets: [
-      {
-        label: "Problems Solved",
-        data: [74, 58, 13],
-      },
-    ],
-  };
-
   const activity = Array.from({ length: 365 }, () =>
     Math.floor(Math.random() * 5)
   );
