@@ -13,6 +13,7 @@ const MainNavbar = () => {
   const navItems: {
     href: string;
     label: string;
+    isAdmin?: boolean;
   }[] = [
     {
       href: "/problems",
@@ -25,6 +26,11 @@ const MainNavbar = () => {
     {
       href: "/sheets",
       label: "Sheets",
+    },
+    {
+      href: "/admin-panel",
+      label: "Admin Panel",
+      isAdmin: true,
     },
   ];
   const fadeIn: Variants = {
@@ -64,16 +70,18 @@ const MainNavbar = () => {
 
         {/* Center - Nav Links */}
         <div className="hidden md:flex items-center gap-8">
-          {navItems.map(({ href, label }: { href: string; label: string }) => (
-            <Link key={href} to={href}>
-              <motion.div
-                whileHover={{ opacity: 0.8 }}
-                className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-              >
-                {label}
-              </motion.div>
-            </Link>
-          ))}
+          {navItems.map(({ href, label, isAdmin }) =>
+            isAdmin && user?.role.toLowerCase() === "user" ? null : (
+              <Link key={href} to={href}>
+                <motion.div
+                  whileHover={{ opacity: 0.8 }}
+                  className="text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+                >
+                  {label}
+                </motion.div>
+              </Link>
+            )
+          )}
         </div>
 
         {/* Right - Avatar */}

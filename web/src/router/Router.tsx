@@ -6,6 +6,8 @@ import { useAuthStore } from "@/store/auth.store";
 
 //Protected Route
 import ProtectedRoute from "../components/protected-route/ProtectedRoute";
+import RoleBasedProtectedRoute from "@/components/protected-route/RoleCheckProtectedRoute";
+
 //Layouts
 import MainLayout from "@/components/layouts/MainLayout";
 import AuthLayout from "../components/layouts/AuthLayout";
@@ -44,6 +46,9 @@ const SheetsDetailsPage = lazy(
 //Profile Page
 const UserProfilePage = lazy(() => import("@/pages/(profile)/UserProfilePage"));
 
+//ADMIN PAGES
+const AdminPanelPage = lazy(() => import("@/pages/(admin)/AdminPanelPage"));
+
 const Router = () => {
   const { isAuthLoading, getMe } = useAuthStore();
 
@@ -76,12 +81,16 @@ const Router = () => {
                   path="/discussions/:discussionId"
                   element={<DiscussionDetailPage />}
                 />
-
                 <Route path="/sheets" element={<SheetsPage />} />
                 <Route
                   path="/sheets/:sheetId"
                   element={<SheetsDetailsPage />}
                 />
+                <Route
+                  element={<RoleBasedProtectedRoute fallback="/problems" />}
+                >
+                  <Route path="/admin-panel" element={<AdminPanelPage />} />
+                </Route>  
               </Route>
 
               <Route element={<CodeEditorLayout />}>
@@ -90,6 +99,7 @@ const Router = () => {
                   element={<CodeEditorPage />}
                 />
               </Route>
+
               <Route element={<MainLayout />}>
                 <Route path="/:username" element={<UserProfilePage />} />
               </Route>
