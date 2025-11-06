@@ -7,7 +7,9 @@
     "dev": "nodemon --watch src --exec ts-node src/index.ts",
     "build": "prisma migrate deploy && prisma generate --no-engine && tsc -b",
     "start": "node dist/index.js",
-    "migrate:db": "prisma migrate dev",
+    "migrate:db:deploy": "prisma migrate deploy",
+    "migrate:db:reset": "prisma migrate reset --force",
+    "migrate:db:dev": "prisma migrate dev",
     "studio:db": "prisma studio",
     "generate:db": "prisma generate"
   },
