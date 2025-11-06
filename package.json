@@ -4,8 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"npm run start --prefix server\" \"npm run start --prefix web\"",
-    "build": "npm run build --prefix web/ && npm run build --prefix server/"
+    "start:web": "npm run dev --prefix web/",
+    "start:server": "npm run dev --prefix server/",
+    "build": "npm run build --prefix web/ && npm run build --prefix server/",
+    "dev:web": "npm run dev --prefix web/",
+    "dev:server": "npm run dev --prefix server/",
+    "db:migrate": "npm run migrate --prefix server/",
+    "db:generate": "npm run generate --prefix server/"
   },
   "repository": {
     "type": "git",
