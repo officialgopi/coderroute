@@ -15,6 +15,7 @@ import CodeEditorLayout from "@/components/layouts/CodeEditorLayout";
 
 //Loaders
 import PageLoader from "@/components/loaders/PageLoader";
+import AdminPanelFunctionalitiesLayout from "@/components/layouts/AdminPanelFunctionalitiesLayout";
 
 // PAGES
 const LandingPage = lazy(() => import("../pages/LandingPage"));
@@ -75,10 +76,28 @@ const Router = () => {
               </Route>
             </Route>
             <Route element={<ProtectedRoute authenticationPage={false} />}>
-              <Route>
+              <Route
+                element={
+                  <RoleBasedProtectedRoute
+                    fallback={() => (
+                      <MainLayout key={"main-layout"}>
+                        <div className="flex justify-center items-center">
+                          <p className="text-lg font-medium">
+                            You do not have permission to access this page.
+                          </p>
+                        </div>
+                      </MainLayout>
+                    )}
+                  />
+                }
+              >
                 <Route
                   path="/admin-panel/create-problem"
-                  element={<CreateProblemPage />}
+                  element={
+                    <AdminPanelFunctionalitiesLayout title="Create Problem">
+                      <CreateProblemPage />
+                    </AdminPanelFunctionalitiesLayout>
+                  }
                 />
                 <Route
                   path="/admin-panel/manage-problem"
@@ -98,7 +117,7 @@ const Router = () => {
                 />
               </Route>
 
-              <Route element={<MainLayout />}>
+              <Route element={<MainLayout key={"main-layout"} />}>
                 <Route path="/problems" element={<ProblemsPage />} />
 
                 <Route path="/discussions" element={<DiscussionsPage />} />
@@ -115,9 +134,7 @@ const Router = () => {
                   path="/sheets/:sheetId"
                   element={<SheetsDetailsPage />}
                 />
-                <Route
-                  element={<RoleBasedProtectedRoute fallback="/problems" />}
-                >
+                <Route element={<RoleBasedProtectedRoute />}>
                   <Route path="/admin-panel" element={<AdminPanelPage />} />
                 </Route>
 

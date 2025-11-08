@@ -3,10 +3,19 @@ import { Navigate, Outlet } from "react-router-dom";
 import { toast } from "sonner";
 
 const RoleBasedProtectedRoute = ({
-  fallback = "/problems",
+  fallback = () => {
+    return (
+      <div className="flex justify-center items-center">
+        <p className="text-lg font-medium">
+          You do not have permission to access this page.
+        </p>
+      </div>
+    );
+  },
 }: {
-  fallback?: string;
+  fallback?: () => React.ReactNode;
 }) => {
+  const Fallback = fallback;
   const { user } = useAuthStore();
 
   if (!user) {
@@ -15,7 +24,7 @@ const RoleBasedProtectedRoute = ({
   }
   if (user.role?.toLowerCase() === "user") {
     toast.error("You do not have permission to access this page.");
-    return <Navigate to={fallback} replace />;
+    return <Fallback />;
   } else {
     return <Outlet />;
   }
