@@ -1,6 +1,12 @@
-import { lazy, Suspense, useState } from "react";
+import { useProblemStore, type IProblem } from "@/store/problem.store";
+import type { TLanguage } from "@/types/types";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { useParams } from "react-router-dom";
 
+const CodeEditorPageNavbar = lazy(
+  () => import("@/components/problems/CodeEditorPageNavbar")
+);
 const LeftSidebar = lazy(
   () =>
     import("@/components/problems/editor-page-layout-components/LeftSidebar")
@@ -24,75 +30,97 @@ const TestCases = lazy(
 
 const CodeEditorPage = () => {
   const [activeTab, setActiveTab] = useState("Description");
-  const testCases = [
-    {
-      id: 1,
-      input: "2\n3",
-      expectedOutput: "5",
-      userOutput: "5",
-      passed: true,
-    },
-    {
-      id: 2,
-      input: "10\n20",
-      expectedOutput: "30",
-      userOutput: "25",
-      passed: false,
-    },
-    { id: 3, input: "0\n0", expectedOutput: "0" },
-  ];
+  const { slug } = useParams();
+  const { getProblemDetails, isProblemDetailsLoading } = useProblemStore();
+  //SETTINGS
+  const [language, setLanguage] = useState<TLanguage>("PYTHON");
+
+  const [problemDetails, setProblemDetails] = useState<IProblem | null>(null);
+  useEffect(() => {
+    async function fetchProblemDetails(slug: string) {
+      const details = await getProblemDetails(slug);
+      if (details) {
+        setProblemDetails(details);
+      }
+    }
+    if (slug) {
+      fetchProblemDetails(slug);
+    }
+  }, [slug]);
   return (
-    <div className="h-screen w-full p-2  flex overflow-hidden">
-      {/* Left Sidebar */}
+    <div className="w-full">
+      <Suspense fallback={<div>Loading...</div>}>
+        <CodeEditorPageNavbar />
+      </Suspense>
+      <div className="w-full mt-[60px] h-[calc(100vh-60px)] overflow-hidden">
+        {/* <Outlet /> */}
 
-      {/* Horizontal Panels: Left (Description) | Right (Editor + Testcases) */}
-      <PanelGroup
-        direction="horizontal"
-        className="flex-1"
-        autoSaveId="coderroute-problem-layout"
-      >
-        {/* Left Panel */}
+        <div className="h-screen w-full p-2  flex overflow-hidden">
+          {/* Left Sidebar */}
 
-        <Panel
-          defaultSize={40}
-          minSize={25}
-          maxSize={55}
-          className="overflow-y-auto border-r border-neutral-800"
-        >
-          <Suspense fallback={<div>Loading...</div>}>
-            <LeftSidebar activeTab={activeTab} setActiveTab={setActiveTab} />
-          </Suspense>
-          <Suspense fallback={<div>Loading...</div>}>
-            {activeTab === "Description" && <ProblemDescription />}
-          </Suspense>
-        </Panel>
+          {/* Horizontal Panels: Left (Description) | Right (Editor + Testcases) */}
+          <PanelGroup
+            direction="horizontal"
+            className="flex-1"
+            autoSaveId="coderroute-problem-layout"
+          >
+            {/* Left Panel */}
 
-        {/* Resize Handle */}
-        <PanelResizeHandle className="w-1 bg-neutral-800 hover:bg-neutral-700 transition-colors cursor-col-resize" />
-
-        {/* Right Panel (Editor + Bottom Testcases) */}
-        <Panel>
-          <PanelGroup direction="vertical">
-            {/* Code Editor */}
-            <Panel defaultSize={70} minSize={50}>
+            <Panel
+              defaultSize={40}
+              minSize={25}
+              maxSize={55}
+              className="overflow-y-auto border-r border-neutral-800"
+            >
               <Suspense fallback={<div>Loading...</div>}>
-                <CodeEditorPane />
+                <LeftSidebar
+                  isProblemDetailsLoading={isProblemDetailsLoading}
+                  problemDetails={problemDetails}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                />
+              </Suspense>
+              <Suspense fallback={<div>Loading...</div>}>
+                {activeTab === "Description" && <ProblemDescription />}
               </Suspense>
             </Panel>
 
             {/* Resize Handle */}
-            <PanelResizeHandle className="h-1 bg-neutral-800 hover:bg-neutral-700 transition-colors cursor-row-resize" />
+            <PanelResizeHandle className="w-1 bg-neutral-800 hover:bg-neutral-700 transition-colors cursor-col-resize" />
 
-            {/* Testcase Section */}
-            <Panel defaultSize={30} minSize={15}>
-              {/* <TestcasePanel /> */}
-              <Suspense fallback={<div>Loading...</div>}>
-                <TestCases testCases={testCases} />
-              </Suspense>
+            {/* Right Panel (Editor + Bottom Testcases) */}
+            <Panel>
+              <PanelGroup direction="vertical">
+                {/* Code Editor */}
+                <Panel defaultSize={70} minSize={50}>
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <CodeEditorPane
+                      language={language}
+                      setLanguage={setLanguage}
+                      problemDetails={problemDetails}
+                      isProblemDetailsLoading={isProblemDetailsLoading}
+                    />
+                  </Suspense>
+                </Panel>
+
+                {/* Resize Handle */}
+                <PanelResizeHandle className="h-1 bg-neutral-800 hover:bg-neutral-700 transition-colors cursor-row-resize" />
+
+                {/* Testcase Section */}
+                <Panel defaultSize={30} minSize={15}>
+                  {/* <TestcasePanel /> */}
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <TestCases
+                      isProblemDetailsLoading={isProblemDetailsLoading}
+                      testCases={problemDetails?.testCases!}
+                    />
+                  </Suspense>
+                </Panel>
+              </PanelGroup>
             </Panel>
           </PanelGroup>
-        </Panel>
-      </PanelGroup>
+        </div>
+      </div>
     </div>
   );
 };

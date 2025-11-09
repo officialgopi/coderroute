@@ -11,7 +11,6 @@ import RoleBasedProtectedRoute from "@/components/protected-route/RoleCheckProte
 //Layouts
 import MainLayout from "@/components/layouts/MainLayout";
 import AuthLayout from "../components/layouts/AuthLayout";
-import CodeEditorLayout from "@/components/layouts/CodeEditorLayout";
 
 //Loaders
 import PageLoader from "@/components/loaders/PageLoader";
@@ -110,12 +109,7 @@ const Router = () => {
                 />
               </Route>
 
-              <Route element={<CodeEditorLayout />}>
-                <Route
-                  path="/problems/:problemId"
-                  element={<CodeEditorPage />}
-                />
-              </Route>
+              <Route path="/problems/:slug" element={<CodeEditorPage />} />
 
               <Route element={<MainLayout key={"main-layout"} />}>
                 <Route path="/problems" element={<ProblemsPage />} />

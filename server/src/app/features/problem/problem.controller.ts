@@ -148,30 +148,30 @@ const getProblems = AsyncHandler(async (req, res) => {
   }
 
   const query = {} as any;
-  // if (data.difficulty) {
-  //   query.difficulty = data.difficulty;
-  // }
-  // if (data.tags && data.tags.length > 0) {
-  //   query.tags = {
-  //     hasEvery: data.tags,
-  //   };
-  // }
-  // if (data.search) {
-  //   query.OR = [
-  //     {
-  //       title: {
-  //         contains: data.search,
-  //         mode: "insensitive",
-  //       },
-  //     },
-  //     {
-  //       description: {
-  //         contains: data.search,
-  //         mode: "insensitive",
-  //       },
-  //     },
-  //   ];
-  // }
+  if (data.difficulty) {
+    query.difficulty = data.difficulty;
+  }
+  if (data.tags && data.tags.length > 0) {
+    query.tags = {
+      hasEvery: data.tags,
+    };
+  }
+  if (data.search) {
+    query.OR = [
+      {
+        title: {
+          contains: data.search,
+          mode: "insensitive",
+        },
+      },
+      {
+        description: {
+          contains: data.search,
+          mode: "insensitive",
+        },
+      },
+    ];
+  }
 
   const problems = await db.problem.findMany({
     where: query,

@@ -1,3 +1,4 @@
+import type { IProblem } from "@/types/types";
 import { motion } from "framer-motion";
 import { FileText, BookOpen, FileCode, ListChecks } from "lucide-react";
 
@@ -9,9 +10,13 @@ const tabs = [
 ];
 
 const LeftSidebar = ({
+  isProblemDetailsLoading,
+  problemDetails,
   activeTab,
   setActiveTab,
 }: {
+  problemDetails: IProblem | null;
+  isProblemDetailsLoading: boolean;
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }) => (

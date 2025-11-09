@@ -5,18 +5,31 @@ import { CheckCircle2, XCircle, ChevronDown, ChevronRight } from "lucide-react";
 interface TestCase {
   id: number;
   input: string;
-  expectedOutput: string;
+  output: string;
   userOutput?: string;
   passed?: boolean;
 }
 
 interface TestCasesProps {
   testCases: TestCase[];
+  isProblemDetailsLoading: boolean;
   isRunning?: boolean;
 }
 
-const TestCases: React.FC<TestCasesProps> = ({ testCases, isRunning }) => {
+const TestCases: React.FC<TestCasesProps> = ({
+  testCases,
+  isRunning,
+  isProblemDetailsLoading,
+}) => {
   const [expanded, setExpanded] = useState<number | null>(null);
+
+  if (isProblemDetailsLoading) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <span className="text-neutral-500">Loading Test Cases...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col bg-neutral-950 border-t border-neutral-800">
@@ -32,7 +45,7 @@ const TestCases: React.FC<TestCasesProps> = ({ testCases, isRunning }) => {
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {testCases.map((test) => (
+        {testCases?.map((test) => (
           <motion.div
             key={test.id}
             layout
@@ -83,7 +96,7 @@ const TestCases: React.FC<TestCasesProps> = ({ testCases, isRunning }) => {
                       Expected Output
                     </span>
                     <pre className="mt-1 bg-neutral-950 border border-neutral-800 rounded-md p-2 text-neutral-200 text-xs overflow-x-auto">
-                      {test.expectedOutput}
+                      {test.output}
                     </pre>
                   </div>
 

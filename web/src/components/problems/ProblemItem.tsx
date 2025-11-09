@@ -4,8 +4,6 @@ import { Check } from "lucide-react";
 import type { IProblem } from "@/store/problem.store";
 import { Link } from "react-router-dom";
 
-export type { IProblem };
-
 interface ProblemItemProps {
   problem: IProblem;
   index: number;
@@ -37,7 +35,7 @@ export const ProblemItem: React.FC<ProblemItemProps> = ({ problem, index }) => {
       <div className="flex items-center gap-3 hover:text-neutral-500 dark:hover:text-neutral-200">
         <Check className="w-4 h-4  opacity-70 text-emerald-600" />
         <span className="text-neutral-400">{index + 1}.</span>
-        <Link to={`/problems/${problem.id}`} className="  transition-colors">
+        <Link to={`/problems/${problem.slug}`} className="  transition-colors">
           {problem.title}
         </Link>
       </div>
