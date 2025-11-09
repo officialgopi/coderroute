@@ -41,7 +41,11 @@ interface ProblemState {
   isProblemDetailsLoading: boolean;
   problems: IProblem[];
   page: number;
-  getProblems: () => Promise<void>;
+  getProblems: (arg?: {
+    isSearch: boolean;
+    searchText: string;
+    page: number;
+  }) => Promise<IProblem[] | void>;
   createProblem: (problem: CreateProblemBody) => Promise<IProblem | undefined>;
   getProblemDetails: (slug: string) => Promise<IProblem | undefined>;
 }
@@ -51,27 +55,47 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
   isProblemDetailsLoading: false,
   page: 0,
   problems: [],
-  getProblems: async () => {
-    set({
-      isProblemsLoading: true,
-    });
+  getProblems: async (arg?: {
+    isSearch?: boolean;
+    searchText?: string;
+    page?: number;
+  }) => {
+    const { isSearch = false, searchText = "", page = 1 } = arg || {};
+    if (!isSearch)
+      set({
+        isProblemsLoading: true,
+      });
     try {
-      const response = await apiCallHandler<null, { problems: IProblem[] }>(
-        "/problem",
-        "GET",
-        null,
-        {
-          page: get().page + 1,
-          limit: 20,
-        }
-      );
-      console.log(response.data);
+      const response = await apiCallHandler<
+        undefined,
+        { problems: IProblem[] }
+      >("/problem", "GET", undefined, {
+        page: isSearch ? page : get().page + 1,
+        limit: 20,
+        search: searchText || undefined,
+      });
       if (response.success && response.data && response.data.problems) {
-        set({
-          problems: [...get().problems, ...response.data.problems],
-          isProblemsLoading: false,
-          page: get().page + 1,
-        });
+        if (isSearch) {
+          return response.data.problems;
+        }
+        const updatedProblems = get().problems.filter(
+          (existingProblem) =>
+            !response.data!.problems.some(
+              (newProblem) => newProblem.id === existingProblem.id
+            )
+        );
+        if (response.data.problems.length === 0) {
+          set({
+            problems: [...updatedProblems, ...response.data.problems],
+            isProblemsLoading: false,
+          });
+        } else {
+          set({
+            problems: [...updatedProblems, ...response.data.problems],
+            isProblemsLoading: false,
+            page: get().page + 1,
+          });
+        }
       }
     } catch (error) {
     } finally {

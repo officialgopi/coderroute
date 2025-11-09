@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { CommandModal } from "../ui/CommandModal";
 import { ProblemSearchResult } from "./ProblemSearchResult";
-import type { IProblem } from "@/store/problem.store";
+import { useProblemStore, type IProblem } from "@/store/problem.store";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
-const ProblemSearchModal: React.FC<{ problems: IProblem[] }> = ({
-  problems,
-}) => {
+const ProblemSearchModal = () => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [searchedProblems, setSearchedProblems] = useState<IProblem[]>([]);
+  const [page, setPage] = useState(0);
+  const { problems, getProblems } = useProblemStore();
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleShortcut = (e: KeyboardEvent) => {
@@ -26,9 +30,58 @@ const ProblemSearchModal: React.FC<{ problems: IProblem[] }> = ({
   );
 
   const handleSelect = (problem: IProblem) => {
-    window.location.href = `/problems/${problem.id}`;
+    navigate(`/problems/${problem.slug}`);
     setOpen(false);
   };
+
+  const handleSearch = async (isLoadMore = false) => {
+    if (query.trim() === "") {
+      setSearchedProblems(problems);
+      return;
+    }
+    if (isLoadMore) {
+      const newSearchedProblems = await getProblems({
+        searchText: query,
+        isSearch: true,
+        page: page + 1,
+      });
+
+      if (newSearchedProblems?.length! > 0) {
+        const updatedSearchedProblems = searchedProblems.filter(
+          (sp) => !newSearchedProblems!.some((np: IProblem) => np.id === sp.id)
+        );
+        setSearchedProblems(() => [
+          ...updatedSearchedProblems,
+          ...newSearchedProblems!,
+        ]);
+        setPage((prev) => prev + 1);
+      }
+    } else {
+      const newSearchedProblems = await getProblems({
+        searchText: query,
+        isSearch: true,
+        page: 1,
+      });
+
+      if (newSearchedProblems?.length! > 0) {
+        setSearchedProblems(newSearchedProblems!);
+        setPage(1);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (searchedProblems.length === 0) {
+      setSearchedProblems(problems);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      handleSearch();
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [query]);
 
   return (
     <>
