@@ -28,7 +28,7 @@ const LeftSidebar = ({
         <NavLink
           to={`/problems/${problemDetails?.slug}/${t.label.toLowerCase()}`}
           key={t.label}
-          className={(isActive) =>
+          className={({ isActive }) =>
             ` px-4 py-2 mb-3 rounded-lg flex items-center justify-center transition-colors  text-sm gap-2 ${
               isActive
                 ? "  text-orange-500 border"

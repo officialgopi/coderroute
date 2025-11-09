@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 //Store
 import { useAuthStore } from "@/store/auth.store";
@@ -30,6 +30,9 @@ const ProblemDescriptionPage = lazy(
 );
 const ProblemEditorialPage = lazy(
   () => import("@/pages/(problems)/ProblemEditorialPage")
+);
+const ProblemSolutionPage = lazy(
+  () => import("@/pages/(problems)/ProblemSolutionPage")
 );
 
 //Discussion Pages
@@ -116,12 +119,20 @@ const Router = () => {
               </Route>
               <Route element={<CodeEditorPageLayout key={"main-layout"} />}>
                 <Route
+                  path="/problems/:slug"
+                  element={<Navigate to={`description`} />}
+                />
+                <Route
                   path="/problems/:slug/description"
                   element={<ProblemDescriptionPage key={"code-editor"} />}
                 />
                 <Route
                   path="/problems/:slug/editorial"
                   element={<ProblemEditorialPage key={"code-editor"} />}
+                />
+                <Route
+                  path="/problems/:slug/solution"
+                  element={<ProblemSolutionPage key={"code-editor"} />}
                 />
               </Route>
               <Route element={<MainLayout key={"main-layout"} />}>
