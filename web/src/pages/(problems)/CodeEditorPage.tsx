@@ -1,3 +1,4 @@
+import PageLoader from "@/components/loaders/PageLoader";
 import { useProblemStore, type IProblem } from "@/store/problem.store";
 import type { TLanguage } from "@/types/types";
 import { lazy, Suspense, useEffect, useState } from "react";
@@ -36,6 +37,7 @@ const CodeEditorPage = () => {
   const [language, setLanguage] = useState<TLanguage>("PYTHON");
 
   const [problemDetails, setProblemDetails] = useState<IProblem | null>(null);
+
   useEffect(() => {
     async function fetchProblemDetails(slug: string) {
       const details = await getProblemDetails(slug);
@@ -47,14 +49,13 @@ const CodeEditorPage = () => {
       fetchProblemDetails(slug);
     }
   }, [slug]);
+
   return (
     <div className="w-full">
       <Suspense fallback={<div>Loading...</div>}>
         <CodeEditorPageNavbar />
       </Suspense>
       <div className="w-full mt-[60px] h-[calc(100vh-60px)] overflow-hidden">
-        {/* <Outlet /> */}
-
         <div className="h-screen w-full p-2  flex overflow-hidden">
           {/* Left Sidebar */}
 
@@ -93,7 +94,7 @@ const CodeEditorPage = () => {
               <PanelGroup direction="vertical">
                 {/* Code Editor */}
                 <Panel defaultSize={70} minSize={50}>
-                  <Suspense fallback={<div>Loading...</div>}>
+                  <Suspense fallback={<PageLoader />}>
                     <CodeEditorPane
                       language={language}
                       setLanguage={setLanguage}
