@@ -1,9 +1,9 @@
 import PageLoader from "@/components/loaders/PageLoader";
-import { useProblemStore, type IProblem } from "@/store/problem.store";
+import { useProblemStore } from "@/store/problem.store";
 import type { TLanguage } from "@/types/types";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-import { useParams } from "react-router-dom";
+import { Outlet, useParams } from "react-router-dom";
 
 const CodeEditorPageNavbar = lazy(
   () => import("@/components/problems/CodeEditorPageNavbar")
@@ -11,13 +11,6 @@ const CodeEditorPageNavbar = lazy(
 const LeftSidebar = lazy(
   () =>
     import("@/components/problems/editor-page-layout-components/LeftSidebar")
-);
-
-const ProblemDescription = lazy(
-  () =>
-    import(
-      "@/components/problems/editor-page-layout-components/ProblemDescription"
-    )
 );
 
 const CodeEditorPane = lazy(
@@ -29,20 +22,21 @@ const TestCases = lazy(
   () => import("@/components/problems/editor-page-layout-components/TestCases")
 );
 
-const CodeEditorPage = () => {
-  const [activeTab, setActiveTab] = useState("Description");
+const CodeEditorPageLayout = () => {
   const { slug } = useParams();
-  const { getProblemDetails, isProblemDetailsLoading } = useProblemStore();
-  //SETTINGS
+  const {
+    getProblemDetails,
+    isProblemDetailsLoading,
+    problemInCodeEditor,
+    setProblemInCodeEditor,
+  } = useProblemStore();
   const [language, setLanguage] = useState<TLanguage>("PYTHON");
-
-  const [problemDetails, setProblemDetails] = useState<IProblem | null>(null);
 
   useEffect(() => {
     async function fetchProblemDetails(slug: string) {
       const details = await getProblemDetails(slug);
       if (details) {
-        setProblemDetails(details);
+        setProblemInCodeEditor(details);
       }
     }
     if (slug) {
@@ -76,14 +70,10 @@ const CodeEditorPage = () => {
               <Suspense fallback={<div>Loading...</div>}>
                 <LeftSidebar
                   isProblemDetailsLoading={isProblemDetailsLoading}
-                  problemDetails={problemDetails}
-                  activeTab={activeTab}
-                  setActiveTab={setActiveTab}
+                  problemDetails={problemInCodeEditor}
                 />
               </Suspense>
-              <Suspense fallback={<div>Loading...</div>}>
-                {activeTab === "Description" && <ProblemDescription />}
-              </Suspense>
+              <Outlet />
             </Panel>
 
             {/* Resize Handle */}
@@ -98,7 +88,7 @@ const CodeEditorPage = () => {
                     <CodeEditorPane
                       language={language}
                       setLanguage={setLanguage}
-                      problemDetails={problemDetails}
+                      problemDetails={problemInCodeEditor}
                       isProblemDetailsLoading={isProblemDetailsLoading}
                     />
                   </Suspense>
@@ -113,7 +103,7 @@ const CodeEditorPage = () => {
                   <Suspense fallback={<div>Loading...</div>}>
                     <TestCases
                       isProblemDetailsLoading={isProblemDetailsLoading}
-                      testCases={problemDetails?.testCases!}
+                      testCases={problemInCodeEditor?.testCases!}
                     />
                   </Suspense>
                 </Panel>
@@ -125,4 +115,4 @@ const CodeEditorPage = () => {
     </div>
   );
 };
-export default CodeEditorPage;
+export default CodeEditorPageLayout;

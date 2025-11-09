@@ -11,6 +11,9 @@ export interface IProblem {
   slug: string;
   difficulty: "EASY" | "MEDIUM" | "HARD";
   tags: string[];
+  constraints: string[];
+  hints: string[];
+  editorial?: string;
   createdAt: string;
   updatedAt: string;
   problemDetails?: {
@@ -40,6 +43,7 @@ interface ProblemState {
   isProblemsLoading: boolean;
   isProblemDetailsLoading: boolean;
   problems: IProblem[];
+  problemInCodeEditor: IProblem | undefined;
   page: number;
   getProblems: (arg?: {
     isSearch: boolean;
@@ -48,6 +52,7 @@ interface ProblemState {
   }) => Promise<IProblem[] | void>;
   createProblem: (problem: CreateProblemBody) => Promise<IProblem | undefined>;
   getProblemDetails: (slug: string) => Promise<IProblem | undefined>;
+  setProblemInCodeEditor: (problem: IProblem) => void;
 }
 
 export const useProblemStore = create<ProblemState>((set, get) => ({
@@ -55,6 +60,7 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
   isProblemDetailsLoading: false,
   page: 0,
   problems: [],
+  problemInCodeEditor: undefined,
   getProblems: async (arg?: {
     isSearch?: boolean;
     searchText?: string;
@@ -155,5 +161,8 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
     } finally {
       set({ isProblemDetailsLoading: false });
     }
+  },
+  setProblemInCodeEditor: (problem: IProblem) => {
+    set({ problemInCodeEditor: problem });
   },
 }));

@@ -11,7 +11,7 @@ const CodeEditorPane = ({
   setLanguage,
 }: {
   isProblemDetailsLoading: boolean;
-  problemDetails: IProblem | null;
+  problemDetails: IProblem | undefined;
   language: TLanguage;
   setLanguage: (lang: TLanguage) => void;
 }) =>

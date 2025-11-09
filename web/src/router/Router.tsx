@@ -15,6 +15,7 @@ import AuthLayout from "../components/layouts/AuthLayout";
 //Loaders
 import PageLoader from "@/components/loaders/PageLoader";
 import AdminPanelFunctionalitiesLayout from "@/components/layouts/AdminPanelFunctionalitiesLayout";
+import CodeEditorPageLayout from "@/components/layouts/CodeEditorPageLayout";
 
 // PAGES
 const LandingPage = lazy(() => import("../pages/LandingPage"));
@@ -24,7 +25,12 @@ const LoginPage = lazy(() => import("../pages/(auth)/Login"));
 
 //Problems Pages
 const ProblemsPage = lazy(() => import("@/pages/(problems)/ProblemsPage"));
-const CodeEditorPage = lazy(() => import("@/pages/(problems)/CodeEditorPage"));
+const ProblemDescriptionPage = lazy(
+  () => import("@/pages/(problems)/ProblemDescriptionPage")
+);
+const ProblemEditorialPage = lazy(
+  () => import("@/pages/(problems)/ProblemEditorialPage")
+);
 
 //Discussion Pages
 const DiscussionsPage = lazy(
@@ -108,9 +114,16 @@ const Router = () => {
                   element={<ViewMetricsPage />}
                 />
               </Route>
-
-              <Route path="/problems/:slug" element={<CodeEditorPage />} />
-
+              <Route element={<CodeEditorPageLayout key={"main-layout"} />}>
+                <Route
+                  path="/problems/:slug/description"
+                  element={<ProblemDescriptionPage key={"code-editor"} />}
+                />
+                <Route
+                  path="/problems/:slug/editorial"
+                  element={<ProblemEditorialPage key={"code-editor"} />}
+                />
+              </Route>
               <Route element={<MainLayout key={"main-layout"} />}>
                 <Route path="/problems" element={<ProblemsPage />} />
 
