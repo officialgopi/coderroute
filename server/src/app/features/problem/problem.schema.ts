@@ -49,8 +49,8 @@ const deleteProblemBySlugParamsSchema = z.object({
 });
 
 const getProblemsQuerySchema = z.object({
-  limit: z.number().default(10),
-  page: z.number().default(1),
+  limit: z.coerce.number().default(10),
+  page: z.coerce.number().default(1),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]).optional(),
   tags: z.string().optional(),
   search: z.string().optional(),

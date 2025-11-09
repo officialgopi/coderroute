@@ -47,7 +47,7 @@ const ProblemsPage = () => {
             <ProblemSearchModal problems={problems} />
           </div>
 
-          <ProblemsList problems={problems} />
+          <ProblemsList />
         </div>
       </div>
     </Suspense>
