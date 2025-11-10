@@ -1,4 +1,5 @@
 import PageLoader from "@/components/loaders/PageLoader";
+import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
 import type { IProblem, TLanguage } from "@/types/types";
 import { ChevronDown } from "lucide-react";
 import { lazy, Suspense } from "react";
@@ -8,15 +9,20 @@ const Editor = lazy(() => import("@monaco-editor/react"));
 const CodeEditorPane = ({
   isProblemDetailsLoading,
   problemDetails,
-  language,
-  setLanguage,
 }: {
   isProblemDetailsLoading: boolean;
   problemDetails: IProblem | undefined;
-  language: TLanguage;
-  setLanguage: (lang: TLanguage) => void;
-}) =>
-  isProblemDetailsLoading ? (
+}) => {
+  const {
+    fontSize,
+    tabSize,
+    minimap,
+    lineNumbers,
+    wordWrap,
+    language,
+    setLanguage,
+  } = useCodeEditorSettingsStore();
+  return isProblemDetailsLoading ? (
     <PageLoader />
   ) : (
     <div className="h-full flex flex-col ">
@@ -57,10 +63,12 @@ const CodeEditorPane = ({
           options={{
             language: language.toLowerCase(),
             minimap: {
-              enabled: false,
+              enabled: minimap,
             },
-            fontSize: 14,
-            wordWrap: "on",
+            fontSize: fontSize,
+            tabSize: tabSize,
+            wordWrap: wordWrap ? "on" : "off",
+            lineNumbers: lineNumbers ? "on" : "off",
             wrappingIndent: "indent",
             scrollBeyondLastLine: false,
           }}
@@ -68,5 +76,5 @@ const CodeEditorPane = ({
       </Suspense>
     </div>
   );
-
+};
 export default CodeEditorPane;

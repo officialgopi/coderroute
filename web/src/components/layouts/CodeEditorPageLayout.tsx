@@ -1,7 +1,6 @@
 import PageLoader from "@/components/loaders/PageLoader";
 import { useProblemStore } from "@/store/problem.store";
-import type { TLanguage } from "@/types/types";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { Outlet, useParams } from "react-router-dom";
 
@@ -30,7 +29,6 @@ const CodeEditorPageLayout = () => {
     problemInCodeEditor,
     setProblemInCodeEditor,
   } = useProblemStore();
-  const [language, setLanguage] = useState<TLanguage>("PYTHON");
 
   useEffect(() => {
     async function fetchProblemDetails(slug: string) {
@@ -86,8 +84,6 @@ const CodeEditorPageLayout = () => {
                 <Panel defaultSize={70} minSize={50}>
                   <Suspense fallback={<PageLoader />}>
                     <CodeEditorPane
-                      language={language}
-                      setLanguage={setLanguage}
                       problemDetails={problemInCodeEditor}
                       isProblemDetailsLoading={isProblemDetailsLoading}
                     />
