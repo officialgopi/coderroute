@@ -179,7 +179,7 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
 
   const testcaseResults = result.data?.detailedResults?.map((tr, index) => ({
     submissionId: submission.id,
-    testCaseId: problem.testcases[index].id,
+    testcaseId: problem.testcases[index].id,
     passed: tr.passed,
     expected: tr.expected,
     actual: tr.actual,
@@ -193,23 +193,23 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
   if (!testcaseResults) {
     throw new ApiError(500, "Failed to save testcase results");
   }
-  await db.testCaseResult.createMany({
+  await db.testcaseResult.createMany({
     data: testcaseResults,
   });
 
-  const submissionWithTestCaseResults = await db.submission.findUnique({
+  const submissionWithTestcaseResults = await db.submission.findUnique({
     where: {
       id: submission.id,
     },
     include: {
-      testCasesResults: true,
+      testcasesResults: true,
     },
   });
 
   new ApiResponse(
     200,
     {
-      submission: submissionWithTestCaseResults,
+      submission: submissionWithTestcaseResults,
     },
     "Code Submitted Successfully"
   ).send(res);

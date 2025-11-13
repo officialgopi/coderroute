@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { codeRunExecute, codeSubmitExecute } from "./code-execution.controller";
+import { isAuthenticated } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
+router.use(isAuthenticated);
 /**
  * @swagger
  * /api/code-execution/{problemId}/run:

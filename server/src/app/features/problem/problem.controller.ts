@@ -117,7 +117,7 @@ const createProblem = AsyncHandler(async (req, res) => {
         };
       }),
     });
-    await db.testCases.createMany({
+    await db.testcases.createMany({
       data: data.testcases.map((testcase) => {
         return {
           problemId: problem.id,
@@ -433,7 +433,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
   }
 
   //Save to database
-  await db.testCases.createMany({
+  await db.testcases.createMany({
     data: body.data.testcases.map((testcase) => ({
       problemId: problem.id,
       input: testcase.input,
@@ -477,7 +477,7 @@ const deleteTestcaseFromProblemById = AsyncHandler(async (req, res) => {
     throw new ApiError(404, "Problem not found");
   }
 
-  const testcase = await db.testCases.delete({
+  const testcase = await db.testcases.delete({
     where: {
       id: body.data.testcaseId,
       problemId: problem.id,

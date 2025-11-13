@@ -127,7 +127,7 @@ model Problem {
   createdByUser User @relation(fields: [createdByUserId], references: [id], onDelete: Cascade)
 
   //RELATIONSHIPS
-  testcases      TestCases[]
+  testcases      Testcases[]
   problemDetails ProblemDetails[]
   submissions    Submission[]
   solvedBy       ProblemSolved[]
@@ -144,7 +144,7 @@ model Problem {
   @@index([tags])
 }
 
-model TestCases {
+model Testcases {
   id          Int      @id @default(autoincrement())
   problemId   String
   input       String
@@ -155,7 +155,7 @@ model TestCases {
 
   //RELATIONSHIPS
   problem         Problem          @relation(fields: [problemId], references: [id])
-  testCaseResults TestCaseResult[]
+  testcaseResults TestcaseResult[]
 
   //INDEXES
   @@index([problemId])
@@ -201,7 +201,7 @@ model Submission {
   problem Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   //RELATIONSHIPS
-  testCasesResults TestCaseResult[]
+  testcasesResults TestcaseResult[]
 
   //INDEXES
   @@index([problemId, contestId, userId])
@@ -214,10 +214,10 @@ model Submission {
   @@index([status])
 }
 
-model TestCaseResult {
+model TestcaseResult {
   id            String   @id @default(uuid())
   submissionId  String
-  testCaseId    Int
+  testcaseId    Int
   passed        Boolean
   stdout        String?
   expected      String
@@ -230,7 +230,7 @@ model TestCaseResult {
   updatedAt     DateTime @updatedAt
 
   //RELATIONSHIPS
-  testcase   TestCases  @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+  testcase   Testcases  @relation(fields: [testcaseId], references: [id], onDelete: Cascade)
   submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   //INDEXES
