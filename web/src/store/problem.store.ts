@@ -112,19 +112,30 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
     }
   },
   createProblem: async (problem: CreateProblemBody) => {
-    createProblemBodySchema.parse(problem);
+    const { data, success } = createProblemBodySchema.safeParse(problem);
+    if (!success) {
+      toast.error("Validation failed. Check your inputs.");
+      return;
+    }
+
+    const toastId = toast.loading("Creating problem...");
     const response = await apiCallHandler<
       CreateProblemBody,
       {
         problem: IProblem;
       }
-    >("/problem", "POST", problem);
+    >("/problem", "POST", data);
 
     if (response.success && response.data) {
-      toast.success("Problem created successfully");
+      toast.success("Problem created successfully", {
+        id: toastId,
+      });
       return response.data.problem;
     } else {
-      toast.error(response.message || "Failed to create problem");
+      toast.error(response.message || "Failed to create problem", {
+        id: toastId,
+      });
+      throw new Error(response.message || "Failed to create problem");
     }
   },
   getProblemDetails: async (slug: string) => {

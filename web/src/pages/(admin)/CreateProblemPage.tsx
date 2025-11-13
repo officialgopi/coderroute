@@ -82,12 +82,10 @@ const CreateProblemPage: React.FC = () => {
     try {
       console.log("Creating problem:", problem);
       await createProblem(problem);
-      toast.success("Problem created successfully!");
       localStorage.removeItem(STORAGE_KEY);
       resetForm();
       setActiveTab(0);
     } catch (err) {
-      toast.error("Validation failed. Check your inputs.");
       console.error(err);
     }
   };
