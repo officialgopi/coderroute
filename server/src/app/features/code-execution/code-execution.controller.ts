@@ -26,6 +26,7 @@ const codeRunExecute = AsyncHandler(async (req, res) => {
   const bodySchemaData = codeRunExecutionBodySchema.safeParse(req.body);
 
   if (!bodySchemaData.success || !bodySchemaData.data) {
+    console.log(bodySchemaData.error);
     throw new ApiError(400, "Invalid request data");
   }
 

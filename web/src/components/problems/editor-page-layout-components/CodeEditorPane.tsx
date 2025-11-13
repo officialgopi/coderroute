@@ -1,8 +1,9 @@
 import PageLoader from "@/components/loaders/PageLoader";
 import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
+import { useProblemStore } from "@/store/problem.store";
 import type { IProblem, TLanguage } from "@/types/types";
 import { ChevronDown } from "lucide-react";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
 const Editor = lazy(() => import("@monaco-editor/react"));
 
@@ -22,6 +23,15 @@ const CodeEditorPane = ({
     language,
     setLanguage,
   } = useCodeEditorSettingsStore();
+
+  const { codeInEditor, setCodeInEditor } = useProblemStore();
+  useEffect(() => {
+    setCodeInEditor(
+      problemDetails?.problemDetails?.find((pd) => pd.language === language)
+        ?.codeSnippet || ""
+    );
+  }, [language, problemDetails]);
+
   return isProblemDetailsLoading ? (
     <PageLoader />
   ) : (
@@ -55,11 +65,10 @@ const CodeEditorPane = ({
           height="100%"
           defaultLanguage="java"
           theme="vs-dark"
-          value={
-            problemDetails?.problemDetails?.find(
-              (pd) => pd.language === language
-            )?.codeSnippet || ""
-          }
+          value={codeInEditor}
+          onChange={(value) => {
+            setCodeInEditor(value || "");
+          }}
           options={{
             language: language.toLowerCase(),
             minimap: {

@@ -28,7 +28,7 @@ export interface IProblem {
     referenceSolution: string;
   }[];
 
-  testCases?: {
+  testcases?: {
     output: string;
     input: string;
     id: number;
@@ -45,6 +45,7 @@ interface ProblemState {
   problems: IProblem[];
   problemInCodeEditor: IProblem | undefined;
   page: number;
+  codeInEditor: string;
   getProblems: (arg?: {
     isSearch: boolean;
     searchText: string;
@@ -53,6 +54,7 @@ interface ProblemState {
   createProblem: (problem: CreateProblemBody) => Promise<IProblem | undefined>;
   getProblemDetails: (slug: string) => Promise<IProblem | undefined>;
   setProblemInCodeEditor: (problem: IProblem) => void;
+  setCodeInEditor: (code: string) => void;
 }
 
 export const useProblemStore = create<ProblemState>((set, get) => ({
@@ -61,6 +63,10 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
   page: 0,
   problems: [],
   problemInCodeEditor: undefined,
+  codeInEditor: "",
+  setCodeInEditor: (code: string) => {
+    set({ codeInEditor: code });
+  },
   getProblems: async (arg?: {
     isSearch?: boolean;
     searchText?: string;
@@ -141,7 +147,7 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
   getProblemDetails: async (slug: string) => {
     set({ isProblemDetailsLoading: true });
     const problem = get().problems.find((p) => p.slug === slug);
-    if (problem && problem?.problemDetails && problem?.testCases) {
+    if (problem && problem?.problemDetails && problem?.testcases) {
       return problem;
     }
     try {

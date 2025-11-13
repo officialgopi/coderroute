@@ -1,33 +1,35 @@
 import { Loader2, Play, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useCodeExecutionStore } from "@/store/code-execution.store";
+import { useProblemStore } from "@/store/problem.store";
+import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
 
 const CenterSection = () => {
-  const [isSubmitLoading, setIsSubmitLoading] = useState<boolean>(false);
-  const [isRunLoading, setIsRunLoading] = useState<boolean>(false);
-
+  const { problemInCodeEditor, codeInEditor } = useProblemStore();
+  const { isRunning, isSubmitting, runCode, submitCode } =
+    useCodeExecutionStore();
+  const { language } = useCodeEditorSettingsStore();
   const handleRun = async () => {
-    setIsRunLoading(true);
-    setTimeout(() => {
-      setIsRunLoading(false);
-    }, 3000);
+    await runCode(
+      problemInCodeEditor?.id!,
+      codeInEditor,
+      problemInCodeEditor?.testcases?.map((tc) => tc.input) || [],
+      problemInCodeEditor?.testcases?.map((tc) => tc.output) || [],
+      language
+    );
   };
   const handleSubmit = async () => {
-    setIsSubmitLoading(true);
-    setTimeout(() => {
-      setIsSubmitLoading(false);
-    }, 3000);
+    await submitCode(problemInCodeEditor?.id!, codeInEditor, language);
   };
-
   return (
     <div className="flex items-center  flex-1 justify-center">
       <Button
         variant="outline"
         className=" rounded-md text-sm font-medium flex items-center gap-2 px-3 rounded-r-none"
-        disabled={isRunLoading || isSubmitLoading}
+        disabled={isRunning || isSubmitting}
         onClick={handleRun}
       >
-        {!isRunLoading ? (
+        {!isRunning ? (
           <Play className="w-4 h-4" />
         ) : (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -37,9 +39,9 @@ const CenterSection = () => {
         variant="outline"
         className="transition-colors   rounded-md  rounded-l-none text-sm font-medium flex items-center gap-2 px-3"
         onClick={handleSubmit}
-        disabled={isRunLoading || isSubmitLoading}
+        disabled={isRunning || isSubmitting}
       >
-        {!isSubmitLoading ? (
+        {!isSubmitting ? (
           <Upload className="w-4 h-4" />
         ) : (
           <Loader2 className="w-4 h-4 animate-spin" />

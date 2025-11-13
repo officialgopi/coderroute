@@ -70,7 +70,6 @@ const createProblem = AsyncHandler(async (req, res) => {
 
     for (let i = 0; i < submissions.length; i++) {
       const result = submissions[i];
-      console.log("Submission result---------", result);
 
       if (result.status.id !== 3) {
         throw new ApiError(
@@ -417,7 +416,6 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
 
     for (let i = 0; i < submissions.length; i++) {
       const result = submissions[i];
-      console.log("Submission result---------", result);
 
       if (result.status.id !== 3) {
         throw new ApiError(

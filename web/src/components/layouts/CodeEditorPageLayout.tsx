@@ -99,7 +99,7 @@ const CodeEditorPageLayout = () => {
                   <Suspense fallback={<div>Loading...</div>}>
                     <TestCases
                       isProblemDetailsLoading={isProblemDetailsLoading}
-                      testCases={problemInCodeEditor?.testCases!}
+                      testCases={problemInCodeEditor?.testcases!}
                     />
                   </Suspense>
                 </Panel>
