@@ -84,7 +84,6 @@ const CodeEditorPane = ({
               wrappingIndent: "indent",
               scrollBeyondLastLine: false,
               automaticLayout: true,
-              "semanticHighlighting.enabled": true,
               padding: {
                 top: 10,
                 bottom: 10,
@@ -92,6 +91,8 @@ const CodeEditorPane = ({
               lineHeight: 1.5,
               lineNumbersMinChars: 1,
               lineDecorationsWidth: 20, // adds spacing on the left
+              quickSuggestions: true,
+              quickSuggestionsDelay: 200,
             }}
           />
         </Suspense>

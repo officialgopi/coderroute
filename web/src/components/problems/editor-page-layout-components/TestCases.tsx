@@ -11,13 +11,13 @@ interface TestCase {
 }
 
 interface TestCasesProps {
-  testCases: TestCase[];
+  testcases: TestCase[];
   isProblemDetailsLoading: boolean;
   isRunning?: boolean;
 }
 
 const TestCases: React.FC<TestCasesProps> = ({
-  testCases,
+  testcases,
   isRunning,
   isProblemDetailsLoading,
 }) => {
@@ -32,24 +32,22 @@ const TestCases: React.FC<TestCasesProps> = ({
   }
 
   return (
-    <div className="h-full flex flex-col bg-neutral-950 border-t border-neutral-800">
-      <div className="px-4 py-3 border-b border-neutral-800 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-neutral-200 tracking-wide uppercase">
-          Test Cases
+    <div className="h-full flex flex-col  ">
+      <div className="px-4 py-3   flex items-center justify-between">
+        <h3 className="text-sm font-semibold  tracking-wide uppercase">
+          TESTCASES
         </h3>
         {isRunning && (
-          <span className="text-xs text-neutral-400 animate-pulse">
-            Running...
-          </span>
+          <span className="text-xs  animate-pulse">Running...</span>
         )}
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {testCases?.map((test) => (
+        {testcases?.map((test) => (
           <motion.div
             key={test.id}
             layout
-            className="border border-neutral-800 rounded-lg overflow-hidden bg-neutral-900/40 hover:bg-neutral-900 transition-colors"
+            className="border border-neutral-800 rounded-lg overflow-hidden  transition-colors"
           >
             <button
               onClick={() => setExpanded(expanded === test.id ? null : test.id)}
@@ -63,7 +61,7 @@ const TestCases: React.FC<TestCasesProps> = ({
                 ) : (
                   <XCircle className="w-4 h-4 text-red-500" />
                 )}
-                <span className="text-sm text-neutral-200 font-medium">
+                <span className="text-sm  font-medium">
                   Test Case #{test.id}
                 </span>
               </div>
@@ -82,11 +80,11 @@ const TestCases: React.FC<TestCasesProps> = ({
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
-                  className="px-4 pb-3 space-y-2 text-sm text-neutral-300"
+                  className="px-4 pb-3 space-y-2 text-sm "
                 >
                   <div>
                     <span className="text-neutral-500 text-xs">Input</span>
-                    <pre className="mt-1 bg-neutral-950 border border-neutral-800 rounded-md p-2 text-neutral-200 text-xs overflow-x-auto">
+                    <pre className="mt-1  border border-neutral-800 rounded-md p-2  text-xs overflow-x-auto">
                       {test.input}
                     </pre>
                   </div>
@@ -95,7 +93,7 @@ const TestCases: React.FC<TestCasesProps> = ({
                     <span className="text-neutral-500 text-xs">
                       Expected Output
                     </span>
-                    <pre className="mt-1 bg-neutral-950 border border-neutral-800 rounded-md p-2 text-neutral-200 text-xs overflow-x-auto">
+                    <pre className="mt-1  border border-neutral-800 rounded-md p-2  text-xs overflow-x-auto">
                       {test.output}
                     </pre>
                   </div>
