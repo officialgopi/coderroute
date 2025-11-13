@@ -183,12 +183,12 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
     testcaseId: problem.testcases[index].id,
     passed: tr.passed,
     expected: tr.expected,
-    actual: tr.actual,
+    stdout: tr.actual,
     time: tr.time,
     memory: tr.memory,
     status: tr.status,
     stderr: tr.stderr,
-    compile_output: tr.compile_output,
+    compileOutput: tr.compile_output,
   }));
 
   if (!testcaseResults) {
