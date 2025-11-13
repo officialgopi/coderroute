@@ -1,4 +1,5 @@
 import PageLoader from "@/components/loaders/PageLoader";
+import { useThemeStore } from "@/lib/theme.lib";
 import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
 import { useProblemStore } from "@/store/problem.store";
 import type { IProblem, TLanguage } from "@/types/types";
@@ -23,7 +24,7 @@ const CodeEditorPane = ({
     language,
     setLanguage,
   } = useCodeEditorSettingsStore();
-
+  const { theme } = useThemeStore();
   const { codeInEditor, setCodeInEditor } = useProblemStore();
   useEffect(() => {
     setCodeInEditor(
@@ -35,8 +36,8 @@ const CodeEditorPane = ({
   return isProblemDetailsLoading ? (
     <PageLoader />
   ) : (
-    <div className="h-full flex flex-col ">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-neutral-800">
+    <div className="h-full flex flex-col rounded-md overflow-hidden  ">
+      <div className="flex items-center justify-between px-4 py-2 ">
         <div className="relative inline-block">
           <select
             className="appearance-none pr-8 w-fit rounded-md border bg-neutral-100 dark:bg-neutral-900
@@ -60,29 +61,41 @@ const CodeEditorPane = ({
           />
         </div>
       </div>
-      <Suspense fallback={<PageLoader />}>
-        <Editor
-          height="100%"
-          defaultLanguage="java"
-          theme="vs-dark"
-          value={codeInEditor}
-          onChange={(value) => {
-            setCodeInEditor(value || "");
-          }}
-          options={{
-            language: language.toLowerCase(),
-            minimap: {
-              enabled: minimap,
-            },
-            fontSize: fontSize,
-            tabSize: tabSize,
-            wordWrap: wordWrap ? "on" : "off",
-            lineNumbers: lineNumbers ? "on" : "off",
-            wrappingIndent: "indent",
-            scrollBeyondLastLine: false,
-          }}
-        />
-      </Suspense>
+      <div className="flex-1 rounded-md overflow-hidden border ">
+        <Suspense fallback={<PageLoader />}>
+          <Editor
+            height="100%"
+            className="px-2 dark:bg-neutral-500/20"
+            theme={theme === "dark" ? "vs-dark" : "vs-light"}
+            value={codeInEditor}
+            language={language.toLowerCase()}
+            onChange={(value) => {
+              setCodeInEditor(value || "");
+            }}
+            options={{
+              language: language.toLowerCase(),
+              minimap: {
+                enabled: minimap,
+              },
+              fontSize: fontSize,
+              tabSize: tabSize,
+              wordWrap: wordWrap ? "on" : "off",
+              lineNumbers: lineNumbers ? "on" : "off",
+              wrappingIndent: "indent",
+              scrollBeyondLastLine: false,
+              automaticLayout: true,
+              "semanticHighlighting.enabled": true,
+              padding: {
+                top: 10,
+                bottom: 10,
+              },
+              lineHeight: 1.5,
+              lineNumbersMinChars: 1,
+              lineDecorationsWidth: 20, // adds spacing on the left
+            }}
+          />
+        </Suspense>
+      </div>
     </div>
   );
 };

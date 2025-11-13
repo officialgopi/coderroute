@@ -18,7 +18,7 @@ const LeftSidebar = ({
   isProblemDetailsLoading: boolean;
 }) => (
   <motion.div
-    className="flex  px-2 items-center justify-between gap-2  border-r border-neutral-500/50  overflow-x-scroll"
+    className="flex  px-2 items-center   gap-2  overflow-x-scroll  "
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
   >
@@ -29,10 +29,10 @@ const LeftSidebar = ({
           to={`/problems/${problemDetails?.slug}/${t.label.toLowerCase()}`}
           key={t.label}
           className={({ isActive }) =>
-            ` px-4 py-2 mb-3 rounded-lg flex items-center justify-center transition-colors  text-sm gap-2 ${
+            ` px-4 py-2 mb-3 rounded-lg flex items-center justify-center transition-colors  text-sm gap-2  hover:bg-neutral-500/10 ${
               isActive
-                ? "  text-orange-500 border"
-                : " dark:hover:text-neutral-400 border hover:text-neutral-500"
+                ? "  dark:text-neutral-100 font-semibold text-neutral-950  border  "
+                : "dark:text-neutral-400  text-neutral-900  border"
             }`
           }
         >

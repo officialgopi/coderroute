@@ -43,18 +43,18 @@ const CodeEditorPageLayout = () => {
   }, [slug]);
 
   return (
-    <div className="w-full">
+    <div className="w-full h-screen overflow-hidden ">
       <Suspense fallback={<div>Loading...</div>}>
         <CodeEditorPageNavbar />
       </Suspense>
-      <div className="w-full mt-[60px] h-[calc(100vh-60px)] overflow-hidden">
-        <div className="h-screen w-full p-2  flex overflow-hidden">
+      <div className="w-full mt-[60px] h-[calc(100vh-60px)] overflow-hidden ">
+        <div className="h-full w-full   flex overflow-hidden">
           {/* Left Sidebar */}
 
           {/* Horizontal Panels: Left (Description) | Right (Editor + Testcases) */}
           <PanelGroup
             direction="horizontal"
-            className="flex-1"
+            className="flex-1 flex gap-[1px] overflow-hidden h-full"
             autoSaveId="coderroute-problem-layout"
           >
             {/* Left Panel */}
@@ -63,25 +63,35 @@ const CodeEditorPageLayout = () => {
               defaultSize={40}
               minSize={25}
               maxSize={55}
-              className="overflow-y-auto border-r border-neutral-800"
+              className="overflow-hidden  h-full  "
             >
-              <Suspense fallback={<div>Loading...</div>}>
-                <LeftSidebar
-                  isProblemDetailsLoading={isProblemDetailsLoading}
-                  problemDetails={problemInCodeEditor}
-                />
-              </Suspense>
-              <Outlet />
+              <div className="h-full p-1  overflow-hidden ">
+                <div className="h-full flex flex-col w-full border rounded-md p-2 dark:bg-neutral-900  ">
+                  <Suspense fallback={<div>Loading...</div>}>
+                    <LeftSidebar
+                      isProblemDetailsLoading={isProblemDetailsLoading}
+                      problemDetails={problemInCodeEditor}
+                    />
+                  </Suspense>
+                  <div className="flex-1 overflow-y-scroll">
+                    <Outlet />
+                  </div>
+                </div>
+              </div>
             </Panel>
 
             {/* Resize Handle */}
-            <PanelResizeHandle className="w-1 bg-neutral-800 hover:bg-neutral-700 transition-colors cursor-col-resize" />
+            <PanelResizeHandle className="w-1 transition-colors  active:bg-neutral-500/50 bg-neutral-500/10 hover:bg-neutral-500/30  hover:opacity-100  cursor-col-resize p-0" />
 
             {/* Right Panel (Editor + Bottom Testcases) */}
-            <Panel>
+            <Panel className="overflow-hidden  h-full  border-neutral-800">
               <PanelGroup direction="vertical">
                 {/* Code Editor */}
-                <Panel defaultSize={70} minSize={50}>
+                <Panel
+                  defaultSize={70}
+                  minSize={50}
+                  className="p-2 h-full rounded-md overflow-hidden "
+                >
                   <Suspense fallback={<PageLoader />}>
                     <CodeEditorPane
                       problemDetails={problemInCodeEditor}
@@ -91,17 +101,19 @@ const CodeEditorPageLayout = () => {
                 </Panel>
 
                 {/* Resize Handle */}
-                <PanelResizeHandle className="h-1 bg-neutral-800 hover:bg-neutral-700 transition-colors cursor-row-resize" />
+                <PanelResizeHandle className="h-1 transition-colors  active:bg-neutral-500/50 bg-neutral-500/10 hover:bg-neutral-500/30  p-0 hover:opacity-100  cursor-col-resize" />
 
                 {/* Testcase Section */}
-                <Panel defaultSize={30} minSize={15}>
+                <Panel defaultSize={30} minSize={15} className="p-2">
                   {/* <TestcasePanel /> */}
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <TestCases
-                      isProblemDetailsLoading={isProblemDetailsLoading}
-                      testCases={problemInCodeEditor?.testcases!}
-                    />
-                  </Suspense>
+                  <div className="h-full overflow-y-scroll border rounded-md  dark:bg-neutral-900 ">
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <TestCases
+                        isProblemDetailsLoading={isProblemDetailsLoading}
+                        testCases={problemInCodeEditor?.testcases!}
+                      />
+                    </Suspense>
+                  </div>
                 </Panel>
               </PanelGroup>
             </Panel>
