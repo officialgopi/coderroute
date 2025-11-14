@@ -74,38 +74,7 @@ interface CodeExecutionState {
     problemId: string,
     source_code: string,
     language: TLanguage
-  ) => Promise<{
-    submission:
-      | {
-          id: string;
-          userId: string;
-          problemId: string;
-          sourceCode: string;
-          language: TLanguage;
-          compileOutput?: string;
-          status: string;
-          memory?: string;
-          time?: string;
-          createdAt: string;
-          updatedAt: string;
-          testCasesResults: {
-            id: string;
-            submissionId: string;
-            testCaseId: number;
-            passed: boolean;
-            stdout?: string;
-            expected?: string;
-            stderr?: string;
-            compileOutput?: string;
-            status?: string;
-            memory?: string;
-            time?: string;
-            createdAt: Date;
-            updatedAt: Date;
-          }[];
-        }
-      | undefined;
-  } | void>;
+  ) => Promise<ISubmission | void>;
 }
 
 export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
@@ -171,6 +140,7 @@ export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
       }
 
       useSubmissionStore.getState().setSubmission(response.data.submission);
+      return response.data.submission;
     } catch (error) {
       toast.error("An error occurred while submitting the code.");
     } finally {
