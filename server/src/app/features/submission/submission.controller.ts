@@ -61,7 +61,7 @@ const getSubmissionBySubmissionId = AsyncHandler(async (req, res) => {
       submission,
     },
     "Submission successfully fetched"
-  );
+  ).send(res);
 });
 const getSubmissionByProblemId = AsyncHandler(async (req, res) => {
   if (!req.user) {
