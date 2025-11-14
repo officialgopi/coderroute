@@ -36,32 +36,32 @@ const ProblemSubmissionDetails = () => {
     "
         >
           <div className="py-3">
-            <SectionHighlight label="Status" value={submission.status} />
+            <SectionHighlight label="Status" value={submission?.status} />
           </div>
 
           <div className="py-3">
             <SectionHighlight
               label="Memory Usage"
-              value={submission.memory ?? "N/A"}
+              value={submission?.memory ?? "N/A"}
             />
           </div>
 
           <div className="py-3">
             <SectionHighlight
               label="Time Taken"
-              value={submission.time ?? "N/A"}
+              value={submission?.time ?? "N/A"}
             />
           </div>
 
           <div className="py-3">
             <SectionHighlight
               label="Submitted At"
-              value={new Date(submission.createdAt).toLocaleString()}
+              value={new Date(submission?.createdAt).toLocaleString()}
             />
           </div>
 
           <div className="py-3">
-            <SectionHighlight label="Language" value={submission.language} />
+            <SectionHighlight label="Language" value={submission?.language} />
           </div>
 
           {/* Code */}
@@ -77,20 +77,20 @@ const ProblemSubmissionDetails = () => {
           leading-relaxed
         "
             >
-              <code>{submission.sourceCode}</code>
+              <code>{submission?.sourceCode}</code>
             </pre>
           </div>
 
           {/* Testcases */}
-          {submission.status === "WRONG_ANSWER" && (
+          {submission?.status === "WRONG_ANSWER" && (
             <div className="py-3">
               <h3 className="font-semibold text-neutral-700 dark:text-neutral-200 mb-3">
                 Failing Testcase Results
               </h3>
 
               <div className="space-y-4">
-                {submission.testcasesResults.map((tc) => {
-                  if (tc.passed) return null;
+                {submission?.testcasesResults.map((tc) => {
+                  if (tc?.passed) return null;
 
                   return (
                     <div
@@ -106,7 +106,7 @@ const ProblemSubmissionDetails = () => {
                       <p className="text-sm mb-2">
                         <span className="font-medium">Status:</span>{" "}
                         <span className="text-red-600 dark:text-red-400 font-semibold">
-                          {tc.status}
+                          {tc?.status}
                         </span>
                       </p>
 
@@ -114,7 +114,7 @@ const ProblemSubmissionDetails = () => {
                       <p className="text-sm mb-2">
                         <span className="font-medium">Expected:</span>{" "}
                         <span className="text-sky-700 dark:text-sky-400 font-semibold">
-                          {tc.expected}
+                          {tc?.expected}
                         </span>
                       </p>
 
@@ -122,7 +122,7 @@ const ProblemSubmissionDetails = () => {
                       <div className="mt-3">
                         <p className="font-semibold text-sm">Input:</p>
                         <pre className="whitespace-pre-wrap bg-neutral-200 dark:bg-neutral-800 p-2 rounded text-xs mt-1">
-                          <code>{tc.testcase.input}</code>
+                          <code>{tc?.testcase?.input}</code>
                         </pre>
                       </div>
 

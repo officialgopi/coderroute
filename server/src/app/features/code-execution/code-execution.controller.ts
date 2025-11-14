@@ -203,7 +203,11 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
       id: submission.id,
     },
     include: {
-      testcasesResults: true,
+      testcasesResults: {
+        include: {
+          testcase: true,
+        },
+      },
     },
   });
 

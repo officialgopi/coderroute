@@ -4,6 +4,7 @@ import { useCodeExecutionStore } from "@/store/code-execution.store";
 import { useProblemStore } from "@/store/problem.store";
 import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
 import { useSubmissionStore } from "@/store/submission.store";
+import { useNavigate } from "react-router-dom";
 
 const CenterSection = () => {
   const { problemInCodeEditor, codeInEditor } = useProblemStore();
@@ -11,6 +12,7 @@ const CenterSection = () => {
     useCodeExecutionStore();
   const { setSubmission } = useSubmissionStore();
   const { language } = useCodeEditorSettingsStore();
+  const navigate = useNavigate();
   const handleRun = async () => {
     await runCode(
       problemInCodeEditor?.id!,
@@ -26,7 +28,12 @@ const CenterSection = () => {
       codeInEditor,
       language
     );
-    if (submission) setSubmission(submission);
+    if (submission) {
+      setSubmission(submission);
+      navigate(
+        `/problems/${problemInCodeEditor?.slug}/submissions/${submission.id}`
+      );
+    }
   };
   return (
     <div className="flex items-center  flex-1 justify-center">
