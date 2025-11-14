@@ -2,7 +2,7 @@ import { create } from "zustand";
 import type { ISubmission, TLanguage } from "../types/types";
 import { apiCallHandler } from "../utils/api-call-handler.util";
 import { toast } from "sonner";
-import { useSubmissionStore } from "./submission.store";
+// import { useSubmissionStore } from "./submission.store";
 interface CodeExecutionState {
   isRunning: boolean;
   isSubmitting: boolean;
@@ -139,7 +139,7 @@ export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
         return;
       }
 
-      useSubmissionStore.getState().setSubmission(response.data.submission);
+      // useSubmissionStore.getState().setSubmission(response.data.submission);
       return response.data.submission;
     } catch (error) {
       toast.error("An error occurred while submitting the code.");

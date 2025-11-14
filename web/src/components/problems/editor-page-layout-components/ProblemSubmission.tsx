@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 
 const ProblemSubmission = () => {
   const { problemInCodeEditor } = useProblemStore();
-  const { getSubmissionsByProblemId, isSubmissionLoading } =
+  const { getSubmissionsByProblemId, isSubmissionLoading, allSubmissions } =
     useSubmissionStore();
   const [submissions, setSubmissions] = useState<ISubmission[]>([]);
   useEffect(() => {
@@ -16,7 +16,7 @@ const ProblemSubmission = () => {
     if (problemInCodeEditor) {
       getSubmissions(problemInCodeEditor.id);
     }
-  }, [problemInCodeEditor, getSubmissionsByProblemId]);
+  }, [problemInCodeEditor, getSubmissionsByProblemId, allSubmissions]);
   return (
     <div className="w-full h-full flex flex-col py-2">
       {isSubmissionLoading && <p>Loading submissions...</p>}

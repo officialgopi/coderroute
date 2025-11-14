@@ -147,24 +147,38 @@ const useSubmissionStore = create<ISubmisisonStore>((set, get) => ({
     }
   },
   setSubmission: (submission: ISubmission) => {
-    set({
-      allSubmissions: [
-        ...get().allSubmissions.filter(
-          (s) => s.problemId !== submission.problemId
-        ),
-        {
-          problemId: submission.problemId,
-          submissions: [
-            submission,
-            ...(
-              get().allSubmissions.find(
-                (s) => s.problemId === submission.problemId
-              )?.submissions || []
-            ).filter((sub) => sub.id !== submission.id),
-          ],
-        },
-      ],
-    });
+    const submisssionOfProblem = get().allSubmissions.find(
+      (s) => s.problemId === submission.problemId
+    );
+    if (submisssionOfProblem) {
+      const updatedSubmissions = {
+        problemId: submission.problemId,
+        submissions: [
+          submission,
+          ...submisssionOfProblem.submissions.filter(
+            (s) => s.id !== submission.id
+          ),
+        ],
+      };
+      set({
+        allSubmissions: [
+          ...get().allSubmissions.filter(
+            (s) => s.problemId !== submission.problemId
+          ),
+          updatedSubmissions,
+        ],
+      });
+    } else {
+      set({
+        allSubmissions: [
+          ...get().allSubmissions,
+          {
+            problemId: submission.problemId,
+            submissions: [submission],
+          },
+        ],
+      });
+    }
   },
 }));
 

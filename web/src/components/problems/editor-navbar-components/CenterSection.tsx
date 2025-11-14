@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { useCodeExecutionStore } from "@/store/code-execution.store";
 import { useProblemStore } from "@/store/problem.store";
 import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
+import { useSubmissionStore } from "@/store/submission.store";
 
 const CenterSection = () => {
   const { problemInCodeEditor, codeInEditor } = useProblemStore();
   const { isRunning, isSubmitting, runCode, submitCode } =
     useCodeExecutionStore();
+  const { setSubmission } = useSubmissionStore();
   const { language } = useCodeEditorSettingsStore();
   const handleRun = async () => {
     await runCode(
@@ -19,7 +21,12 @@ const CenterSection = () => {
     );
   };
   const handleSubmit = async () => {
-    await submitCode(problemInCodeEditor?.id!, codeInEditor, language);
+    const submission = await submitCode(
+      problemInCodeEditor?.id!,
+      codeInEditor,
+      language
+    );
+    if (submission) setSubmission(submission);
   };
   return (
     <div className="flex items-center  flex-1 justify-center">
