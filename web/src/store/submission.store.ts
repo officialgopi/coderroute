@@ -90,47 +90,10 @@ const useSubmissionStore = create<ISubmisisonStore>((set, get) => ({
         toast.error("No submission Found");
         return;
       }
-      const existingSubmission = get().allSubmissions.find(
-        (s) => s.problemId === submission.data?.submission.problemId
-      );
-      let updatedSubmissions:
-        | {
-            problemId: string;
-            submissions: ISubmission[];
-          }
-        | undefined;
-      if (!existingSubmission) {
-        updatedSubmissions = {
-          problemId: submission.data?.submission.problemId!,
-          submissions: [submission.data?.submission!],
-        };
 
-        set({
-          allSubmissions: [...get().allSubmissions, updatedSubmissions],
-          isSubmissionLoading: false,
-        });
-      } else {
-        updatedSubmissions = {
-          problemId: submission.data?.submission.problemId!,
-          submissions: existingSubmission?.submissions.map((s) => {
-            if (s.id !== submission.data?.submission.id) {
-              return s;
-            } else {
-              return submission.data.submission;
-            }
-          }),
-        };
-        set({
-          allSubmissions: get().allSubmissions.map((s) => {
-            if (s.problemId == updatedSubmissions?.problemId) {
-              return updatedSubmissions;
-            } else {
-              return s;
-            }
-          }),
-          isSubmissionLoading: false,
-        });
-      }
+      set({
+        isSubmissionLoading: false,
+      });
       return submission.data?.submission;
     } catch (error) {
       toast.error("Something weht wrong");

@@ -5,7 +5,8 @@ import { Link } from "react-router-dom";
 
 const ProblemSubmission = () => {
   const { problemInCodeEditor } = useProblemStore();
-  const { getSubmissionsByProblemId } = useSubmissionStore();
+  const { getSubmissionsByProblemId, isSubmissionLoading } =
+    useSubmissionStore();
   const [submissions, setSubmissions] = useState<ISubmission[]>([]);
   useEffect(() => {
     async function getSubmissions(problemId: string) {
@@ -18,11 +19,13 @@ const ProblemSubmission = () => {
   }, [problemInCodeEditor, getSubmissionsByProblemId]);
   return (
     <div className="w-full h-full flex flex-col py-2">
-      {submissions.map((submission) => (
-        <Link
-          to={`${submission.id}`}
-          key={submission.id}
-          className={`
+      {isSubmissionLoading && <p>Loading submissions...</p>}
+      {!isSubmissionLoading &&
+        submissions.map((submission) => (
+          <Link
+            to={`${submission.id}`}
+            key={submission.id}
+            className={`
       rounded-lg
       border
       border-neutral-300 
@@ -43,14 +46,14 @@ ${
     : "bg-yellow-500/15 text-yellow-500"
 }
     `}
-        >
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-[15px] font-medium text-neutral-500 dark:text-neutral-400">
-              {new Date(submission.createdAt).toLocaleString()}
-            </p>
+          >
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-[15px] font-medium text-neutral-500 dark:text-neutral-400">
+                {new Date(submission.createdAt).toLocaleString()}
+              </p>
 
-            <span
-              className={`
+              <span
+                className={`
           px-2 py-0.5 rounded-full text-[10px] font-semibold
           ${
             submission.status === "ACCEPTED"
@@ -60,21 +63,21 @@ ${
               : "bg-yellow-500/15 text-yellow-500"
           }
         `}
-            >
-              {submission.status}
-            </span>
-          </div>
+              >
+                {submission.status}
+              </span>
+            </div>
 
-          <div className="space-y-0.5">
-            <p className="text-xs">
-              <span className="font-semibold text-neutral-700 dark:text-neutral-200">
-                Language:
-              </span>{" "}
-              {submission.language}
-            </p>
-          </div>
-        </Link>
-      ))}
+            <div className="space-y-0.5">
+              <p className="text-xs">
+                <span className="font-semibold text-neutral-700 dark:text-neutral-200">
+                  Language:
+                </span>{" "}
+                {submission.language}
+              </p>
+            </div>
+          </Link>
+        ))}
     </div>
   );
 };

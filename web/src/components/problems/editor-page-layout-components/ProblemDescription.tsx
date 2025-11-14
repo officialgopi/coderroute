@@ -1,11 +1,17 @@
 import QuillContentRenderer from "@/components/ui/QuillContentRender";
-import type { IProblem } from "@/types/types";
+import { useProblemStore } from "@/store/problem.store";
 
-const ProblemDescription = ({ problem }: { problem: IProblem | undefined }) => {
+const ProblemDescription = () => {
+  const { problemInCodeEditor } = useProblemStore();
   return (
     <div className="p-6 ">
-      <h2 className="text-xl font-semibold mb-2 ">{problem?.title}</h2>
-      <QuillContentRenderer htmlContent={problem?.description || ""} />
+      <h2 className="text-lg font-semibold mb-2 ">
+        {problemInCodeEditor?.title}
+      </h2>
+      <h1 className="text-2xl font-semibold mb-2 ">Description</h1>
+      <QuillContentRenderer
+        htmlContent={problemInCodeEditor?.description || ""}
+      />
     </div>
   );
 };
