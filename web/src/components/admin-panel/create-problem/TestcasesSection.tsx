@@ -14,7 +14,7 @@ interface Props {
   setProblem: React.Dispatch<React.SetStateAction<CreateProblemBody>>;
 }
 
-const TestCasesSection: React.FC<Props> = ({ problem, setProblem }) => {
+const TestcasesSection: React.FC<Props> = ({ problem, setProblem }) => {
   const addTestcase = () => {
     setProblem((prev) => ({
       ...prev,
@@ -106,4 +106,4 @@ const TestCasesSection: React.FC<Props> = ({ problem, setProblem }) => {
   );
 };
 
-export default TestCasesSection;
+export default TestcasesSection;

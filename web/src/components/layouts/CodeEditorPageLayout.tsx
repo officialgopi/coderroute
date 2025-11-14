@@ -18,7 +18,7 @@ const CodeEditorPane = lazy(
 );
 
 const TestCases = lazy(
-  () => import("@/components/problems/editor-page-layout-components/TestCases")
+  () => import("@/components/problems/editor-page-layout-components/Testcases")
 );
 
 const CodeEditorPageLayout = () => {

@@ -10,13 +10,13 @@ interface TestCase {
   passed?: boolean;
 }
 
-interface TestCasesProps {
+interface TestcasesProps {
   testcases: TestCase[];
   isProblemDetailsLoading: boolean;
   isRunning?: boolean;
 }
 
-const TestCases: React.FC<TestCasesProps> = ({
+const Testcases: React.FC<TestcasesProps> = ({
   testcases,
   isRunning,
   isProblemDetailsLoading,
@@ -124,4 +124,4 @@ const TestCases: React.FC<TestCasesProps> = ({
   );
 };
 
-export default TestCases;
+export default Testcases;

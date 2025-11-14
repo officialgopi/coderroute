@@ -9,7 +9,7 @@ const ProblemMetadata = lazy(
   () => import("@/components/admin-panel/create-problem/ProblemMetadata")
 );
 const TestCasesSection = lazy(
-  () => import("@/components/admin-panel/create-problem/TestCasesSection")
+  () => import("@/components/admin-panel/create-problem/TestcasesSection")
 );
 const HintsAndConstraints = lazy(
   () => import("@/components/admin-panel/create-problem/HintsAndConstraints")
