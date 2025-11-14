@@ -34,6 +34,12 @@ const ProblemEditorialPage = lazy(
 const ProblemSolutionPage = lazy(
   () => import("@/pages/(problems)/ProblemSolutionPage")
 );
+const ProblemSubmissionPage = lazy(
+  () => import("@/pages/(problems)/ProblemSubmissionPage")
+);
+const ProblemSubmissionDetailsPage = lazy(
+  () => import("@/pages/(problems)/ProblemSubmissionDetailsPage")
+);
 
 //Discussion Pages
 const DiscussionsPage = lazy(
@@ -133,6 +139,14 @@ const Router = () => {
                 <Route
                   path="/problems/:slug/solution"
                   element={<ProblemSolutionPage key={"code-editor"} />}
+                />
+                <Route
+                  path="/problems/:slug/submissions"
+                  element={<ProblemSubmissionPage key={"code-editor"} />}
+                />
+                <Route
+                  path="/problems/:slug/submissions/:submissionId"
+                  element={<ProblemSubmissionDetailsPage key={"code-editor"} />}
                 />
               </Route>
               <Route element={<MainLayout key={"main-layout"} />}>

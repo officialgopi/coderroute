@@ -18,7 +18,7 @@ const LeftSidebar = ({
   isProblemDetailsLoading: boolean;
 }) => (
   <motion.div
-    className="flex  px-2 items-center   gap-2  overflow-x-scroll  "
+    className="flex  px-2 items-center   gap-2  overflow-x-scroll  border-b "
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
   >
