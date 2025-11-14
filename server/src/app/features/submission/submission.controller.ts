@@ -42,6 +42,13 @@ const getSubmissionBySubmissionId = AsyncHandler(async (req, res) => {
       id: data.submissionId,
       userId: userId,
     },
+    include: {
+      testcasesResults: {
+        include: {
+          testcase: true,
+        },
+      },
+    },
   });
 
   if (!submission) {
@@ -76,6 +83,16 @@ const getSubmissionByProblemId = AsyncHandler(async (req, res) => {
     where: {
       userId: userId,
       problemId: problemId,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    include: {
+      testcasesResults: {
+        include: {
+          testcase: true,
+        },
+      },
     },
   });
 
