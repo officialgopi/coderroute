@@ -1,4 +1,3 @@
-import PageLoader from "@/components/loaders/PageLoader";
 import { useThemeStore } from "@/lib/theme.lib";
 import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
 import { useProblemStore } from "@/store/problem.store";
@@ -34,7 +33,7 @@ const CodeEditorPane = ({
   }, [language, problemDetails]);
 
   return isProblemDetailsLoading ? (
-    <PageLoader />
+    <div className="h-full w-full rounded-md bg-neutral-100 dark:bg-neutral-500/20 animate-pulse" />
   ) : (
     <div className="h-full flex flex-col rounded-md overflow-hidden  ">
       <div className="flex items-center justify-between px-4 py-2 ">
@@ -62,7 +61,11 @@ const CodeEditorPane = ({
         </div>
       </div>
       <div className="flex-1 rounded-md overflow-hidden border ">
-        <Suspense fallback={<PageLoader />}>
+        <Suspense
+          fallback={
+            <div className="h-full w-full bg-neutral-100 dark:bg-neutral-500/20 animate-pulse" />
+          }
+        >
           <Editor
             height="100%"
             className="px-2 dark:bg-neutral-500/20"

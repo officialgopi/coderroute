@@ -1,6 +1,9 @@
 import { db } from "../../../db";
 import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
-import { getSubmissionByProblemIdParamsSchema } from "./submission.schema";
+import {
+  getSubmissionByProblemIdParamsSchema,
+  getSubmissionBySubmissionIdParamsSchema,
+} from "./submission.schema";
 
 const getAllSubmissions = AsyncHandler(async (req, res) => {
   if (!req.user) {
@@ -19,7 +22,40 @@ const getAllSubmissions = AsyncHandler(async (req, res) => {
     submissions,
   }).send(res);
 });
+const getSubmissionBySubmissionId = AsyncHandler(async (req, res) => {
+  if (!req.user) {
+    throw new ApiError(401, "Unauthorized");
+  }
 
+  const userId = req.user.id;
+
+  const { data, success } = getSubmissionBySubmissionIdParamsSchema.safeParse(
+    req.params
+  );
+
+  if (!success || !data) {
+    throw new ApiError(400, "Invalid request data");
+  }
+
+  const submission = await db.submission.findUnique({
+    where: {
+      id: data.submissionId,
+      userId: userId,
+    },
+  });
+
+  if (!submission) {
+    throw new ApiError(400, "No submission found");
+  }
+
+  new ApiResponse(
+    200,
+    {
+      submission,
+    },
+    "Submission successfully fetched"
+  );
+});
 const getSubmissionByProblemId = AsyncHandler(async (req, res) => {
   if (!req.user) {
     throw new ApiError(401, "Unauthorized");
@@ -74,4 +110,5 @@ export {
   getAllSubmissions,
   getSubmissionByProblemId,
   getSubmissionsCountByProblemId,
+  getSubmissionBySubmissionId,
 };

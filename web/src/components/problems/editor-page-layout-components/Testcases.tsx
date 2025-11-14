@@ -1,26 +1,38 @@
-import React, { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, ChevronDown, ChevronRight } from "lucide-react";
+import { useCodeExecutionStore } from "@/store/code-execution.store";
+import { useProblemStore } from "@/store/problem.store";
 
-interface TestCase {
-  id: number;
-  input: string;
-  output: string;
-  userOutput?: string;
-  passed?: boolean;
-}
+const Testcases = () => {
+  const { isProblemDetailsLoading, problemInCodeEditor } = useProblemStore();
+  const { currentProblemRunningResult } = useCodeExecutionStore();
+  const testcases = useMemo(() => {
+    const runningResult = currentProblemRunningResult;
+    if (runningResult && problemInCodeEditor) {
+      return runningResult.testcases.map((tc) => ({
+        id: tc.testcase,
+        input: problemInCodeEditor.testcases?.find(
+          (tc2) => tc.testcase === tc2.id
+        )?.input,
+        output: tc.expected,
+        userOutput: tc.actual,
+        passed: tc.passed,
+        status: tc.status,
+      }));
+    } else {
+      return problemInCodeEditor?.testcases?.map((tc, index) => ({
+        id: index,
+        input: tc.input,
+        output: tc.output,
+        passed: undefined,
+        userOutput: undefined,
+        status: undefined,
+      }));
+    }
+  }, [problemInCodeEditor, currentProblemRunningResult]);
 
-interface TestcasesProps {
-  testcases: TestCase[];
-  isProblemDetailsLoading: boolean;
-  isRunning?: boolean;
-}
-
-const Testcases: React.FC<TestcasesProps> = ({
-  testcases,
-  isRunning,
-  isProblemDetailsLoading,
-}) => {
+  const { isRunning } = useCodeExecutionStore();
   const [expanded, setExpanded] = useState<number | null>(null);
 
   if (isProblemDetailsLoading) {
@@ -62,7 +74,7 @@ const Testcases: React.FC<TestcasesProps> = ({
                   <XCircle className="w-4 h-4 text-red-500" />
                 )}
                 <span className="text-sm  font-medium">
-                  Test Case #{test.id}
+                  Testcase #{test.id}
                 </span>
               </div>
 
@@ -80,7 +92,7 @@ const Testcases: React.FC<TestcasesProps> = ({
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.25, ease: "easeOut" }}
-                  className="px-4 pb-3 space-y-2 text-sm "
+                  className="px-4 pb-3 space-y-2 text-sm font-bold "
                 >
                   <div>
                     <span className="text-neutral-500 text-xs">Input</span>
@@ -106,11 +118,25 @@ const Testcases: React.FC<TestcasesProps> = ({
                       <pre
                         className={`mt-1 border rounded-md p-2 text-xs overflow-x-auto ${
                           test.passed
-                            ? "bg-green-950/30 border-green-900 text-green-400"
-                            : "bg-red-950/30 border-red-900 text-red-400"
+                            ? "dark:bg-green-950/30 border-green-900 text-green-400"
+                            : "bg-neutral-50 dark:bg-red-950/30 border-red-900 text-red-400"
                         }`}
                       >
-                        {test.userOutput}
+                        {test.userOutput || "undefined"}
+                      </pre>
+                    </div>
+                  )}
+                  {test.status !== undefined && (
+                    <div>
+                      <span className="text-neutral-500 text-xs">Status</span>
+                      <pre
+                        className={`mt-1 border rounded-md p-2 text-xs overflow-x-auto ${
+                          test.passed
+                            ? "dark:bg-green-950/30 border-green-900 text-green-400"
+                            : "bg-neutral-50 dark:bg-red-950/30 border-red-900 text-red-400"
+                        }`}
+                      >
+                        {test.status}
                       </pre>
                     </div>
                   )}

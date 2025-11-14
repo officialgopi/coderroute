@@ -2,11 +2,14 @@ import { Router } from "express";
 import {
   getAllSubmissions,
   getSubmissionByProblemId,
+  getSubmissionBySubmissionId,
   getSubmissionsCountByProblemId,
 } from "./submission.controller";
 import { isAuthenticated } from "../../middlewares/auth.middleware";
 
 const submissionRouter = Router();
+
+submissionRouter.use(isAuthenticated);
 
 /**
  * @swagger
@@ -58,11 +61,7 @@ const submissionRouter = Router();
  *             schema:
  *               $ref: '#/components/schemas/ApiError'
  */
-submissionRouter.get(
-  "/get-all-submissions",
-  isAuthenticated,
-  getAllSubmissions
-);
+submissionRouter.get("/get-all-submissions", getAllSubmissions);
 
 /**
  * @swagger
@@ -123,11 +122,7 @@ submissionRouter.get(
  *             schema:
  *               $ref: '#/components/schemas/ApiError'
  */
-submissionRouter.get(
-  "/get-submissions/:problemId",
-  isAuthenticated,
-  getSubmissionByProblemId
-);
+submissionRouter.get("/get-submissions/:problemId", getSubmissionByProblemId);
 
 /**
  * @swagger
@@ -192,8 +187,9 @@ submissionRouter.get(
  */
 submissionRouter.get(
   "/get-submissions-count/:problemId",
-  isAuthenticated,
   getSubmissionsCountByProblemId
 );
+
+submissionRouter.get("/:submissionId", getSubmissionBySubmissionId);
 
 export { submissionRouter };

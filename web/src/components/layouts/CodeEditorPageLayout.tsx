@@ -1,4 +1,3 @@
-import PageLoader from "@/components/loaders/PageLoader";
 import { useProblemStore } from "@/store/problem.store";
 import { lazy, Suspense, useEffect } from "react";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
@@ -17,7 +16,7 @@ const CodeEditorPane = lazy(
     import("@/components/problems/editor-page-layout-components/CodeEditorPane")
 );
 
-const TestCases = lazy(
+const Testcases = lazy(
   () => import("@/components/problems/editor-page-layout-components/Testcases")
 );
 
@@ -92,7 +91,11 @@ const CodeEditorPageLayout = () => {
                   minSize={50}
                   className="p-2 h-full rounded-md overflow-hidden "
                 >
-                  <Suspense fallback={<PageLoader />}>
+                  <Suspense
+                    fallback={
+                      <div className="h-full w-full bg-neutral-100 dark:bg-neutral-500/20 animate-pulse" />
+                    }
+                  >
                     <CodeEditorPane
                       problemDetails={problemInCodeEditor}
                       isProblemDetailsLoading={isProblemDetailsLoading}
@@ -108,10 +111,7 @@ const CodeEditorPageLayout = () => {
                   {/* <TestcasePanel /> */}
                   <div className="h-full overflow-y-scroll border rounded-md  dark:bg-neutral-900 ">
                     <Suspense fallback={<div>Loading...</div>}>
-                      <TestCases
-                        isProblemDetailsLoading={isProblemDetailsLoading}
-                        testcases={problemInCodeEditor?.testcases!}
-                      />
+                      <Testcases />
                     </Suspense>
                   </div>
                 </Panel>

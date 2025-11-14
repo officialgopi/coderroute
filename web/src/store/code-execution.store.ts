@@ -5,6 +5,49 @@ import { toast } from "sonner";
 interface CodeExecutionState {
   isRunning: boolean;
   isSubmitting: boolean;
+  currentProblemRunningResult: {
+    status: "ACCEPTED" | "WRONG_ANSWER";
+    testcases: {
+      testcase: number;
+      passed: boolean;
+      expected: string;
+      actual: string;
+      time: string;
+      memory: string;
+      status: string;
+      stderr: string | null;
+      compile_output: any;
+    }[];
+  } | null;
+  currentProblemSubmittingResult: {
+    id: string;
+    userId: string;
+    problemId: string;
+    sourceCode: string;
+    language: TLanguage;
+    compileOutput?: string;
+    status: string;
+    memory?: string;
+    time?: string;
+    createdAt: string;
+    updatedAt: string;
+    testCasesResults: {
+      id: string;
+      submissionId: string;
+      testCaseId: number;
+      passed: boolean;
+      stdout?: string;
+      expected?: string;
+      stderr?: string;
+      compileOutput?: string;
+      status?: string;
+      memory?: string;
+      time?: string;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+  } | null;
+  resetRunningResult: () => void;
 
   runCode: (
     problemId: string,
@@ -67,6 +110,12 @@ interface CodeExecutionState {
 export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
   isRunning: false,
   isSubmitting: false,
+  currentProblemRunningResult: null,
+  currentProblemSubmittingResult: null,
+  resetRunningResult: () =>
+    set({
+      currentProblemRunningResult: null,
+    }),
   runCode: async (problemId, source_code, stdin, expectedOutput, language) => {
     set({
       isRunning: true,
@@ -86,6 +135,9 @@ export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
         toast.error("Failed to run code. Please try again.");
         return;
       }
+      set({
+        currentProblemRunningResult: response.data,
+      });
       return response.data;
     } catch (error) {
       toast.error("An error occurred while running the code.");
@@ -113,6 +165,9 @@ export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
         toast.error("Failed to submit code. Please try again.");
         return;
       }
+      set({
+        currentProblemSubmittingResult: response.data,
+      });
       return response.data;
     } catch (error) {
       toast.error("An error occurred while submitting the code.");
