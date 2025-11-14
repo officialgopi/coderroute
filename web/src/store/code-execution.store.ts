@@ -1,7 +1,8 @@
 import { create } from "zustand";
-import type { TLanguage } from "../types/types";
+import type { ISubmission, TLanguage } from "../types/types";
 import { apiCallHandler } from "../utils/api-call-handler.util";
 import { toast } from "sonner";
+import { useSubmissionStore } from "./submission.store";
 interface CodeExecutionState {
   isRunning: boolean;
   isSubmitting: boolean;
@@ -19,34 +20,34 @@ interface CodeExecutionState {
       compile_output: any;
     }[];
   } | null;
-  currentProblemSubmittingResult: {
-    id: string;
-    userId: string;
-    problemId: string;
-    sourceCode: string;
-    language: TLanguage;
-    compileOutput?: string;
-    status: string;
-    memory?: string;
-    time?: string;
-    createdAt: string;
-    updatedAt: string;
-    testCasesResults: {
-      id: string;
-      submissionId: string;
-      testCaseId: number;
-      passed: boolean;
-      stdout?: string;
-      expected?: string;
-      stderr?: string;
-      compileOutput?: string;
-      status?: string;
-      memory?: string;
-      time?: string;
-      createdAt: Date;
-      updatedAt: Date;
-    }[];
-  } | null;
+  // currentProblemSubmittingResult: {
+  //   id: string;
+  //   userId: string;
+  //   problemId: string;
+  //   sourceCode: string;
+  //   language: TLanguage;
+  //   compileOutput?: string;
+  //   status: string;
+  //   memory?: string;
+  //   time?: string;
+  //   createdAt: string;
+  //   updatedAt: string;
+  //   testCasesResults: {
+  //     id: string;
+  //     submissionId: string;
+  //     testCaseId: number;
+  //     passed: boolean;
+  //     stdout?: string;
+  //     expected?: string;
+  //     stderr?: string;
+  //     compileOutput?: string;
+  //     status?: string;
+  //     memory?: string;
+  //     time?: string;
+  //     createdAt: Date;
+  //     updatedAt: Date;
+  //   }[];
+  // } | null;
   resetRunningResult: () => void;
 
   runCode: (
@@ -111,7 +112,6 @@ export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
   isRunning: false,
   isSubmitting: false,
   currentProblemRunningResult: null,
-  currentProblemSubmittingResult: null,
   resetRunningResult: () =>
     set({
       currentProblemRunningResult: null,
@@ -153,22 +153,24 @@ export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
       isSubmitting: true,
     });
     try {
-      const response = await apiCallHandler(
-        `/code-execution/${problemId}/submit`,
-        "POST",
+      const response = await apiCallHandler<
         {
-          source_code,
-          language,
+          source_code: string;
+          language: TLanguage;
+        },
+        {
+          submission: ISubmission;
         }
-      );
+      >(`/code-execution/${problemId}/submit`, "POST", {
+        source_code,
+        language,
+      });
       if (!response.data) {
         toast.error("Failed to submit code. Please try again.");
         return;
       }
-      set({
-        currentProblemSubmittingResult: response.data,
-      });
-      return response.data;
+
+      useSubmissionStore.getState().setSubmission(response.data.submission);
     } catch (error) {
       toast.error("An error occurred while submitting the code.");
     } finally {

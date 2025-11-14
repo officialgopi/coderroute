@@ -53,6 +53,7 @@ interface ISubmisisonStore {
   getSubmissionsByProblemId: (
     problemId: string
   ) => Promise<ISubmission[] | void>;
+  setSubmission: (submission: ISubmission) => void;
 }
 
 const useSubmissionStore = create<ISubmisisonStore>((set, get) => ({
@@ -144,6 +145,26 @@ const useSubmissionStore = create<ISubmisisonStore>((set, get) => ({
     } finally {
       if (get().isSubmissionLoading) set({ isSubmissionLoading: false });
     }
+  },
+  setSubmission: (submission: ISubmission) => {
+    set({
+      allSubmissions: [
+        ...get().allSubmissions.filter(
+          (s) => s.problemId !== submission.problemId
+        ),
+        {
+          problemId: submission.problemId,
+          submissions: [
+            submission,
+            ...(
+              get().allSubmissions.find(
+                (s) => s.problemId === submission.problemId
+              )?.submissions || []
+            ).filter((sub) => sub.id !== submission.id),
+          ],
+        },
+      ],
+    });
   },
 }));
 
