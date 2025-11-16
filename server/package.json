@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch src --exec ts-node src/index.ts",
-    "build": "npm install && prisma migrate deploy && prisma generate --no-engine && npx tsc -b",
+    "build": "npm install && prisma migrate deploy && prisma generate && npx tsc -b",
     "start": "node dist/index.js",
     "migrate:db:deploy": "prisma migrate deploy",
     "migrate:db:reset": "prisma migrate reset --force",
