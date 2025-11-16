@@ -1,6 +1,5 @@
 import { apiCallHandler } from "@/utils/api-call-handler.util";
 import { create } from "zustand";
-import type { IProblem } from "@/types/types";
 import { toast } from "sonner";
 
 interface ISheet {
@@ -11,7 +10,13 @@ interface ISheet {
   updatedAt: string;
   isPublic: boolean;
   copyFromSheetId?: string;
-  problems?: IProblem[];
+  problems?: {
+    id: string;
+    createdAt: Date;
+    updatedAt: Date;
+    problemId: string;
+    sheetId: string;
+  }[];
 }
 
 interface SheetState {
@@ -30,7 +35,7 @@ interface SheetState {
     description?: string;
   }) => Promise<void>;
 
-  getSheets: () => Promise<void>;
+  getSheets: () => Promise<ISheet[] | void>;
 
   getSheetById: (sheetId: string) => Promise<ISheet | undefined>;
 }
@@ -40,7 +45,7 @@ export const useSheetStore = create<SheetState>((set, get) => ({
   isSheetCreating: false,
   isSheetUpdating: false,
   isSheetDeleting: false,
-
+  sheets: [],
   createSheet: async ({ name, description }) => {
     set({ isSheetCreating: true });
     try {
@@ -74,6 +79,12 @@ export const useSheetStore = create<SheetState>((set, get) => ({
 
   getSheets: async () => {
     set({ isSheetsLoading: true });
+
+    if (get().sheets && get().sheets?.length! > 0) {
+      set({ isSheetsLoading: false });
+      return get().sheets;
+    }
+
     try {
       const res = await apiCallHandler<null, { sheets: ISheet[] }>(
         `/sheet`,
@@ -89,6 +100,8 @@ export const useSheetStore = create<SheetState>((set, get) => ({
         sheets: res.data.sheets,
         isSheetsLoading: false,
       });
+
+      return res.data.sheets;
     } catch (error) {
       toast.error("An error occurred while fetching sheets");
     } finally {

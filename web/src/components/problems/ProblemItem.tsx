@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Star } from "lucide-react";
 import type { IProblem } from "@/store/problem.store";
 import { Link } from "react-router-dom";
+import { ProblemListModal } from "./ProblemListModal";
 
 interface ProblemItemProps {
   problem: IProblem;
@@ -10,6 +11,9 @@ interface ProblemItemProps {
 }
 
 export const ProblemItem: React.FC<ProblemItemProps> = ({ problem, index }) => {
+  const [open, setOpen] = useState(false);
+  const userLists = ["Favorite", "SQL"]; // later you make dynamic
+
   const getDiffColor = (difficulty: string) => {
     switch (difficulty) {
       case "EASY":
@@ -46,6 +50,17 @@ export const ProblemItem: React.FC<ProblemItemProps> = ({ problem, index }) => {
           {problem.difficulty.charAt(0) +
             problem.difficulty.slice(1).toLowerCase()}
         </span>
+        <button
+          className=" relative cursor-pointer  rounded-md hover:bg-neutral-200/50 dark:hover:bg-neutral-800/50 transition-colors"
+          onClick={() => setOpen(true)}
+        >
+          <ProblemListModal
+            open={open}
+            onClose={() => setOpen(false)}
+            lists={userLists}
+          />
+          <Star className="w-5 h-5  text-neutral-950 dark:text-neutral-100" />
+        </button>
       </div>
     </motion.div>
   );

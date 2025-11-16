@@ -31,6 +31,9 @@ const createSheet = AsyncHandler(async (req, res) => {
       description: data.description,
       userId: req.user.id,
     },
+    include: {
+      problems: true,
+    },
   });
 
   new ApiResponse(
