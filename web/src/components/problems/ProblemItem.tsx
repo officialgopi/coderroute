@@ -12,7 +12,6 @@ interface ProblemItemProps {
 
 export const ProblemItem: React.FC<ProblemItemProps> = ({ problem, index }) => {
   const [open, setOpen] = useState(false);
-  const userLists = ["Favorite", "SQL"]; // later you make dynamic
 
   const getDiffColor = (difficulty: string) => {
     switch (difficulty) {
@@ -57,7 +56,7 @@ export const ProblemItem: React.FC<ProblemItemProps> = ({ problem, index }) => {
           <ProblemListModal
             open={open}
             onClose={() => setOpen(false)}
-            lists={userLists}
+            problemId={problem.id}
           />
           <Star className="w-5 h-5  text-neutral-950 dark:text-neutral-100" />
         </button>

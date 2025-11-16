@@ -1,16 +1,29 @@
+import { useSheetStore, type ISheet } from "@/store/sheet.store";
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
 
 interface ProblemListModalProps {
   open: boolean;
   onClose: () => void;
-  lists: string[];
+  problemId: string;
 }
 
 export const ProblemListModal: React.FC<ProblemListModalProps> = ({
   open,
   onClose,
-  lists,
+  problemId,
 }) => {
+  const { getSheets } = useSheetStore();
+  const [sheets, setSheets] = useState<ISheet[]>([]);
+  useEffect(() => {
+    const fetchSheets = async () => {
+      const data = await getSheets();
+      if (data) {
+        setSheets(data);
+      }
+    };
+    fetchSheets();
+  }, [getSheets]);
   return (
     <AnimatePresence mode="wait">
       {open && (
@@ -36,9 +49,9 @@ export const ProblemListModal: React.FC<ProblemListModalProps> = ({
           </h2>
 
           <div className="space-y-2">
-            {lists.map((listName) => (
+            {sheets.map(({ id, name }) => (
               <label
-                key={listName}
+                key={id}
                 className="
                   flex items-center gap-3 px-2 py-2
                   rounded-md cursor-pointer
@@ -49,8 +62,10 @@ export const ProblemListModal: React.FC<ProblemListModalProps> = ({
                 <input
                   type="checkbox"
                   className="w-4 h-4 accent-neutral-700 dark:accent-neutral-300 cursor-pointer"
+                  //   onChange={(e) => {}}
+                  checked={sheets.some((sheet) => sheet.id === problemId)}
                 />
-                <span className="text-sm">{listName}</span>
+                <span className="text-sm">{name}</span>
               </label>
             ))}
           </div>

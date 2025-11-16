@@ -1,6 +1,5 @@
 import React from "react";
 import { CommandModal } from "@/components/ui/CommandModal"; // Adjust the import path if needed
-import { AnimatePresence } from "framer-motion";
 import { Type, Settings2 } from "lucide-react";
 import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
 
@@ -11,13 +10,9 @@ interface SettingsModalProps {
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ open, onClose }) => {
   return (
-    <AnimatePresence>
-      {open && (
-        <CommandModal open={open} onClose={onClose}>
-          <SettingsContent />
-        </CommandModal>
-      )}
-    </AnimatePresence>
+    <CommandModal open={open} onClose={onClose}>
+      <SettingsContent />
+    </CommandModal>
   );
 };
 
