@@ -23,6 +23,14 @@ initPassport();
 import { allRoutes } from "./features";
 app.use("/api", allRoutes);
 
+// Health Check Route
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: Date.now(),
+  });
+});
+
 // Swagger Documentation
 import { swaggerRouter } from "./libs/swagger.lib";
 app.use("/api/api-doc", swaggerRouter);
