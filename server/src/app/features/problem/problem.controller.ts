@@ -24,7 +24,7 @@ const createProblem = AsyncHandler(async (req, res) => {
   const { data, success } = createProblemBodySchema.safeParse(req.body);
 
   if (!success || !data) {
-    throw new ApiError(400, "Invalid request data", data);
+    throw new ApiError(400, "Invalid request data");
   }
 
   /**
@@ -143,7 +143,7 @@ const createProblem = AsyncHandler(async (req, res) => {
 const getProblems = AsyncHandler(async (req, res) => {
   const { data, success } = getProblemsQuerySchema.safeParse(req.query);
   if (!success || !data) {
-    throw new ApiError(400, "Invalid request data", data);
+    throw new ApiError(400, "Invalid request data");
   }
 
   const query = {} as any;
@@ -199,7 +199,7 @@ const getProblemBySlug = AsyncHandler(async (req, res) => {
 
   const { data, success } = getProblemBySlugParamsSchema.safeParse(req.params);
   if (!success || !data) {
-    throw new ApiError(400, "Invalid request data", data);
+    throw new ApiError(400, "Invalid request data");
   }
   const problem = await db.problem.findUnique({
     where: {
@@ -228,7 +228,7 @@ const deleteProblem = AsyncHandler(async (req, res) => {
     req.params
   );
   if (!success || !data) {
-    throw new ApiError(400, "Invalid request data", data);
+    throw new ApiError(400, "Invalid request data");
   }
   const problem = await db.problem.findUnique({
     where: {
@@ -281,7 +281,7 @@ const updateProblemMetadata = AsyncHandler(async (req, res) => {
 
   const paramsData = updateProblemParamsSchema.safeParse(req.params);
   if (!paramsData.success || !paramsData.data) {
-    throw new ApiError(400, "Invalid request data", paramsData.data);
+    throw new ApiError(400, "Invalid request data");
   }
 
   const problem = await db.problem.findUnique({
@@ -297,7 +297,7 @@ const updateProblemMetadata = AsyncHandler(async (req, res) => {
   const { data, success } = updateProblemBodySchema.safeParse(req.body);
 
   if (!success || !data) {
-    throw new ApiError(400, "Invalid request data", data);
+    throw new ApiError(400, "Invalid request data");
   }
 
   const updateData = {};
@@ -342,7 +342,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
   const body = addTestcaseToProblemBodySchema.safeParse(req.body);
 
   if (!body.success || !body.data) {
-    throw new ApiError(400, "Invalid request data", body.data);
+    throw new ApiError(400, "Invalid request data");
   }
 
   const { data, success } = addTestcaseToProblemParamsSchema.safeParse(
@@ -350,7 +350,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
   );
 
   if (!success || !data) {
-    throw new ApiError(400, "Invalid request data", data);
+    throw new ApiError(400, "Invalid request data");
   }
 
   const problem = await db.problem.findUnique({
@@ -454,7 +454,7 @@ const deleteTestcaseFromProblemById = AsyncHandler(async (req, res) => {
     );
 
   if (!success || !data) {
-    throw new ApiError(400, "Invalid request data", data);
+    throw new ApiError(400, "Invalid request data");
   }
 
   const body = deleteTestcaseFromProblemByIdAndTestcaseIdBodySchema.safeParse(
@@ -462,7 +462,7 @@ const deleteTestcaseFromProblemById = AsyncHandler(async (req, res) => {
   );
 
   if (!body.success || !body.data) {
-    throw new ApiError(400, "Invalid request data", body.data);
+    throw new ApiError(400, "Invalid request data");
   }
 
   const problem = await db.problem.findUnique({
