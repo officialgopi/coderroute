@@ -1,4 +1,3 @@
-import { useProblemStore } from "@/store/problem.store";
 import { lazy, Suspense } from "react";
 
 const ProblemDescription = lazy(
@@ -9,11 +8,9 @@ const ProblemDescription = lazy(
 );
 
 const ProblemDescriptionPage = () => {
-  const { problemInCodeEditor } = useProblemStore();
-
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <ProblemDescription problem={problemInCodeEditor} />
+      <ProblemDescription />
     </Suspense>
   );
 };
