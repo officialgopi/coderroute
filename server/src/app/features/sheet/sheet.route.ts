@@ -351,7 +351,7 @@ sheetRouter.delete("/:sheetId", deleteSheet);
  *             schema:
  *               $ref: '#/components/schemas/ApiError'
  */
-sheetRouter.delete("/:sheetId/delete-problem", deleteProblemFromSheet);
+sheetRouter.post("/:sheetId/delete-problem", deleteProblemFromSheet);
 
 /**
  * @swagger

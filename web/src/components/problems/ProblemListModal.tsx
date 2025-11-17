@@ -13,14 +13,11 @@ export const ProblemListModal: React.FC<ProblemListModalProps> = ({
   onClose,
   problemId,
 }) => {
-  const { getSheets } = useSheetStore();
-  const [sheets, setSheets] = useState<ISheet[]>([]);
+  const { getSheets, addProblemToSheet, deleteProblemFromSheet, sheets } =
+    useSheetStore();
   useEffect(() => {
     const fetchSheets = async () => {
-      const data = await getSheets();
-      if (data) {
-        setSheets(data);
-      }
+      await getSheets();
     };
     fetchSheets();
   }, [getSheets]);
@@ -49,28 +46,22 @@ export const ProblemListModal: React.FC<ProblemListModalProps> = ({
           </h2>
 
           <div className="space-y-2">
-            {sheets.map(({ id, name }) => (
-              <label
-                key={id}
-                className="
-                  flex items-center gap-3 px-2 py-2
-                  rounded-md cursor-pointer
-                  hover:bg-neutral-200/50 dark:hover:bg-neutral-800/60
-                  transition-colors
-                "
-              >
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 accent-neutral-700 dark:accent-neutral-300 cursor-pointer"
-                  //   onChange={(e) => {}}
-                  checked={sheets.some((sheet) => sheet.id === problemId)}
+            {sheets?.map(({ id, name }) => {
+              return (
+                <Items
+                  addProblemToSheet={addProblemToSheet}
+                  deleteProblemFromSheet={deleteProblemFromSheet}
+                  key={id}
+                  id={id}
+                  name={name}
+                  sheets={sheets || []}
+                  problemId={problemId}
                 />
-                <span className="text-sm">{name}</span>
-              </label>
-            ))}
+              );
+            })}
           </div>
 
-          <button
+          <div
             onClick={onClose}
             className="
               mt-4 w-full py-2 
@@ -81,9 +72,71 @@ export const ProblemListModal: React.FC<ProblemListModalProps> = ({
             "
           >
             Close
-          </button>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
   );
 };
+
+const Items = ({
+  id,
+  name,
+  sheets,
+  problemId,
+  addProblemToSheet,
+  deleteProblemFromSheet,
+}: {
+  id: string;
+  name: string;
+  problemId: string;
+  sheets: ISheet[];
+  addProblemToSheet: (
+    sheetId: string,
+    problemId: string
+  ) => Promise<boolean | void>;
+  deleteProblemFromSheet: (
+    sheetId: string,
+    problemId: string
+  ) => Promise<boolean | void>;
+}) => {
+  const [isProblemInSheet, setIsProblemInSheet] = useState<boolean>(
+    sheets
+      .find((sheet) => sheet.id === id)
+      ?.problems?.some((p) => p.problemId === problemId) ?? false
+  );
+  useEffect(() => {
+    setIsProblemInSheet(
+      sheets
+        .find((sheet) => sheet.id === id)
+        ?.problems?.some((p) => p.problemId === problemId) ?? false
+    );
+  }, [sheets, problemId]);
+  return (
+    <label
+      key={id}
+      className="
+                  flex items-center gap-3 px-2 py-2
+                  rounded-md cursor-pointer
+                  hover:bg-neutral-200/50 dark:hover:bg-neutral-800/60
+                  transition-colors
+                "
+    >
+      <input
+        type="checkbox"
+        className="w-4 h-4 accent-neutral-700 dark:accent-neutral-300 cursor-pointer"
+        onChange={async () => {
+          if (isProblemInSheet) {
+            await deleteProblemFromSheet(id, problemId);
+          } else {
+            await addProblemToSheet(id, problemId);
+          }
+        }}
+        checked={isProblemInSheet}
+      />
+      <span className="text-sm">{name}</span>
+    </label>
+  );
+};
+
+export default ProblemListModal;

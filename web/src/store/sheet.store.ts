@@ -1,6 +1,7 @@
 import { apiCallHandler } from "@/utils/api-call-handler.util";
 import { create } from "zustand";
 import { toast } from "sonner";
+import type { IProblem } from "./problem.store";
 
 interface ISheet {
   id: string;
@@ -16,6 +17,7 @@ interface ISheet {
     updatedAt: Date;
     problemId: string;
     sheetId: string;
+    problem: IProblem;
   }[];
 }
 
@@ -26,6 +28,8 @@ interface SheetState {
   isSheetCreating?: boolean;
   isSheetUpdating?: boolean;
   isSheetDeleting?: boolean;
+  isAddingProblemToSheet?: boolean;
+  isDeletingProblemFromSheet?: boolean;
 
   createSheet: ({
     name,
@@ -38,6 +42,14 @@ interface SheetState {
   getSheets: () => Promise<ISheet[] | void>;
 
   getSheetById: (sheetId: string) => Promise<ISheet | undefined>;
+  addProblemToSheet: (
+    sheetId: string,
+    problemId: string
+  ) => Promise<boolean | undefined>;
+  deleteProblemFromSheet: (
+    sheetId: string,
+    problemId: string
+  ) => Promise<boolean | undefined>;
 }
 
 export const useSheetStore = create<SheetState>((set, get) => ({
@@ -45,6 +57,8 @@ export const useSheetStore = create<SheetState>((set, get) => ({
   isSheetCreating: false,
   isSheetUpdating: false,
   isSheetDeleting: false,
+  isAddingProblemToSheet: false,
+  isDeletingProblemFromSheet: false,
   sheets: [],
   createSheet: async ({ name, description }) => {
     set({ isSheetCreating: true });
@@ -95,7 +109,6 @@ export const useSheetStore = create<SheetState>((set, get) => ({
         toast.error("Failed to fetch sheets");
         return;
       }
-
       set({
         sheets: res.data.sheets,
         isSheetsLoading: false,
@@ -108,7 +121,71 @@ export const useSheetStore = create<SheetState>((set, get) => ({
       if (get().isSheetsLoading) set({ isSheetsLoading: false });
     }
   },
+  addProblemToSheet: async (sheetId: string, problemId: string) => {
+    set({
+      isAddingProblemToSheet: true,
+    });
+    try {
+      const res = await apiCallHandler<
+        { problemId: string },
+        { sheet: ISheet }
+      >(`/sheet/${sheetId}/add-problem`, "POST", { problemId });
 
+      if (!res.success || !res.data) {
+        toast.error("Failed to add problem to sheet");
+        return;
+      }
+      const updatedSheet = res.data.sheet;
+      const currentSheets = get().sheets || [];
+      const updatedSheets = currentSheets.map((sheet) =>
+        sheet.id === updatedSheet.id ? updatedSheet : sheet
+      );
+
+      set({
+        sheets: updatedSheets,
+        isAddingProblemToSheet: false,
+      });
+
+      toast.success("Problem added to sheet successfully");
+      return true;
+    } catch (error) {
+      toast.error("An error occurred while adding problem to sheet");
+    } finally {
+      if (get().isAddingProblemToSheet) set({ isAddingProblemToSheet: false });
+    }
+  },
+  deleteProblemFromSheet: async (sheetId: string, problemId: string) => {
+    set({ isDeletingProblemFromSheet: true });
+    try {
+      const res = await apiCallHandler<
+        { problemId: string },
+        { sheet: ISheet }
+      >(`/sheet/${sheetId}/delete-problem`, "POST", { problemId });
+
+      if (!res.success || !res.data) {
+        toast.error("Failed to remove problem from sheet");
+        return;
+      }
+      const updatedSheet = res.data.sheet;
+      const currentSheets = get().sheets || [];
+      const updatedSheets = currentSheets.map((sheet) =>
+        sheet.id === updatedSheet.id ? updatedSheet : sheet
+      );
+
+      set({
+        sheets: updatedSheets,
+        isDeletingProblemFromSheet: false,
+      });
+
+      toast.success("Problem removed from sheet successfully");
+      return true;
+    } catch (error) {
+      toast.error("An error occurred while removing problem from sheet");
+    } finally {
+      if (get().isDeletingProblemFromSheet)
+        set({ isDeletingProblemFromSheet: false });
+    }
+  },
   getSheetById: async (sheetId: string) => {
     if (get().sheets?.find((sheet) => sheet.id === sheetId)?.problems) {
       return get().sheets?.find((sheet) => sheet.id === sheetId);

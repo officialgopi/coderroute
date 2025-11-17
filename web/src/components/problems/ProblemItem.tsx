@@ -4,6 +4,7 @@ import { Check, Star } from "lucide-react";
 import type { IProblem } from "@/store/problem.store";
 import { Link } from "react-router-dom";
 import { ProblemListModal } from "./ProblemListModal";
+import { useSheetStore } from "@/store/sheet.store";
 
 interface ProblemItemProps {
   problem: IProblem;
@@ -12,7 +13,7 @@ interface ProblemItemProps {
 
 export const ProblemItem: React.FC<ProblemItemProps> = ({ problem, index }) => {
   const [open, setOpen] = useState(false);
-
+  const { sheets } = useSheetStore();
   const getDiffColor = (difficulty: string) => {
     switch (difficulty) {
       case "EASY":
@@ -58,7 +59,16 @@ export const ProblemItem: React.FC<ProblemItemProps> = ({ problem, index }) => {
             onClose={() => setOpen(false)}
             problemId={problem.id}
           />
-          <Star className="w-5 h-5  text-neutral-950 dark:text-neutral-100" />
+          <Star
+            className="w-5 h-5  text-neutral-950 dark:text-neutral-100"
+            fill={
+              sheets?.find((sheet) =>
+                sheet.problems?.some((p) => p.problemId === problem.id)
+              )
+                ? "yellow"
+                : "none"
+            }
+          />
         </button>
       </div>
     </motion.div>

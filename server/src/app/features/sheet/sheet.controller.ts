@@ -32,7 +32,11 @@ const createSheet = AsyncHandler(async (req, res) => {
       userId: req.user.id,
     },
     include: {
-      problems: true,
+      problems: {
+        include: {
+          problem: true,
+        },
+      },
     },
   });
 
@@ -66,6 +70,13 @@ const getSheets = AsyncHandler(async (req, res) => {
         : {
             userId: req.user.id,
           }),
+    },
+    include: {
+      problems: {
+        include: {
+          problem: true,
+        },
+      },
     },
   });
 
@@ -217,17 +228,31 @@ const addProblemToSheet = AsyncHandler(async (req, res) => {
     throw new ApiError(400, "Problem already added to sheet");
   }
 
-  const problemInSheet = await db.problemInSheet.create({
+  const updatedSheet = await db.sheet.update({
+    where: {
+      id: sheetId,
+    },
     data: {
-      sheetId: sheet.id,
-      problemId,
+      problems: {
+        create: {
+          problemId: problemId,
+        },
+      },
+    },
+
+    include: {
+      problems: {
+        include: {
+          problem: true,
+        },
+      },
     },
   });
 
   new ApiResponse(
     201,
     {
-      problemInSheet,
+      sheet: updatedSheet,
     },
     "Problem added to sheet successfully"
   ).send(res);
@@ -273,6 +298,13 @@ const updateSheet = AsyncHandler(async (req, res) => {
       name: name ?? sheet.name,
       description: description ?? sheet.description,
       isPublic: isPublic ?? sheet.isPublic,
+    },
+    include: {
+      problems: {
+        include: {
+          problem: true,
+        },
+      },
     },
   });
 
@@ -366,7 +398,26 @@ const deleteProblemFromSheet = AsyncHandler(async (req, res) => {
     },
   });
 
-  new ApiResponse(200, {}, "Problem removed from sheet successfully").send(res);
+  const updatedSheet = await db.sheet.findUnique({
+    where: {
+      id: sheetId,
+    },
+    include: {
+      problems: {
+        include: {
+          problem: true,
+        },
+      },
+    },
+  });
+
+  new ApiResponse(
+    200,
+    {
+      sheet: updatedSheet,
+    },
+    "Problem removed from sheet successfully"
+  ).send(res);
 });
 
 export {
