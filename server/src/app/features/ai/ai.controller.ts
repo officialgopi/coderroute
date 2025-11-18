@@ -1,13 +1,19 @@
+import { LANGUAGE } from "@prisma/client";
 import { db } from "../../../db";
 import { gemini, GEMINI_MODELS } from "../../libs/gemini.lib";
 import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
-import { generateSystemPromptToGetHelpFromAiAssistant } from "./ai.constant";
+import { createProblemBodySchema } from "../problem/problem.schema";
+import {
+  generateProblemWithAISystemPrompt,
+  generateSystemPromptToGetHelpFromAiAssistant,
+} from "./ai.constant";
 import {
   aiChatMessageBodySchema,
   getAiChatMessagesByIdParamsSchema,
+  generateProblemWithAiBodySchema,
 } from "./ai.schema";
 import { ChatCompletionMessageParam } from "openai/resources/index";
-
+import z from "zod";
 const chatWithAiAssistant = AsyncHandler(async (req, res) => {
   if (!req.user) {
     throw new ApiError(401, "Unauthorized");
@@ -192,4 +198,125 @@ const getChatsWithAiByParamsAssistant = AsyncHandler(async (req, res) => {
   });
 });
 
-export { chatWithAiAssistant, getChatsWithAiByParamsAssistant };
+const generateProblemWithAI = AsyncHandler(async (req, res) => {
+  // if (!req.user) {
+  //   throw new ApiError(401, "Unauthorized");
+  // }
+
+  const { data, success } = generateProblemWithAiBodySchema.safeParse(req.body);
+
+  if (!success || !data) {
+    throw new ApiError(400, "Invalid request data");
+  }
+
+  const { prompt } = data;
+
+  const createProblemBodyOpenAISchema = {
+    type: "object",
+    additionalProperties: false,
+    required: [
+      "title",
+      "description",
+      "difficulty",
+      "constraints",
+      "testcases",
+      "details",
+    ],
+    properties: {
+      title: { type: "string" },
+      description: { type: "string" },
+      difficulty: {
+        type: "string",
+        enum: ["EASY", "MEDIUM", "HARD"],
+      },
+      tags: {
+        type: "array",
+        items: { type: "string" },
+      },
+      constraints: {
+        type: "array",
+        items: { type: "string" },
+      },
+      hints: {
+        type: "array",
+        items: { type: "string" },
+      },
+      editorial: { type: "string" },
+      testcases: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["input", "output"],
+          properties: {
+            input: { type: "string" },
+            output: { type: "string" },
+            explaination: { type: "string" },
+          },
+        },
+      },
+      details: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: [
+            "language",
+            "codeSnippet",
+            "backgroundCode",
+            "whereToWriteCode",
+            "referenceSolution",
+          ],
+          properties: {
+            language: {
+              type: "string",
+              enum: Object.values(LANGUAGE),
+            },
+            codeSnippet: { type: "string" },
+            backgroundCode: { type: "string" },
+            whereToWriteCode: { type: "string" },
+            referenceSolution: { type: "string" },
+          },
+        },
+      },
+    },
+  };
+
+  const response = await gemini.chat.completions.create({
+    model: GEMINI_MODELS.GEMINI_FLASH_2_5,
+    messages: [
+      {
+        role: "system",
+        content: generateProblemWithAISystemPrompt,
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "CreateProblemBody",
+        schema: createProblemBodyOpenAISchema,
+      },
+    },
+  });
+
+  const aiResponse = response?.choices?.[0]?.message?.content;
+  if (!aiResponse) {
+    throw new ApiError(500, "Failed to generate problem");
+  }
+
+  new ApiResponse(200, {
+    generatedProblem: JSON.parse(aiResponse) as unknown as z.infer<
+      typeof createProblemBodySchema
+    >,
+  }).send(res);
+});
+
+export {
+  chatWithAiAssistant,
+  getChatsWithAiByParamsAssistant,
+  generateProblemWithAI,
+};

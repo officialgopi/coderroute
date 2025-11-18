@@ -11,4 +11,12 @@ const getAiChatMessagesByIdParamsSchema = z.object({
   problemId: z.string(),
 });
 
-export { aiChatMessageBodySchema, getAiChatMessagesByIdParamsSchema };
+const generateProblemWithAiBodySchema = z.object({
+  prompt: z.string().min(1).max(10000),
+});
+
+export {
+  aiChatMessageBodySchema,
+  getAiChatMessagesByIdParamsSchema,
+  generateProblemWithAiBodySchema,
+};

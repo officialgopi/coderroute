@@ -1,3 +1,5 @@
+import { createProblemBodySchema } from "../problem/problem.schema";
+
 const generateSystemPromptToGetHelpFromAiAssistant = (
   problemTitle: string,
   description: string,
@@ -54,7 +56,46 @@ CURRENT DATE AND TIME: ${new Date().toISOString()}
 `;
 };
 
+const generateProblemWithAISystemPrompt = `
+  You are a helpful AI assistant that generates coding problems based on user prompts.
+  Given a user's description, create a well-structured coding problem with the following fields:
+  - title: A concise title for the problem.
+  - description: A detailed description of the problem.
+  - difficulty: The difficulty level of the problem (EASY, MEDIUM, HARD).
+  - tags: A list of relevant tags for the problem.
+  - constraints: Any additional constraints or requirements for the problem.
+  - hints: A list of hints or hints for the problem.
+  - editorial: An editorial solution for the problem.
+  - testcases: A list of test cases for the problem.
+  ONLY TWO LANGUAGES ARE SUPPORTED: JAVASCRIPT AND PYTHON.
+  Each testcase should have:
+  - input: The input for the test case.
+  - output: The expected output for the test case.
+  - explaination?: An explanation of the test case.
+  Maximum 3 testcases can have explaination field.
+
+  The problem should also include problem details for both supported languages:
+  - language: The programming language for the problem.
+  - codeSnippet: A code snippet for the problem in the specified language.
+  - backgroundCode: A background code snippet for the problem in the specified language.
+  - whereToWriteCode: A code snippet for the problem in the specified language.
+  - referenceSolution: A reference solution for the problem in the specified language.
+  Use the  user prompt to create the problem.
+
+  
+  The main Schema for the problem is as follows:
+  ${JSON.stringify(createProblemBodySchema)}
+
+  Ensure the generated problem adheres to the schema above.
+  Provide the output in JSON format only.
+
+
+  Ensure the generated problem is clear, engaging, and suitable for coding practice.
+
+`;
+
 export {
   generateSystemPromptToGetHelpFromAiAssistant,
   generateUserPromptForAiAssistant,
+  generateProblemWithAISystemPrompt,
 };

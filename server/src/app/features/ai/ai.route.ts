@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { isAuthenticated } from "../../middlewares/auth.middleware";
+import { checkAdmin, isAuthenticated } from "../../middlewares/auth.middleware";
 import {
   chatWithAiAssistant,
   getChatsWithAiByParamsAssistant,
+  generateProblemWithAI,
 } from "./ai.controller";
 
 const router = Router();
@@ -162,5 +163,7 @@ router.post("/chat", chatWithAiAssistant);
  *               $ref: '#/components/schemas/ApiError'
  */
 router.get("/chat/:problemId", getChatsWithAiByParamsAssistant);
+
+router.post("/generate-problem", checkAdmin, generateProblemWithAI);
 
 export { router as aiRouter };

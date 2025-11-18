@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Tabs } from "@/components/admin-panel/create-problem/Tabs";
 import type { CreateProblemBody } from "@/types/types";
 import { useProblemStore } from "@/store/problem.store";
+import { Sparkles } from "lucide-react";
 
 const ProblemMetadata = lazy(
   () => import("@/components/admin-panel/create-problem/ProblemMetadata")
@@ -26,7 +27,14 @@ const ReviewSection = lazy(
 
 const STORAGE_KEY = "coderroute_create_problem";
 
+const CreateProblemWithAIModal = lazy(
+  () =>
+    import("@/components/admin-panel/create-problem/CreateProblemWithAIModal")
+);
+
 const CreateProblemPage: React.FC = () => {
+  const [createProblemWithAIModalOpen, setCreateProblemWithAIModalOpen] =
+    useState<boolean>(false);
   const tabs = [
     "Metadata",
     "Testcases",
@@ -80,14 +88,11 @@ const CreateProblemPage: React.FC = () => {
 
   const handleCreateProblem = async () => {
     try {
-      console.log("Creating problem:", problem);
       await createProblem(problem);
       localStorage.removeItem(STORAGE_KEY);
       resetForm();
       setActiveTab(0);
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) {}
   };
 
   const resetForm = () => {
@@ -140,7 +145,25 @@ const CreateProblemPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 p-4 md:p-8">
+    <div className="flex flex-col gap-4 p-4 md:p-8 ">
+      <Suspense fallback={<>Loading...</>}>
+        <CreateProblemWithAIModal
+          open={createProblemWithAIModalOpen}
+          onClose={() => setCreateProblemWithAIModalOpen(false)}
+          setProblem={setProblem}
+        />
+      </Suspense>
+      <div className="w-full flex justify-end">
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.03 }}
+          className="flex w-60  cursor-pointer items-center gap-2 px-4 py-2  border border-neutral-500/50 rounded-xl text-sm font-medium hover:bg-neutral-400/50 transition-colors "
+          onClick={() => setCreateProblemWithAIModalOpen(true)}
+        >
+          <Sparkles className="h-4 w-4" />
+          Create Problem With AI
+        </motion.button>
+      </div>
       <Tabs
         tabs={tabs}
         activeTab={tabs[activeTab]}
