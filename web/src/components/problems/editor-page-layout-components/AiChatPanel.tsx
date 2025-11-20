@@ -103,7 +103,7 @@ const AIChatPanel = () => {
           if (done) break;
           aiResponse += decoder.decode(value);
           aiMessage.text = aiResponse;
-          setMessages((prev) => [...prev.slice(0, -2), aiMessage]); // Update last AI message
+          setMessages((prev) => [...prev.slice(0, -1), aiMessage]); // Update last AI message
         }
       }
     } catch (error) {
