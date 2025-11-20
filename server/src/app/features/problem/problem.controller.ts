@@ -111,7 +111,7 @@ const createProblem = AsyncHandler(async (req, res) => {
           language: detail.language,
           codeSnippet: detail.codeSnippet,
           backgroundCode: detail.backgroundCode,
-          whereToWriteCode: detail.whereToWriteCode,
+          whereToWriteCode: "<WHERE_TO_WRITE_CODE/>",
           referenceSolution: detail.referenceSolution,
         };
       }),
@@ -370,7 +370,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
     details: problem.problemDetails.map((detail) => ({
       language: detail.language,
       backgroundCode: detail.backgroundCode,
-      whereToWriteCode: detail.whereToWriteCode,
+      whereToWriteCode: "<WHERE_TO_WRITE_CODE/>",
       referenceSolution: detail.referenceSolution,
       codeSnippet: detail.codeSnippet,
     })),

@@ -1,5 +1,3 @@
-import z from "zod";
-import { createProblemBodySchema } from "./problem.schema";
 import { Judge0 } from "../../libs/judge0.lib";
 
 function generateFormattedInputForJudge0ForCreatingProblem(problem: {
@@ -29,16 +27,13 @@ function generateFormattedInputForJudge0ForCreatingProblem(problem: {
       if (!language_id) {
         return null;
       }
-      const source_code = detail.backgroundCode.replace(
-        detail.whereToWriteCode,
-        detail.referenceSolution
-      );
+      const source_code = `${detail.referenceSolution}\n${detail.backgroundCode}`;
       for (const testcase of problem.testcases) {
         temp.push({
           language_id: language_id,
           source_code: source_code,
           stdin: testcase.input,
-          expected_output: testcase.output,
+          expected_output: JSON.parse(testcase.output),
         });
       }
       formattedSubmissionBatchParameter.push(temp);

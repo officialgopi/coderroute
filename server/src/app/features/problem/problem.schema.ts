@@ -21,7 +21,7 @@ const createProblemBodySchema = z.object({
       language: z.enum(Object.values(LANGUAGE)),
       codeSnippet: z.string(),
       backgroundCode: z.string(),
-      whereToWriteCode: z.string(),
+      whereToWriteCode: z.string().default("<WHERE_TO_WRITE_CODE/>"),
       referenceSolution: z.string(),
     })
   ),
