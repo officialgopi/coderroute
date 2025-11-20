@@ -36,7 +36,7 @@ export const useAiStore = create<AIState>((set, get) => ({
 
     set({ isLoading: true });
     try {
-      const response = await apiCallHandler<undefined, AIResponse[]>(
+      const response = await apiCallHandler<undefined, { chats: AIResponse[] }>(
         `/ai/chat/${problemId}`,
         "GET"
       );
@@ -50,11 +50,11 @@ export const useAiStore = create<AIState>((set, get) => ({
       set((state) => ({
         aiResponses: {
           ...state.aiResponses,
-          [problemId]: response.data!,
+          [problemId]: response.data?.chats!,
         },
       }));
 
-      return response.data!;
+      return response.data.chats!;
     } catch (error) {
       toast.error("An unexpected error occurred. Please try again.");
     } finally {

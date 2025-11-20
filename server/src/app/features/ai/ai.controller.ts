@@ -14,6 +14,7 @@ import {
 } from "./ai.schema";
 import { ChatCompletionMessageParam } from "openai/resources/index";
 import z from "zod";
+
 const chatWithAiAssistant = AsyncHandler(async (req, res) => {
   if (!req.user) {
     throw new ApiError(401, "Unauthorized");
@@ -127,23 +128,21 @@ const chatWithAiAssistant = AsyncHandler(async (req, res) => {
       if (!content) continue;
 
       assistantMessage += content;
-      res.write(`data: ${JSON.stringify({ token: content })}\n\n`);
+      res.write(`${content}`);
     }
 
     await db.aiChatMessages.update({
       where: { id: newMessage.id },
       data: {
-        message: assistantMessage,
+        response: assistantMessage,
         responseStatus: "SUCCESS",
       },
     });
-
-    res.write(`event: done\ndata: [DONE]\n\n`);
   } catch (err) {
     await db.aiChatMessages.update({
       where: { id: newMessage.id },
       data: {
-        message: assistantMessage,
+        response: assistantMessage,
         responseStatus: "FAILURE",
       },
     });
@@ -195,7 +194,7 @@ const getChatsWithAiByParamsAssistant = AsyncHandler(async (req, res) => {
 
   new ApiResponse(200, {
     chats: chatHistories.messages,
-  });
+  }).send(res);
 });
 
 const generateProblemWithAI = AsyncHandler(async (req, res) => {

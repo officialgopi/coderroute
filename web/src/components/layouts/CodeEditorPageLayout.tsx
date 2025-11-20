@@ -28,7 +28,6 @@ const CodeEditorPageLayout = () => {
     problemInCodeEditor,
     setProblemInCodeEditor,
   } = useProblemStore();
-
   useEffect(() => {
     async function fetchProblemDetails(slug: string) {
       const details = await getProblemDetails(slug);
@@ -61,7 +60,7 @@ const CodeEditorPageLayout = () => {
             <Panel
               defaultSize={40}
               minSize={25}
-              maxSize={55}
+              maxSize={50}
               className="overflow-hidden  h-full  "
             >
               <div className="h-full p-1  overflow-hidden ">
@@ -83,7 +82,11 @@ const CodeEditorPageLayout = () => {
             <PanelResizeHandle className="w-1 transition-colors  active:bg-neutral-500/50 bg-neutral-500/10 hover:bg-neutral-500/30  hover:opacity-100  cursor-col-resize p-0" />
 
             {/* Right Panel (Editor + Bottom Testcases) */}
-            <Panel className="overflow-hidden  h-full  border-neutral-800">
+            <Panel
+              minSize={50}
+              maxSize={75}
+              className="overflow-hidden  h-full  border-neutral-800"
+            >
               <PanelGroup direction="vertical">
                 {/* Code Editor */}
                 <Panel
