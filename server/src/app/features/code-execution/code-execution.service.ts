@@ -3,7 +3,7 @@ import { Judge0 } from "../../libs/judge0.lib";
 const executeCodeService = async (
   code: string,
   backgroundCode: string,
-  whereToWriteCode: string,
+  _whereToWriteCode: string,
   languageId: number,
   stdin: string[],
   expectedOutput: string[]
@@ -25,9 +25,8 @@ const executeCodeService = async (
         success: false,
         message: "Code and languageId are required",
       };
-
     const submissions = stdin.map((input, index) => ({
-      source_code: backgroundCode.replace(whereToWriteCode, code),
+      source_code: `${code} \n${backgroundCode}`,
       language_id: languageId,
       stdin: input,
     }));
@@ -54,17 +53,16 @@ const executeCodeService = async (
 
     let allPassed = true;
     const detailedResults = results.data?.map((result, idx) => {
-      const exprected = expectedOutput[idx]?.trim();
-      const actual = result.stdout?.trim() || "";
-
-      const passed = exprected === actual;
+      const expected = JSON.stringify(JSON.parse(expectedOutput[idx]?.trim()));
+      const actual = JSON.stringify(JSON.parse(result.stdout?.trim()));
+      const passed = expected === actual;
 
       if (!passed) allPassed = false;
 
       return {
         testcase: idx + 1,
         passed: passed,
-        expected: exprected,
+        expected: expected,
         actual: actual,
         time: result.time ? `${result.time}s` : "N/A",
         memory: result.memory ? `${result.memory}KB` : "N/A",

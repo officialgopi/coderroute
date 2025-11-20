@@ -207,7 +207,12 @@ const getProblemBySlug = AsyncHandler(async (req, res) => {
     },
     include: {
       problemDetails: true,
-      testcases: true,
+      testcases: {
+        orderBy: {
+          id: "asc",
+        },
+        take: 3,
+      },
     },
   });
   if (!problem) {
