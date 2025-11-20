@@ -124,11 +124,11 @@ const AIChatPanel = () => {
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`max-w-[85%] px-3 py-2 rounded-xl shadow-sm ${
+            className={`max-w-[85%] overflow-x-scroll px-3 py-2 rounded-xl shadow-sm ${
               msg.sender === "user"
                 ? "ml-auto bg-neutral-300 text-neutral-900 dark:bg-neutral-700 dark:text-neutral-100"
                 : "mr-auto bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-100"
-            } htmlContent={msg.text} />} `}
+            }`}
           >
             <ReactMarkdown>{msg.text}</ReactMarkdown>
           </div>
