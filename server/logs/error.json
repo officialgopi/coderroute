@@ -1,0 +1,28 @@
+{
+  "level": "error",
+  "message": {
+    "data": [
+      {
+        "compile_output": null,
+        "memory": 7212,
+        "message": "Exited with error status 1",
+        "status": { "description": "Runtime Error (NZEC)", "id": 11 },
+        "stderr": "/box/script.js:4\nconst fs = require('fs')\\nconst data = fs.readFileSync(0, \"utf8\").trim().split(/\\s+/);\\nconsole.log(add(Number(data[0]),Number(data[1])))\n                        ^\n\nSyntaxError: Invalid or unexpected token\n    at Module._compile (internal/modules/cjs/loader.js:895:18)\n    at Object.Module._extensions..js (internal/modules/cjs/loader.js:995:10)\n    at Module.load (internal/modules/cjs/loader.js:815:32)\n    at Function.Module._load (internal/modules/cjs/loader.js:727:14)\n    at Function.Module.runMain (internal/modules/cjs/loader.js:1047:10)\n    at internal/main/run_main_module.js:17:11\n",
+        "stdout": null,
+        "time": "0.022",
+        "token": "991be7b1-2218-4ec3-ba9d-1974b0d18aff"
+      },
+      {
+        "compile_output": null,
+        "memory": 7412,
+        "message": "Exited with error status 1",
+        "status": { "description": "Runtime Error (NZEC)", "id": 11 },
+        "stderr": "/box/script.js:4\nconst fs = require('fs')\\nconst data = fs.readFileSync(0, \"utf8\").trim().split(/\\s+/);\\nconsole.log(add(Number(data[0]),Number(data[1])))\n                        ^\n\nSyntaxError: Invalid or unexpected token\n    at Module._compile (internal/modules/cjs/loader.js:895:18)\n    at Object.Module._extensions..js (internal/modules/cjs/loader.js:995:10)\n    at Module.load (internal/modules/cjs/loader.js:815:32)\n    at Function.Module._load (internal/modules/cjs/loader.js:727:14)\n    at Function.Module.runMain (internal/modules/cjs/loader.js:1047:10)\n    at internal/main/run_main_module.js:17:11\n",
+        "stdout": null,
+        "time": "0.022",
+        "token": "b907e594-ac62-4439-bd1a-aefa55153d52"
+      }
+    ],
+    "success": true
+  }
+}

@@ -1,3 +1,4 @@
+import { logger } from "../../../logger";
 import { Judge0 } from "../../libs/judge0.lib";
 
 const executeCodeService = async (
@@ -25,7 +26,7 @@ const executeCodeService = async (
         success: false,
         message: "Code and languageId are required",
       };
-    const submissions = stdin.map((input, index) => ({
+    const submissions = stdin.map((input) => ({
       source_code: `${code} \n${backgroundCode}`,
       language_id: languageId,
       stdin: input,
@@ -53,11 +54,22 @@ const executeCodeService = async (
 
     let allPassed = true;
     const detailedResults = results.data?.map((result, idx) => {
-      const expected = JSON.stringify(JSON.parse(expectedOutput[idx]?.trim()));
-      const actual = JSON.stringify(JSON.parse(result.stdout?.trim()));
-      const passed = expected === actual;
+      const expected = JSON.parse(expectedOutput[idx]?.trim());
+      // const expected = JSON.stringify(JSON.parse(expectedOutput[idx]?.trim()));
+      // const actual = JSON.stringify(JSON.parse(result.stdout?.trim()));
+      let actual = result.stdout?.trim();
+      if (!actual) {
+        actual = "";
+      }
+
+      const passed = JSON.stringify(expected) === actual;
+      console.log(expected);
+      console.log(actual);
+      console.log("----");
 
       if (!passed) allPassed = false;
+
+      // logger.error(results);
 
       return {
         testcase: idx + 1,

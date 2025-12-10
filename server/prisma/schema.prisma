@@ -67,7 +67,7 @@ model User {
 
 model UserActivity {
   id                  String   @id @default(uuid())
-  user                User     @relation(fields: [userId], references: [id])
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId              String
   date                DateTime // exact timestamp
   noOfSubmissionsDone Int      @default(0) // to track if any submission was done in this login session
@@ -154,7 +154,7 @@ model Testcases {
   updatedAt   DateTime @updatedAt
 
   //RELATIONSHIPS
-  problem         Problem          @relation(fields: [problemId], references: [id])
+  problem         Problem          @relation(fields: [problemId], references: [id], onDelete: Cascade)
   testcaseResults TestcaseResult[]
 
   //INDEXES
@@ -173,7 +173,7 @@ model ProblemDetails {
   updatedAt         DateTime @updatedAt
 
   //RELATIONSHIPS
-  problem Problem @relation(fields: [problemId], references: [id])
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   //INDEXES
   @@unique([problemId, language])
@@ -196,7 +196,7 @@ model Submission {
   updatedAt     DateTime @updatedAt
 
   //RELATIONSHIPS
-  contest Contest? @relation(fields: [contestId], references: [id])
+  contest Contest? @relation(fields: [contestId], references: [id], onDelete: Cascade)
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   problem Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
@@ -327,7 +327,7 @@ model Contest {
   updatedAt       DateTime @updatedAt
 
   //RELATIONSHIPS
-  creator User @relation(fields: [creatorId], references: [id])
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
   //RELATIONSHIPS
   problems       ContestProblem[]
@@ -348,8 +348,8 @@ model ContestProblem {
   points    Int    @default(100)
 
   //RELATIONSHIPS
-  contest Contest @relation(fields: [contestId], references: [id])
-  problem Problem @relation(fields: [problemId], references: [id])
+  contest Contest @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
 
   //INDEXES
   @@unique([contestId, problemId])
@@ -365,8 +365,8 @@ model ContestParticipation {
   submissionId String?
 
   //RELATIONSHIPS
-  user    User    @relation(fields: [userId], references: [id])
-  contest Contest @relation(fields: [contestId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest Contest @relation(fields: [contestId], references: [id],onDelete: Cascade)
 
   //INDEXES
   @@unique([userId, contestId])

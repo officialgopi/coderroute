@@ -74,8 +74,8 @@ const codeRunExecute = AsyncHandler(async (req, res) => {
     problemDetail.backgroundCode,
     problemDetail.whereToWriteCode,
     languageId,
-    stdin,
-    expectedOutput
+    problem.testcases.map((tc) => tc.input),
+    problem.testcases.map((tc) => tc.output)
   );
 
   if (!result.success) {
