@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import { db } from "../../../db";
 import { env } from "../../../env";
 import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
-import { CORS_OPTIONS } from "./auth.constant";
+import { COOKIE_OPTIONS, CORS_OPTIONS } from "./auth.constant";
 import { generateJWT, sanitizeUser } from "./auth.service";
 
 const oauthLogin = AsyncHandler(async (req, res) => {
@@ -54,8 +54,8 @@ const oauthLogin = AsyncHandler(async (req, res) => {
     },
   });
 
-  res.cookie("access-token", accessToken, CORS_OPTIONS);
-  res.cookie("refresh-token", refreshToken, CORS_OPTIONS);
+  res.cookie("access-token", accessToken, COOKIE_OPTIONS);
+  res.cookie("refresh-token", refreshToken, COOKIE_OPTIONS);
 
   return res.redirect(`${env.CLIENT_URL}/problems`);
 });
@@ -108,8 +108,8 @@ const logout = AsyncHandler(async (req, res) => {
       });
     }
   }
-  res.clearCookie("access-token", CORS_OPTIONS);
-  res.clearCookie("refresh-token", CORS_OPTIONS);
+  res.clearCookie("access-token", COOKIE_OPTIONS);
+  res.clearCookie("refresh-token", COOKIE_OPTIONS);
 
   new ApiResponse(200, null, "Logged out successfully").send(res);
 });
@@ -161,8 +161,8 @@ const refreshAccessToken = AsyncHandler(async (req, res) => {
     },
   });
 
-  res.cookie("access-token", newAccessToken, CORS_OPTIONS);
-  res.cookie("refresh-token", newRefreshToken, CORS_OPTIONS);
+  res.cookie("access-token", newAccessToken, COOKIE_OPTIONS);
+  res.cookie("refresh-token", newRefreshToken, COOKIE_OPTIONS);
 
   new ApiResponse(200, null, "Access token refreshed successfully").send(res);
 });
