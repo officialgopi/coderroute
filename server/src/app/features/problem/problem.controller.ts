@@ -120,8 +120,11 @@ const createProblem = AsyncHandler(async (req, res) => {
       data: data.testcases.map((testcase) => {
         return {
           problemId: problem.id,
-          input: testcase.input,
-          output: testcase.output,
+          std: {
+            stdin: testcase.std.stdin,
+            stdout: testcase.std.stdout,
+          },
+          output_format: testcase.output_format,
           explanation: testcase.explaination,
         };
       }),
@@ -375,7 +378,6 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
     details: problem.problemDetails.map((detail) => ({
       language: detail.language,
       backgroundCode: detail.backgroundCode,
-      whereToWriteCode: "<WHERE_TO_WRITE_CODE/>",
       referenceSolution: detail.referenceSolution,
       codeSnippet: detail.codeSnippet,
     })),
@@ -439,8 +441,11 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
   await db.testcases.createMany({
     data: body.data.testcases.map((testcase) => ({
       problemId: problem.id,
-      input: testcase.input,
-      output: testcase.output,
+      std: {
+        stdin: testcase.std.stdin,
+        stdout: testcase.std.stdout,
+      },
+      output_format: testcase.output_format,
       explanation: testcase.explaination,
     })),
   });

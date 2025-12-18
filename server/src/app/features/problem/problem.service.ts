@@ -5,13 +5,15 @@ function generateFormattedInputForJudge0ForCreatingProblem(problem: {
     language: string;
     codeSnippet: string;
     backgroundCode: string;
-    whereToWriteCode: string;
     referenceSolution: string;
   }[];
   testcases: {
-    input: string;
-    output: string;
+    std: {
+      stdin: string[];
+      stdout: string;
+    };
     explaination?: string;
+    output_format: "PLAIN" | "JSON" | "FLOAT";
   }[];
 }) {
   try {
@@ -29,11 +31,14 @@ function generateFormattedInputForJudge0ForCreatingProblem(problem: {
       }
       const source_code = `${detail.referenceSolution}\n${detail.backgroundCode}`;
       for (const testcase of problem.testcases) {
+        const inputArray = testcase.std.stdin;
+        const inputString = inputArray.join("\n");
+
         temp.push({
           language_id: language_id,
           source_code: source_code,
-          stdin: testcase.input,
-          expected_output: JSON.parse(testcase.output),
+          stdin: inputString,
+          expected_output: testcase.std.stdout,
         });
       }
       formattedSubmissionBatchParameter.push(temp);

@@ -11,8 +11,11 @@ const createProblemBodySchema = z.object({
   editorial: z.string().optional(),
   testcases: z.array(
     z.object({
-      input: z.string(),
-      output: z.string(),
+      std: z.object({
+        stdin: z.array(z.string()),
+        stdout: z.string(),
+      }),
+      output_format: z.enum(["PLAIN", "JSON", "FLOAT"]),
       explaination: z.string().optional(),
     })
   ),
@@ -21,7 +24,6 @@ const createProblemBodySchema = z.object({
       language: z.enum(Object.values(LANGUAGE)),
       codeSnippet: z.string(),
       backgroundCode: z.string(),
-      whereToWriteCode: z.string().default("<WHERE_TO_WRITE_CODE/>"),
       referenceSolution: z.string(),
     })
   ),
@@ -75,8 +77,11 @@ const addTestcaseToProblemParamsSchema = z.object({
 const addTestcaseToProblemBodySchema = z.object({
   testcases: z.array(
     z.object({
-      input: z.string(),
-      output: z.string(),
+      std: z.object({
+        stdin: z.array(z.string()),
+        stdout: z.string(),
+      }),
+      output_format: z.enum(["PLAIN", "JSON", "FLOAT"]),
       explaination: z.string().optional(),
     })
   ),
