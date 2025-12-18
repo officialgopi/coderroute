@@ -4,7 +4,6 @@ import { Judge0 } from "../../libs/judge0.lib";
 const executeCodeService = async (
   code: string,
   backgroundCode: string,
-  _whereToWriteCode: string,
   languageId: number,
   stdin: string[],
   expectedOutput: string[]
@@ -60,9 +59,11 @@ const executeCodeService = async (
       let actual = result.stdout?.trim();
       if (!actual) {
         actual = "";
+      } else {
+        actual = JSON.parse(actual);
       }
 
-      const passed = JSON.stringify(expected) === actual;
+      const passed = JSON.stringify(expected) === JSON.stringify(actual);
       console.log(expected);
       console.log(actual);
       console.log("----");
@@ -74,7 +75,7 @@ const executeCodeService = async (
       return {
         testcase: idx + 1,
         passed: passed,
-        expected: expected,
+        expected: JSON.stringify(expected),
         actual: actual,
         time: result.time ? `${result.time}s` : "N/A",
         memory: result.memory ? `${result.memory}KB` : "N/A",

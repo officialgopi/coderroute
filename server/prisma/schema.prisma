@@ -4,7 +4,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum USER_ROLE {
@@ -126,7 +125,7 @@ model Problem {
   constraints     String[]   @default([])
   hints           String[]   @default([])
   editorial       String?
-
+  args            String[]   @default([])
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 

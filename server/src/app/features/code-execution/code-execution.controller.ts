@@ -72,7 +72,6 @@ const codeRunExecute = AsyncHandler(async (req, res) => {
   const result = await executeCodeService(
     source_code,
     problemDetail.backgroundCode,
-    problemDetail.whereToWriteCode,
     languageId,
     problem.testcases.map((tc) => tc.input),
     problem.testcases.map((tc) => tc.output)
@@ -150,7 +149,6 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
   const result = await executeCodeService(
     source_code,
     problemDetail.backgroundCode,
-    problemDetail.whereToWriteCode,
     languageId,
     problem.testcases.map((tc) => tc.input),
     problem.testcases.map((tc) => tc.output)
