@@ -1,6 +1,7 @@
 import { Judge0 } from "../../libs/judge0.lib";
 
 function generateFormattedInputForJudge0ForCreatingProblem(problem: {
+  args: string[];
   output_format: "PLAIN" | "JSON" | "FLOAT";
   details: {
     language: string;
@@ -32,6 +33,11 @@ function generateFormattedInputForJudge0ForCreatingProblem(problem: {
       const source_code = `${detail.referenceSolution}\n${detail.backgroundCode}`;
       for (const testcase of problem.testcases) {
         const inputArray = testcase.std.stdin;
+        if (inputArray.length != problem.args.length) {
+          throw new Error(
+            "Testcase stdin length does not match problem args length"
+          );
+        }
         const inputString = inputArray.join("\n");
 
         temp.push({

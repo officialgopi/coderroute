@@ -32,6 +32,7 @@ const createProblem = AsyncHandler(async (req, res) => {
    * Then store the problem in the database
    * Return the problem id
    */
+
   const formattedParameter =
     generateFormattedInputForJudge0ForCreatingProblem(data);
 
@@ -375,6 +376,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
   }
 
   const formattedParameterArgData = {
+    args: problem.args,
     output_format: problem.output_format,
     details: problem.problemDetails.map((detail) => ({
       language: detail.language,

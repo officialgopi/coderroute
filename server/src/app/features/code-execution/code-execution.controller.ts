@@ -29,7 +29,7 @@ const codeRunExecute = AsyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid request data");
   }
 
-  const { source_code, language, stdin, expectedOutput } = bodySchemaData.data;
+  const { source_code, language } = bodySchemaData.data;
 
   const languageId = Judge0.getJudge0LanguageId(language);
 
@@ -67,14 +67,25 @@ const codeRunExecute = AsyncHandler(async (req, res) => {
     );
   }
 
+  const stdin = problem.testcases.map((tc) => tc.std["stdin"]);
+  const stdout = problem.testcases.map((tc) => tc.std["stdout"]);
+
   const problemDetail = problem.problemDetails[0];
 
+  const std: { stdin: string[]; stdout: string }[] = [];
+  for (let i = 0; i < stdin.length; i++) {
+    std.push({
+      stdin: stdin[i],
+      stdout: stdout[i] || "",
+    });
+  }
+
   const result = await executeCodeService(
+    problem.output_format,
     source_code,
     problemDetail.backgroundCode,
     languageId,
-    problem.testcases.map((tc) => tc.input),
-    problem.testcases.map((tc) => tc.output)
+    std
   );
 
   if (!result.success) {
@@ -146,12 +157,23 @@ const codeSubmitExecute = AsyncHandler(async (req, res) => {
 
   const problemDetail = problem.problemDetails[0];
 
+  const stdin = problem.testcases.map((tc) => tc.std["stdin"]);
+  const stdout = problem.testcases.map((tc) => tc.std["stdout"]);
+
+  const std: { stdin: string[]; stdout: string }[] = [];
+  for (let i = 0; i < stdin.length; i++) {
+    std.push({
+      stdin: stdin[i],
+      stdout: stdout[i] || "",
+    });
+  }
+
   const result = await executeCodeService(
+    problem.output_format,
     source_code,
     problemDetail.backgroundCode,
     languageId,
-    problem.testcases.map((tc) => tc.input),
-    problem.testcases.map((tc) => tc.output)
+    std
   );
 
   if (!result.success) {

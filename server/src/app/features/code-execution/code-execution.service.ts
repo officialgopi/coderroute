@@ -1,14 +1,14 @@
-import { logger } from "../../../logger";
 import { Judge0 } from "../../libs/judge0.lib";
 
 const executeCodeService = async (
+  output_format: "PLAIN" | "JSON" | "FLOAT",
   code: string,
   backgroundCode: string,
   languageId: number,
   std: {
     stdin: string[];
     stdout: string;
-  }
+  }[]
 ) => {
   try {
     if (!code || !languageId) {
