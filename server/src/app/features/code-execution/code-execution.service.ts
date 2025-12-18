@@ -1,3 +1,78 @@
+type OutputFormat = "PLAIN" | "FLOAT" | "JSON";
+
+interface CompareOptions {
+  format: OutputFormat;
+  epsilon?: number; // only for FLOAT
+}
+
+/* ================= NORMALIZERS ================= */
+
+function normalizePlain(s: string): string {
+  return s
+    .replace(/\r\n/g, "\n") // Windows → Unix
+    .trim();
+}
+
+/* ================= COMPARATORS ================= */
+
+function comparePlain(stdout: string, expected: string): boolean {
+  return normalizePlain(stdout) === normalizePlain(expected);
+}
+
+function compareFloat(
+  stdout: string,
+  expected: string,
+  epsilon: number = 1e-6
+): boolean {
+  const a = parseFloat(stdout.trim());
+  const b = parseFloat(expected.trim());
+
+  if (Number.isNaN(a) || Number.isNaN(b)) return false;
+
+  return Math.abs(a - b) <= epsilon;
+}
+
+function normalizeJson(value: any): string {
+  // Stable stringify to avoid key-order issues
+  return JSON.stringify(value);
+}
+
+function compareJson(stdout: string, expected: string): boolean {
+  try {
+    const user = JSON.parse(stdout.trim());
+    const exp = JSON.parse(expected.trim());
+
+    return normalizeJson(user) === normalizeJson(exp);
+  } catch {
+    return false; // invalid JSON → WA
+  }
+}
+
+/* ================= GLOBAL ENTRY POINT ================= */
+
+function compareOutput(
+  stdout: string,
+  expected: string,
+  options: CompareOptions
+): boolean {
+  const { format, epsilon } = options;
+
+  switch (format) {
+    case "PLAIN":
+      return comparePlain(stdout, expected);
+
+    case "FLOAT":
+      return compareFloat(stdout, expected, epsilon);
+
+    case "JSON":
+      return compareJson(stdout, expected);
+
+    default:
+      throw new Error(`Unsupported output format: ${format}`);
+  }
+}
+
+// Exported module
 import { Judge0 } from "../../libs/judge0.lib";
 
 const executeCodeService = async (
@@ -17,16 +92,14 @@ const executeCodeService = async (
         message: "Code and languageId are required",
       };
     }
-    if (
-      !Array.isArray(stdin) ||
-      !Array.isArray(expectedOutput) ||
-      expectedOutput.length === 0 ||
-      stdin.length === 0
-    )
+    if (!Array.isArray(std) || std.length === 0)
       return {
         success: false,
         message: "Code and languageId are required",
       };
+    const stdin = std.map((item) => item.stdin.join("\n"));
+    const stdout = std.map((item) => item.stdout);
+
     const submissions = stdin.map((input) => ({
       source_code: `${code} \n${backgroundCode}`,
       language_id: languageId,
@@ -55,30 +128,20 @@ const executeCodeService = async (
 
     let allPassed = true;
     const detailedResults = results.data?.map((result, idx) => {
-      const expected = JSON.parse(expectedOutput[idx]?.trim());
-      // const expected = JSON.stringify(JSON.parse(expectedOutput[idx]?.trim()));
-      // const actual = JSON.stringify(JSON.parse(result.stdout?.trim()));
-      let actual = result.stdout?.trim();
-      if (!actual) {
-        actual = "";
-      } else {
-        actual = JSON.parse(actual);
-      }
+      const expected = stdout[idx];
+      const result_output = result.stdout?.trim();
 
-      const passed = JSON.stringify(expected) === JSON.stringify(actual);
-      console.log(expected);
-      console.log(actual);
-      console.log("----");
+      const passed = compareOutput(result_output || "", expected, {
+        format: output_format,
+      });
 
       if (!passed) allPassed = false;
-
-      // logger.error(results);
 
       return {
         testcase: idx + 1,
         passed: passed,
-        expected: JSON.stringify(expected),
-        actual: actual,
+        expected: expected,
+        actual: result_output,
         time: result.time ? `${result.time}s` : "N/A",
         memory: result.memory ? `${result.memory}KB` : "N/A",
         status: result.status ? result.status.description : "N/A",
