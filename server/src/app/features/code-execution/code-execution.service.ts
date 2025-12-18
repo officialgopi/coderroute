@@ -5,8 +5,10 @@ const executeCodeService = async (
   code: string,
   backgroundCode: string,
   languageId: number,
-  stdin: string[],
-  expectedOutput: string[]
+  std: {
+    stdin: string[];
+    stdout: string;
+  }
 ) => {
   try {
     if (!code || !languageId) {

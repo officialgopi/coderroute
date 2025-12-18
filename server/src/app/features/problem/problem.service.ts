@@ -1,6 +1,7 @@
 import { Judge0 } from "../../libs/judge0.lib";
 
 function generateFormattedInputForJudge0ForCreatingProblem(problem: {
+  output_format: "PLAIN" | "JSON" | "FLOAT";
   details: {
     language: string;
     codeSnippet: string;
@@ -13,7 +14,6 @@ function generateFormattedInputForJudge0ForCreatingProblem(problem: {
       stdout: string;
     };
     explaination?: string;
-    output_format: "PLAIN" | "JSON" | "FLOAT";
   }[];
 }) {
   try {

@@ -125,7 +125,9 @@ model Problem {
   constraints     String[]   @default([])
   hints           String[]   @default([])
   editorial       String?
-  args            String[]   @default([])
+  args            String[]   
+  output_format OUTPUT_FORMAT @default(PLAIN)
+
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
@@ -154,7 +156,6 @@ model Testcases {
   id          Int      @id @default(autoincrement())
   problemId   String
   std         Json
-  output_format OUTPUT_FORMAT @default(PLAIN)
   explanation String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

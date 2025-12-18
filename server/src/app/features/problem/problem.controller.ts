@@ -98,6 +98,8 @@ const createProblem = AsyncHandler(async (req, res) => {
       difficulty: data.difficulty,
       tags: data.tags,
       constraints: data.constraints as string[],
+      output_format: data.output_format,
+      args: data.args as string[],
       editorial: data.editorial,
       hints: data.hints as string[],
       createdByUserId: req.user.id,
@@ -111,7 +113,6 @@ const createProblem = AsyncHandler(async (req, res) => {
           language: detail.language,
           codeSnippet: detail.codeSnippet,
           backgroundCode: detail.backgroundCode,
-          whereToWriteCode: "<WHERE_TO_WRITE_CODE/>",
           referenceSolution: detail.referenceSolution,
         };
       }),
@@ -124,7 +125,6 @@ const createProblem = AsyncHandler(async (req, res) => {
             stdin: testcase.std.stdin,
             stdout: testcase.std.stdout,
           },
-          output_format: testcase.output_format,
           explanation: testcase.explaination,
         };
       }),
@@ -375,6 +375,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
   }
 
   const formattedParameterArgData = {
+    output_format: problem.output_format,
     details: problem.problemDetails.map((detail) => ({
       language: detail.language,
       backgroundCode: detail.backgroundCode,
@@ -445,7 +446,6 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
         stdin: testcase.std.stdin,
         stdout: testcase.std.stdout,
       },
-      output_format: testcase.output_format,
       explanation: testcase.explaination,
     })),
   });

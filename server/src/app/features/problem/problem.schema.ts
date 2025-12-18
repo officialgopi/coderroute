@@ -9,13 +9,14 @@ const createProblemBodySchema = z.object({
   constraints: z.array(z.string().optional()),
   hints: z.array(z.string()).optional(),
   editorial: z.string().optional(),
+  args: z.array(z.string()),
+  output_format: z.enum(["PLAIN", "JSON", "FLOAT"]),
   testcases: z.array(
     z.object({
       std: z.object({
         stdin: z.array(z.string()),
         stdout: z.string(),
       }),
-      output_format: z.enum(["PLAIN", "JSON", "FLOAT"]),
       explaination: z.string().optional(),
     })
   ),
@@ -81,7 +82,6 @@ const addTestcaseToProblemBodySchema = z.object({
         stdin: z.array(z.string()),
         stdout: z.string(),
       }),
-      output_format: z.enum(["PLAIN", "JSON", "FLOAT"]),
       explaination: z.string().optional(),
     })
   ),

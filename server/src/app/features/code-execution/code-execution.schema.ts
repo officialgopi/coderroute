@@ -11,7 +11,6 @@ const codeRunExecutionBodySchema = z.object({
   source_code: z.string(),
   language: z.string(),
   stdin: z.array(z.string()),
-  expectedOutput: z.array(z.string()),
 });
 const codeSubmitExecutionBodySchema = z.object({
   source_code: z.string(),
