@@ -29,7 +29,7 @@
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/winston": "^2.4.4",
     "nodemon": "^3.1.10",
-    "prisma": "^6.16.2",
+    "prisma": "^7.2.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   },

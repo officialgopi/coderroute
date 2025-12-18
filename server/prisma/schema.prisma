@@ -18,7 +18,7 @@ enum DIFFICULTY {
   HARD
 }
 
-enum AuthProvider {
+enum AUTH_PROVIDER {
   GOOGLE
   GITHUB
   LOCAL
@@ -29,6 +29,12 @@ enum LANGUAGE {
   JAVASCRIPT
 }
 
+enum OUTPUT_FORMAT {
+  PLAIN
+  JSON
+  FLOAT
+}
+
 
 model User {
   id                           String       @id @default(uuid())
@@ -37,7 +43,7 @@ model User {
   email                        String       @unique
   avatar                       String?
   role                         USER_ROLE    @default(USER)
-  authProvider                 AuthProvider @default(GOOGLE)
+  authProvider                 AUTH_PROVIDER @default(GOOGLE)
   password                     String?
   isEmailVerified              Boolean      @default(false)
   emailVerificationToken       String?      @unique
@@ -116,10 +122,11 @@ model Problem {
   title           String
   description     String
   difficulty      DIFFICULTY
-  tags            String[]   @default([]) // ["tag1", "tag2", "tag3"] 
+  tags            String[]   @default([])
   constraints     String[]   @default([])
   hints           String[]   @default([])
   editorial       String?
+
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
 
@@ -147,8 +154,8 @@ model Problem {
 model Testcases {
   id          Int      @id @default(autoincrement())
   problemId   String
-  input       String
-  output      String
+  std         Json
+  output_format OUTPUT_FORMAT @default(PLAIN)
   explanation String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -168,7 +175,6 @@ model ProblemDetails {
   codeSnippet       String
   backgroundCode    String
   referenceSolution String
-  whereToWriteCode  String
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
