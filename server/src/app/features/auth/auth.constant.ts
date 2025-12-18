@@ -9,7 +9,7 @@ export const CORS_OPTIONS: CorsOptions = {
 };
 
 export const COOKIE_OPTIONS: CookieOptions = {
-  domain: env.CLIENT_URL,
+  // domain: env.CLIENT_URL,
   httpOnly: true,
   secure: env.NODE_ENV === "production",
   sameSite: "lax",

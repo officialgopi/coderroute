@@ -13,10 +13,14 @@ export const createProblemBodySchema = z.object({
   constraints: z.array(z.string().optional()),
   hints: z.array(z.string()).optional(),
   editorial: z.string().optional(),
+  args: z.array(z.string()),
+  output_format: z.enum(["PLAIN", "JSON", "FLOAT"]),
   testcases: z.array(
     z.object({
-      input: z.string(),
-      output: z.string(),
+      std: z.object({
+        stdin: z.array(z.string()),
+        stdout: z.string(),
+      }),
       explaination: z.string().optional(),
     })
   ),
@@ -25,7 +29,6 @@ export const createProblemBodySchema = z.object({
       language: z.enum(Object.values(LANGUAGE)),
       codeSnippet: z.string(),
       backgroundCode: z.string(),
-      whereToWriteCode: z.string(),
       referenceSolution: z.string(),
     })
   ),
