@@ -13,6 +13,8 @@ export interface IProblem {
   tags: string[];
   constraints: string[];
   hints: string[];
+  args: string[];
+  output_format: "PLAIN" | "JSON" | "FLOAT";
   editorial?: string;
   createdAt: string;
   updatedAt: string;
@@ -24,14 +26,15 @@ export interface IProblem {
     problemId: string;
     codeSnippet: string;
     backgroundCode: string;
-    whereToWriteCode: string;
     referenceSolution: string;
   }[];
 
   testcases?: {
-    output: string;
-    input: string;
     id: number;
+    std: {
+      stdin: string[];
+      stdout: string;
+    };
     createdAt: Date;
     updatedAt: Date;
     problemId: string;
