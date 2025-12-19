@@ -1,6 +1,7 @@
 import { db } from "../../../db";
 import { Judge0 } from "../../libs/judge0.lib";
 import { ApiError, ApiResponse, AsyncHandler } from "../../utils";
+import { compareOutput } from "../code-execution/code-execution.service";
 import {
   addTestcaseToProblemBodySchema,
   addTestcaseToProblemParamsSchema,
@@ -70,6 +71,8 @@ const createProblem = AsyncHandler(async (req, res) => {
     const submissions = responseFromJudge0AfterPoolingBatchResults.data;
     for (let i = 0; i < submissions.length; i++) {
       const result = submissions[i];
+      const actual_output = result.stdout?.trim() || "";
+      const expected_output = data.testcases[i].std.stdout?.trim() || "";
 
       if (result.status.id !== 3) {
         throw new ApiError(
@@ -77,6 +80,21 @@ const createProblem = AsyncHandler(async (req, res) => {
           `Test case ${(
             i + Number(1)
           ).toString()} failed for language ${Judge0.getJudge0LanguageName(
+            submissionBatchParameter[0].language_id
+          )}`
+        );
+      }
+
+      const isOutputEqual = compareOutput(actual_output, expected_output, {
+        format: data.output_format,
+      });
+
+      if (!isOutputEqual) {
+        throw new ApiError(
+          400,
+          `Test case ${(
+            i + Number(1)
+          ).toString()} produced incorrect output for language ${Judge0.getJudge0LanguageName(
             submissionBatchParameter[0].language_id
           )}`
         );

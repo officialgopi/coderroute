@@ -50,7 +50,7 @@ function compareJson(stdout: string, expected: string): boolean {
 
 /* ================= GLOBAL ENTRY POINT ================= */
 
-function compareOutput(
+export function compareOutput(
   stdout: string,
   expected: string,
   options: CompareOptions
