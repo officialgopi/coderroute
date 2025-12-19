@@ -14,13 +14,7 @@ const CenterSection = () => {
   const { language } = useCodeEditorSettingsStore();
   const navigate = useNavigate();
   const handleRun = async () => {
-    await runCode(
-      problemInCodeEditor?.id!,
-      codeInEditor,
-      problemInCodeEditor?.testcases?.map((tc) => tc.input) || [],
-      problemInCodeEditor?.testcases?.map((tc) => tc.output) || [],
-      language
-    );
+    await runCode(problemInCodeEditor?.id!, codeInEditor, language);
   };
   const handleSubmit = async () => {
     const submission = await submitCode(

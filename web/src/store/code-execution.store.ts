@@ -53,8 +53,6 @@ interface CodeExecutionState {
   runCode: (
     problemId: string,
     source_code: string,
-    stdin: string[],
-    expectedOutput: string[],
     language: TLanguage
   ) => Promise<{
     status: "ACCEPTED" | "WRONG_ANSWER";
@@ -85,7 +83,7 @@ export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
     set({
       currentProblemRunningResult: null,
     }),
-  runCode: async (problemId, source_code, stdin, expectedOutput, language) => {
+  runCode: async (problemId, source_code, language) => {
     set({
       isRunning: true,
     });
@@ -95,8 +93,6 @@ export const useCodeExecutionStore = create<CodeExecutionState>((set, get) => ({
         "POST",
         {
           source_code,
-          stdin,
-          expectedOutput,
           language,
         }
       );
