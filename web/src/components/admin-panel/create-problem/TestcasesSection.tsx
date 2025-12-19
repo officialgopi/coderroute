@@ -3,12 +3,6 @@ import { motion } from "framer-motion";
 import { Plus, Trash2 } from "lucide-react";
 import type { CreateProblemBody } from "@/types/types";
 
-interface Testcase {
-  input: string;
-  output: string;
-  explaination?: string;
-}
-
 interface Props {
   problem: CreateProblemBody;
   setProblem: React.Dispatch<React.SetStateAction<CreateProblemBody>>;
@@ -20,7 +14,13 @@ const TestcasesSection: React.FC<Props> = ({ problem, setProblem }) => {
       ...prev,
       testcases: [
         ...prev.testcases,
-        { input: "", output: "", explaination: "" },
+        {
+          std: {
+            stdin: Array(prev.args.length).fill(""),
+            stdout: "",
+          },
+          explanation: "",
+        },
       ],
     }));
   };
@@ -32,14 +32,49 @@ const TestcasesSection: React.FC<Props> = ({ problem, setProblem }) => {
     }));
   };
 
-  const updateTestcase = (
-    index: number,
-    field: keyof Testcase,
+  const updateStdin = (
+    testcaseIndex: number,
+    argIndex: number,
     value: string
   ) => {
-    const updated = [...problem.testcases];
-    updated[index][field] = value;
-    setProblem((prev) => ({ ...prev, testcases: updated }));
+    setProblem((prev) => {
+      const updated = [...prev.testcases];
+      updated[testcaseIndex] = {
+        ...updated[testcaseIndex],
+        std: {
+          ...updated[testcaseIndex].std,
+          stdin: updated[testcaseIndex].std.stdin.map((v, i) =>
+            i === argIndex ? value : v
+          ),
+        },
+      };
+      return { ...prev, testcases: updated };
+    });
+  };
+
+  const updateStdout = (index: number, value: string) => {
+    setProblem((prev) => {
+      const updated = [...prev.testcases];
+      updated[index] = {
+        ...updated[index],
+        std: {
+          ...updated[index].std,
+          stdout: value,
+        },
+      };
+      return { ...prev, testcases: updated };
+    });
+  };
+
+  const updateExplanation = (index: number, value: string) => {
+    setProblem((prev) => {
+      const updated = [...prev.testcases];
+      updated[index] = {
+        ...updated[index],
+        explanation: value,
+      };
+      return { ...prev, testcases: updated };
+    });
   };
 
   return (
@@ -64,39 +99,39 @@ const TestcasesSection: React.FC<Props> = ({ problem, setProblem }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.2 }}
-            className="min-w-[260px] flex-shrink-0 border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 rounded-lg p-3 shadow-sm"
+            className="min-w-[280px] flex-shrink-0 border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 rounded-lg p-3 shadow-sm"
           >
             <div className="flex justify-between items-center mb-2">
-              <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200">
-                Case #{i + 1}
-              </p>
-              <button
-                type="button"
-                onClick={() => removeTestcase(i)}
-                className="btn-danger"
-              >
+              <p className="text-sm font-medium">Case #{i + 1}</p>
+              <button onClick={() => removeTestcase(i)} className="btn-danger">
                 <Trash2 size={14} />
               </button>
             </div>
 
-            <textarea
-              placeholder="Input"
-              value={tc.input}
-              onChange={(e) => updateTestcase(i, "input", e.target.value)}
-              className="input-field text-xs mb-2"
-            />
+            {/* Inputs per arg */}
+            {problem.args.map((arg, argIdx) => (
+              <textarea
+                key={argIdx}
+                placeholder={`${arg} (input)`}
+                value={tc.std.stdin[argIdx]}
+                onChange={(e) => updateStdin(i, argIdx, e.target.value)}
+                className="input-field text-xs mb-2"
+              />
+            ))}
+
+            {/* Output */}
             <textarea
               placeholder="Expected Output"
-              value={tc.output}
-              onChange={(e) => updateTestcase(i, "output", e.target.value)}
+              value={tc.std.stdout}
+              onChange={(e) => updateStdout(i, e.target.value)}
               className="input-field text-xs mb-2"
             />
+
+            {/* Explanation */}
             <textarea
               placeholder="Explanation (optional)"
-              value={tc.explaination || ""}
-              onChange={(e) =>
-                updateTestcase(i, "explaination", e.target.value)
-              }
+              value={tc.explanation || ""}
+              onChange={(e) => updateExplanation(i, e.target.value)}
               className="input-field text-xs"
             />
           </motion.div>

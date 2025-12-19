@@ -5,7 +5,6 @@ interface CodeDetail {
   language: "PYTHON" | "JAVASCRIPT";
   codeSnippet: string;
   backgroundCode: string;
-  whereToWriteCode: string;
   referenceSolution: string;
 }
 
@@ -91,10 +90,6 @@ const CodeSetupSection: React.FC<Props> = ({ problem, setProblem }) => {
                 fontSize: 13,
               }}
             />
-            <p className="text-[11px] text-neutral-500 mt-1 italic">
-              Use <span className="font-mono">&lt;WRITE_CODE_HERE&gt;</span> as
-              placeholder for user code injection.
-            </p>
           </div>
         </div>
       ))}

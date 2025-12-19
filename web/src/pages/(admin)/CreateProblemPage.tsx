@@ -5,6 +5,7 @@ import { Tabs } from "@/components/admin-panel/create-problem/Tabs";
 import type { CreateProblemBody } from "@/types/types";
 import { useProblemStore } from "@/store/problem.store";
 import { Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const ProblemMetadata = lazy(
   () => import("@/components/admin-panel/create-problem/ProblemMetadata")
@@ -31,6 +32,41 @@ const CreateProblemWithAIModal = lazy(
   () =>
     import("@/components/admin-panel/create-problem/CreateProblemWithAIModal")
 );
+const DEFAULT_PROBLEM: CreateProblemBody = {
+  title: "",
+  description: "",
+  difficulty: "EASY",
+  tags: [],
+  constraints: [],
+  hints: [],
+  editorial: "",
+  args: [],
+  output_format: "PLAIN",
+  testcases: [
+    {
+      std: {
+        stdin: [],
+        stdout: "",
+      },
+      explanation: "",
+    },
+  ],
+  details: [
+    {
+      language: "JAVASCRIPT",
+      codeSnippet: "",
+      backgroundCode:
+        "function main() {\n  /* Write your code here */ \n}\nmain();\n",
+      referenceSolution: "",
+    },
+    {
+      language: "PYTHON",
+      codeSnippet: "",
+      backgroundCode: "def main():\n    # Write your code here\n\nmain()",
+      referenceSolution: "",
+    },
+  ],
+};
 
 const CreateProblemPage: React.FC = () => {
   const [createProblemWithAIModalOpen, setCreateProblemWithAIModalOpen] =
@@ -54,23 +90,32 @@ const CreateProblemPage: React.FC = () => {
       description: "",
       difficulty: "EASY",
       tags: [],
-      constraints: [""],
-      hints: [""],
+      constraints: [],
+      hints: [],
       editorial: "",
-      testcases: [{ input: "", output: "", explaination: "" }],
+      args: [],
+      output_format: "PLAIN",
+      testcases: [
+        {
+          std: {
+            stdin: [],
+            stdout: "",
+          },
+          explanation: "",
+        },
+      ],
       details: [
         {
           language: "JAVASCRIPT",
           codeSnippet: "",
-          backgroundCode: "function solve() {\n  /* <WRITE_CODE_HERE> */\n}",
-          whereToWriteCode: "<WRITE_CODE_HERE>",
+          backgroundCode:
+            "function main() {\n  /* Write your code here */\n }\n main();",
           referenceSolution: "",
         },
         {
           language: "PYTHON",
           codeSnippet: "",
-          backgroundCode: "def solve():\n    # <WRITE_CODE_HERE>",
-          whereToWriteCode: "<WRITE_CODE_HERE>",
+          backgroundCode: "def main():\n    # Write your code here\n\nmain()",
           referenceSolution: "",
         },
       ],
@@ -101,27 +146,47 @@ const CreateProblemPage: React.FC = () => {
       description: "",
       difficulty: "EASY",
       tags: [],
-      constraints: [""],
-      hints: [""],
+      constraints: [],
+      hints: [],
       editorial: "",
-      testcases: [{ input: "", output: "", explaination: "" }],
+      args: [],
+      output_format: "PLAIN",
+      testcases: [
+        {
+          std: {
+            stdin: [],
+            stdout: "",
+          },
+          explanation: "",
+        },
+      ],
       details: [
         {
           language: "JAVASCRIPT",
           codeSnippet: "",
           backgroundCode: "function solve() {\n  /* <WRITE_CODE_HERE> */\n}",
-          whereToWriteCode: "<WRITE_CODE_HERE>",
           referenceSolution: "",
         },
         {
           language: "PYTHON",
           codeSnippet: "",
           backgroundCode: "def solve():\n    # <WRITE_CODE_HERE>",
-          whereToWriteCode: "<WRITE_CODE_HERE>",
           referenceSolution: "",
         },
       ],
     });
+  };
+  const handleResetDraft = () => {
+    const confirmed = window.confirm(
+      "This will clear your saved draft and reset the form. Continue?"
+    );
+
+    if (!confirmed) return;
+
+    localStorage.removeItem(STORAGE_KEY);
+    setProblem(DEFAULT_PROBLEM);
+    setActiveTab(0);
+    toast.success("Draft reset successfully");
   };
 
   const renderActiveTab = () => {
@@ -193,14 +258,24 @@ const CreateProblemPage: React.FC = () => {
       </div>
 
       <div className="flex justify-between items-center pt-2">
-        {activeTab > 0 && (
-          <button
-            onClick={() => setActiveTab((prev) => prev - 1)}
-            className="btn-sub px-4 py-1.5 text-sm"
+        <div className="flex gap-2">
+          {activeTab > 0 && (
+            <button
+              onClick={() => setActiveTab((prev) => prev - 1)}
+              className="btn-sub px-4 py-1.5 text-sm"
+            >
+              Back
+            </button>
+          )}
+
+          <Button
+            variant={"destructive"}
+            onClick={handleResetDraft}
+            className=" px-4 py-1.5 text-sm"
           >
-            Back
-          </button>
-        )}
+            Reset Draft
+          </Button>
+        </div>
 
         {activeTab < tabs.length - 1 ? (
           <motion.button
