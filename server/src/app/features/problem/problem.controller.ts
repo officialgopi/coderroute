@@ -68,8 +68,6 @@ const createProblem = AsyncHandler(async (req, res) => {
     }
 
     const submissions = responseFromJudge0AfterPoolingBatchResults.data;
-    console.log(submissions);
-    return res.status(200).json(submissions);
     for (let i = 0; i < submissions.length; i++) {
       const result = submissions[i];
 
