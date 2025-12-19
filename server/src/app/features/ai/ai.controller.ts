@@ -14,6 +14,7 @@ import {
 } from "./ai.schema";
 import { ChatCompletionMessageParam } from "openai/resources/index";
 import z from "zod";
+import { ALL_TAGS } from "../problem/problem.constant";
 
 const chatWithAiAssistant = AsyncHandler(async (req, res) => {
   if (!req.user) {
@@ -217,43 +218,92 @@ const generateProblemWithAI = AsyncHandler(async (req, res) => {
       "title",
       "description",
       "difficulty",
+      "args",
+      "output_format",
       "constraints",
       "testcases",
       "details",
     ],
     properties: {
-      title: { type: "string" },
-      description: { type: "string" },
+      title: {
+        type: "string",
+        description: "Problem title",
+      },
+
+      description: {
+        type: "string",
+        description: "HTML formatted problem description",
+      },
+
       difficulty: {
         type: "string",
         enum: ["EASY", "MEDIUM", "HARD"],
       },
+
       tags: {
         type: "array",
-        items: { type: "string" },
+        items: {
+          type: "string",
+          enum: ALL_TAGS,
+        },
       },
+
       constraints: {
         type: "array",
         items: { type: "string" },
       },
+
       hints: {
         type: "array",
         items: { type: "string" },
       },
-      editorial: { type: "string" },
+
+      editorial: {
+        type: "string",
+        description: "HTML formatted editorial",
+      },
+
+      args: {
+        type: "array",
+        description: "Function argument names in order",
+        items: { type: "string" },
+      },
+
+      output_format: {
+        type: "string",
+        enum: ["PLAIN", "JSON", "FLOAT"],
+      },
+
       testcases: {
         type: "array",
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["input", "output"],
+          required: ["std"],
           properties: {
-            input: { type: "string" },
-            output: { type: "string" },
-            explaination: { type: "string" },
+            std: {
+              type: "object",
+              additionalProperties: false,
+              required: ["stdin", "stdout"],
+              properties: {
+                stdin: {
+                  type: "array",
+                  description: "Input values mapped to args in the same order",
+                  items: { type: "string" },
+                },
+                stdout: {
+                  type: "string",
+                  description: "Expected output",
+                },
+              },
+            },
+            explanation: {
+              type: "string",
+            },
           },
         },
       },
+
       details: {
         type: "array",
         items: {
@@ -263,7 +313,6 @@ const generateProblemWithAI = AsyncHandler(async (req, res) => {
             "language",
             "codeSnippet",
             "backgroundCode",
-            "whereToWriteCode",
             "referenceSolution",
           ],
           properties: {
@@ -271,10 +320,15 @@ const generateProblemWithAI = AsyncHandler(async (req, res) => {
               type: "string",
               enum: Object.values(LANGUAGE),
             },
-            codeSnippet: { type: "string" },
-            backgroundCode: { type: "string" },
-            whereToWriteCode: { type: "string" },
-            referenceSolution: { type: "string" },
+            codeSnippet: {
+              type: "string",
+            },
+            backgroundCode: {
+              type: "string",
+            },
+            referenceSolution: {
+              type: "string",
+            },
           },
         },
       },

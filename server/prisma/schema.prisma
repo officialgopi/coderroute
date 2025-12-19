@@ -34,6 +34,87 @@ enum OUTPUT_FORMAT {
   FLOAT
 }
 
+enum TAGS {
+  // 🔹 Data Structures
+  ARRAY
+  STRING
+  LINKED_LIST
+  STACK
+  QUEUE
+  HASHING
+  HEAP
+  TREE
+  BINARY_TREE
+  BST
+  GRAPH
+  TRIE
+
+  // 🔹 Algorithms
+  SORTING
+  SEARCHING
+  TWO_POINTERS
+  SLIDING_WINDOW
+  GREEDY
+  BACKTRACKING
+  DIVIDE_AND_CONQUER
+  RECURSION
+
+  // 🔹 Dynamic Programming
+  DP
+  DP_1D
+  DP_2D
+  DP_BITMASK
+
+  // 🔹 Graph Algorithms
+  BFS
+  DFS
+  DIJKSTRA
+  BELLMAN_FORD
+  FLOYD_WARSHALL
+  MST
+  TOPOLOGICAL_SORT
+  UNION_FIND
+
+  // 🔹 Mathematics
+  MATH
+  NUMBER_THEORY
+  COMBINATORICS
+  PROBABILITY
+  MODULAR_ARITHMETIC
+
+  // 🔹 Bit Manipulation
+  BIT_MANIPULATION
+
+  // 🔹 CS Core
+  OS
+  DBMS
+  CN
+  COA
+  COMPILER
+
+  // 🔹 System Design
+  SYSTEM_DESIGN
+  LOW_LEVEL_DESIGN
+  HIGH_LEVEL_DESIGN
+
+  // 🔹 Language / Platform
+  C
+  CPP
+  JAVA
+  PYTHON
+  JAVASCRIPT
+
+  // 🔹 Interview / Practice
+  INTERVIEW
+  LEETCODE_STYLE
+  CODEFORCES_STYLE
+
+  // 🔹 Misc
+  IMPLEMENTATION
+  SIMULATION
+}
+
+
 
 model User {
   id                           String       @id @default(uuid())
@@ -121,7 +202,7 @@ model Problem {
   title           String
   description     String
   difficulty      DIFFICULTY
-  tags            String[]   @default([])
+  tags            TAGS[]   @default([])
   constraints     String[]   @default([])
   hints           String[]   @default([])
   editorial       String?

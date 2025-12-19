@@ -2,7 +2,6 @@ import { Judge0 } from "../../libs/judge0.lib";
 
 function generateFormattedInputForJudge0ForCreatingProblem(problem: {
   args: string[];
-  output_format: "PLAIN" | "JSON" | "FLOAT";
   details: {
     language: string;
     codeSnippet: string;
@@ -22,7 +21,6 @@ function generateFormattedInputForJudge0ForCreatingProblem(problem: {
       language_id: number;
       source_code: string;
       stdin: string;
-      expected_output: string;
     }[][] = [];
     for (const detail of problem.details) {
       let temp = [];
@@ -44,7 +42,6 @@ function generateFormattedInputForJudge0ForCreatingProblem(problem: {
           language_id: language_id,
           source_code: source_code,
           stdin: inputString,
-          expected_output: testcase.std.stdout,
         });
       }
       formattedSubmissionBatchParameter.push(temp);

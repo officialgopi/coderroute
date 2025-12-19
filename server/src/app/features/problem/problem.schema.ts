@@ -1,11 +1,12 @@
 import { LANGUAGE } from "@prisma/client";
 import z from "zod";
+import { TAGS } from "./problem.constant";
 
 const createProblemBodySchema = z.object({
   title: z.string().min(1).max(255),
   description: z.string().min(1),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
-  tags: z.array(z.string()).optional(),
+  tags: z.array(z.enum(TAGS)),
   constraints: z.array(z.string().optional()),
   hints: z.array(z.string()).optional(),
   editorial: z.string().optional(),
@@ -17,7 +18,7 @@ const createProblemBodySchema = z.object({
         stdin: z.array(z.string()),
         stdout: z.string(),
       }),
-      explaination: z.string().optional(),
+      explanation: z.string().optional(),
     })
   ),
   details: z.array(
