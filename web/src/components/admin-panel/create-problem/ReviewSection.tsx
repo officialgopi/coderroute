@@ -67,9 +67,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ problem }) => {
                   <strong>Output:</strong> <code>{t.std.stdout}</code>
                 </p>
 
-                {t.explaination && (
+                {t.explanation && (
                   <p>
-                    <strong>Explanation:</strong> {t.explaination}
+                    <strong>Explanation:</strong> {t.explanation}
                   </p>
                 )}
               </div>
