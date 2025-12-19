@@ -69,8 +69,8 @@ const generateProblemWithAISystemPrompt = `
   Each testcase should have:
   - input: The input for the test case.
   - output: The expected output for the test case.
-  - explaination?: An explanation of the test case.
-  Maximum 3 testcases can have explaination field.
+  - explanation?: An explanation of the test case.
+  Maximum 3 testcases can have explanation field.
 
   The problem should also include problem details for both supported languages:
   - language: The programming language for the problem.

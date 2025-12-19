@@ -13,7 +13,6 @@ function generateFormattedInputForJudge0ForCreatingProblem(problem: {
       stdin: string[];
       stdout: string;
     };
-    explaination?: string;
   }[];
 }) {
   try {

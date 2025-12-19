@@ -83,7 +83,7 @@ const addTestcaseToProblemBodySchema = z.object({
         stdin: z.array(z.string()),
         stdout: z.string(),
       }),
-      explaination: z.string().optional(),
+      explanation: z.string().optional(),
     })
   ),
 });

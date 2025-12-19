@@ -449,7 +449,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
         stdin: testcase.std.stdin,
         stdout: testcase.std.stdout,
       },
-      explanation: testcase.explaination,
+      explanation: testcase.explanation,
     })),
   });
 
