@@ -2,6 +2,7 @@ import z from "zod";
 
 const envSchema = z.object({
   VITE_API_BASE_URL: z.url().default("http://localhost:3000"),
+  VITE_LIVEBLOCKS_PUBLIC_KEY: z.string(),
 });
 
 function parseEnv(env: Record<string, string>) {
