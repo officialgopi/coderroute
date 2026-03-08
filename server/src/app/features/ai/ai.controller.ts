@@ -94,7 +94,7 @@ const chatWithAiAssistant = AsyncHandler(async (req, res) => {
         problem.description,
         problem.difficulty,
         language,
-        codeSnippet
+        codeSnippet,
       ),
     },
     ...userPrevMessages,
@@ -103,7 +103,6 @@ const chatWithAiAssistant = AsyncHandler(async (req, res) => {
       content: message,
     },
   ];
-
   const newMessage = await db.aiChatMessages.create({
     data: {
       message: message,
@@ -118,12 +117,12 @@ const chatWithAiAssistant = AsyncHandler(async (req, res) => {
   let assistantMessage = "";
 
   try {
+    console.log(messages);
     const stream = await gemini.chat.completions.create({
       model: GEMINI_MODELS.GEMINI_FLASH_2_5,
       messages: messages as ChatCompletionMessageParam[],
       stream: true,
     });
-
     for await (const chunk of stream) {
       const content = chunk.choices?.[0]?.delta?.content || "";
       if (!content) continue;
@@ -157,7 +156,7 @@ const getChatsWithAiByParamsAssistant = AsyncHandler(async (req, res) => {
     throw new ApiError(401, "Unauthorized");
   }
   const { data, success } = getAiChatMessagesByIdParamsSchema.safeParse(
-    req.params
+    req.params,
   );
   if (!success) {
     throw new ApiError(400, "Invalid request data");

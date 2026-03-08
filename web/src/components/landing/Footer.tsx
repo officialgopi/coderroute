@@ -1,141 +1,134 @@
 import { motion, type Variants } from "framer-motion";
+import { Github, Linkedin, Twitter } from "lucide-react";
 
 export const Footer = () => {
   const socialLinks = [
     {
-      label: "LinkedIn",
+      icon: <Linkedin size={18} />,
       href: "https://www.linkedin.com/in/gopikanta-mondal/",
     },
-    { label: "Twitter", href: "https://x.com/devofficialgopi" },
-    { label: "GitHub", href: "https://github.com/officialgopi" },
+    {
+      icon: <Twitter size={18} />,
+      href: "https://x.com/devofficialgopi",
+    },
+    {
+      icon: <Github size={18} />,
+      href: "https://github.com/officialgopi",
+    },
   ];
 
-  const containerVariants: Variants = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.12, delayChildren: 0.3 },
+      transition: { staggerChildren: 0.15 },
     },
   };
 
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.95 },
+  const item: Variants = {
+    hidden: { opacity: 0, y: 25 },
     visible: {
       opacity: 1,
-      scale: 1,
-      transition: { duration: 0.6, ease: "easeOut" },
-    },
-  };
-
-  const glowVariants: Variants = {
-    initial: { opacity: 0.25, scale: 1 },
-    animate: {
-      opacity: [0.25, 0.5, 0.25],
-      scale: [1, 1.1, 1],
-      transition: { duration: 6, repeat: Infinity, repeatType: "reverse" },
+      y: 0,
+      transition: { duration: 0.6 },
     },
   };
 
   return (
-    <footer
-      id="footer"
-      className="relative p-2 px-6 pt-20 pb-12 border-t border-neutral-300 dark:border-neutral-800 bg-neutral-50 overflow-hidden dark:bg-neutral-950 transition-colors"
-    >
-      {/* background glows */}
+    <footer className="relative px-6 pt-24 pb-12 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 overflow-hidden">
+      {/* Glow */}
+      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-purple-500/20 blur-[160px]" />
+
       <motion.div
-        className="absolute bottom-[-120px] left-[55%] h-[350px] w-[450px] rounded-full blur-[130px] bg-blue-400/20 dark:bg-blue-500/40"
-        variants={glowVariants}
-        initial="initial"
-        animate="animate"
-      />
-      <motion.div
-        className="absolute top-[-120px] right-[50%] h-[350px] w-[450px] rounded-full blur-[130px] bg-purple-400/20 dark:bg-purple-600/40"
-        variants={glowVariants}
-        initial="initial"
-        animate="animate"
-      />
-      {/* main content */}
-      <motion.div
-        variants={containerVariants}
+        variants={container}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
-        className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10"
+        viewport={{ once: true }}
+        className="relative z-10 max-w-7xl mx-auto grid gap-12 md:grid-cols-2 lg:grid-cols-4"
       >
-        {/* Explore */}
-        <motion.div variants={itemVariants}>
-          <h3 className="text-xl font-semibold mb-3 text-neutral-900 dark:text-neutral-100">
-            Explore
-          </h3>
-          <ul className="space-y-2 text-neutral-600 dark:text-neutral-400">
-            {["Features", "Testimonials", "Pricing", "FAQs"].map((item) => (
-              <li
-                key={item}
-                className="cursor-pointer hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+        {/* Brand */}
+        <motion.div variants={item}>
+          <h2 className="text-2xl font-semibold text-neutral-900 dark:text-white">
+            CoderRoute
+          </h2>
+
+          <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-400 max-w-xs">
+            A developer platform to master DSA, build projects and crack top
+            tech interviews.
+          </p>
+
+          <div className="flex gap-4 mt-5">
+            {socialLinks.map((social, i) => (
+              <a
+                key={i}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg bg-neutral-200 dark:bg-neutral-800 hover:scale-110 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition"
               >
-                {item}
+                {social.icon}
+              </a>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Product */}
+        <motion.div variants={item}>
+          <h3 className="font-semibold text-neutral-900 dark:text-white mb-4">
+            Product
+          </h3>
+
+          <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+            {["Features", "Roadmap", "Practice", "Leaderboard"].map((link) => (
+              <li
+                key={link}
+                className="hover:text-neutral-900 dark:hover:text-white cursor-pointer transition"
+              >
+                {link}
               </li>
             ))}
           </ul>
         </motion.div>
 
         {/* Company */}
-        <motion.div variants={itemVariants}>
-          <h3 className="text-xl font-semibold mb-3 text-neutral-900 dark:text-neutral-100">
+        <motion.div variants={item}>
+          <h3 className="font-semibold text-neutral-900 dark:text-white mb-4">
             Company
           </h3>
-          <ul className="space-y-2 text-neutral-600 dark:text-neutral-400">
-            {["About Us", "Careers", "Contact", "Privacy Policy"].map(
-              (item) => (
-                <li
-                  key={item}
-                  className="cursor-pointer hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                >
-                  {item}
-                </li>
-              )
-            )}
-          </ul>
-        </motion.div>
 
-        {/* Socials */}
-        <motion.div variants={itemVariants}>
-          <h3 className="text-xl font-semibold mb-3 text-neutral-900 dark:text-neutral-100">
-            Connect
-          </h3>
-          <ul className="space-y-2 text-neutral-600 dark:text-neutral-400">
-            {socialLinks.map((social) => (
-              <li key={social.label}>
-                <a
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
-                >
-                  {social.label}
-                </a>
+          <ul className="space-y-2 text-sm text-neutral-600 dark:text-neutral-400">
+            {["About", "Careers", "Contact", "Privacy"].map((link) => (
+              <li
+                key={link}
+                className="hover:text-neutral-900 dark:hover:text-white cursor-pointer transition"
+              >
+                {link}
               </li>
             ))}
           </ul>
         </motion.div>
 
-        {/* Subscribe */}
-        <motion.div variants={itemVariants}>
-          <h3 className="text-xl font-semibold mb-3 text-neutral-900 dark:text-neutral-100">
-            Join the League
+        {/* Newsletter */}
+        <motion.div variants={item}>
+          <h3 className="font-semibold text-neutral-900 dark:text-white mb-4">
+            Stay Updated
           </h3>
-          <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
-            Get exclusive access and coding updates straight to your inbox.
+
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+            Get coding tips and interview prep resources.
           </p>
-          <div className="flex gap-2 items-center">
+
+          <div className="flex gap-2">
             <input
               type="email"
-              placeholder="Your email"
-              className="flex-1 px-3 py-2 bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 rounded-md text-sm text-neutral-900 dark:text-neutral-50 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-neutral-500 dark:placeholder-neutral-600 transition-colors"
+              placeholder="Enter email"
+              className="flex-1 px-3 py-2 text-sm rounded-md border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900"
             />
+
             <motion.button
-              whileTap={{ scale: 0.97 }}
-              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-neutral-50 font-semibold rounded-md shadow-md hover:shadow-[0_0_20px_rgba(100,100,255,0.3)] transition-all text-sm"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-4 py-2 rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-sm font-medium"
             >
               Join
             </motion.button>
@@ -143,53 +136,20 @@ export const Footer = () => {
         </motion.div>
       </motion.div>
 
-      {/* divider */}
-      <div className="w-full h-px bg-neutral-300 dark:bg-neutral-800 my-10 transition-colors" />
+      {/* Divider */}
+      <div className="max-w-7xl mx-auto mt-16 border-t border-neutral-200 dark:border-neutral-800 pt-6 flex flex-col md:flex-row justify-between text-sm text-neutral-500">
+        <p>© {new Date().getFullYear()} CoderRoute. All rights reserved.</p>
 
-      {/* copyright */}
-      <motion.div
-        className="text-center text-sm relative z-10 text-neutral-600 dark:text-neutral-400"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-      >
         <p>
-          &copy; {new Date().getFullYear()} CoderRoute. All rights reserved.
-        </p>
-        <motion.p
-          animate={{
-            textShadow: [
-              "0 0 0px rgba(150,150,255,0)",
-              "0 0 8px rgba(150,150,255,0.4)",
-              "0 0 0px rgba(150,150,255,0)",
-            ],
-          }}
-          transition={{ duration: 4, repeat: Infinity, repeatType: "reverse" }}
-          className="mt-1"
-        >
-          Built with 💻 by{" "}
+          Built by{" "}
           <a
-            href="https://www.linkedin.com/in/gopikanta-mondal/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors"
+            href="https://github.com/officialgopi"
+            className="underline hover:text-neutral-900 dark:hover:text-white"
           >
             OfficialGopi
           </a>
-        </motion.p>
-      </motion.div>
-
-      {/* background brand text */}
-      <motion.h1
-        className="absolute bottom-[-40px] left-1/2 -translate-x-1/2 text-[16vw] md:text-[10vw] font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-400 via-purple-500 to-neutral-200 dark:to-neutral-600 opacity-[0.05] select-none pointer-events-none z-0 transition-colors"
-        initial={{ opacity: 0, y: 60 }}
-        whileInView={{ opacity: 0.05, y: 0 }}
-        transition={{ duration: 1.2 }}
-      >
-        CODERROUTE
-      </motion.h1>
+        </p>
+      </div>
     </footer>
   );
 };
-
-export default Footer;

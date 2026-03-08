@@ -16,8 +16,20 @@ export default function Navbar() {
     href: string;
   }[] = [
     {
+      label: "Social Proofs",
+      href: "#social-proofs",
+    },
+    {
       label: "Features",
       href: "#features",
+    },
+    {
+      label: "How it works",
+      href: "#how-it-works",
+    },
+    {
+      label: "Testimonials",
+      href: "#testimonials",
     },
     {
       label: "Faqs",
@@ -37,9 +49,9 @@ export default function Navbar() {
       className="fixed top-0 left-0 w-full z-50 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 bg-white/60 dark:bg-neutral-950/60"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex relative items-center justify-between h-16">
           {/* --- Logo Area --- */}
-          <a href="/#hero" className="flex items-center gap-3 w-1/3 ">
+          <a href="/#hero" className="flex items-center gap-3  ">
             <div className="w-9 h-9 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center">
               {/* Replace this with your logo */}
               <img
@@ -57,7 +69,7 @@ export default function Navbar() {
           </a>
 
           {/* --- Desktop Menu --- */}
-          <div className="hidden md:flex items-center gap-8 w-1/3 justify-center">
+          <div className="hidden absolute left-1/2 -translate-x-1/2 lg:flex items-center  gap-4 justify-center">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -68,7 +80,7 @@ export default function Navbar() {
               </a>
             ))}
           </div>
-          <div className="hidden md:flex items-center gap-2 w-1/3 justify-end">
+          <div className="hidden lg:flex items-center gap-2 w-1/3 justify-end">
             {/* --- Theme Toggle --- */}
             <button
               onClick={() => toggleTheme()}
@@ -100,7 +112,7 @@ export default function Navbar() {
           </div>
 
           {/* --- Mobile Menu Button --- */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="lg:hidden flex items-center gap-2">
             <button
               onClick={() => toggleTheme()}
               className="p-2 rounded-md border border-neutral-200 dark:border-neutral-700  text-neutral-700 dark:text-neutral-300 transition-colors"
@@ -124,7 +136,7 @@ export default function Navbar() {
           initial={{ opacity: 0, filter: "blur(6px)", scale: 0.98 }}
           animate={{ opacity: 1, filter: "blur(0px)", scale: 1 }}
           transition={{ duration: 0.3 }}
-          className="md:hidden bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-t border-neutral-200 dark:border-neutral-800"
+          className="lg:hidden bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl border-t border-neutral-200 dark:border-neutral-800"
         >
           <div className="px-4 pt-3 pb-4 space-y-2">
             {navLinks.map((link) => (

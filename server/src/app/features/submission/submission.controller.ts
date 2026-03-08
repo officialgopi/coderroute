@@ -30,7 +30,7 @@ const getSubmissionBySubmissionId = AsyncHandler(async (req, res) => {
   const userId = req.user.id;
 
   const { data, success } = getSubmissionBySubmissionIdParamsSchema.safeParse(
-    req.params
+    req.params,
   );
 
   if (!success || !data) {
@@ -50,7 +50,6 @@ const getSubmissionBySubmissionId = AsyncHandler(async (req, res) => {
       },
     },
   });
-
   if (!submission) {
     throw new ApiError(400, "No submission found");
   }
@@ -60,7 +59,7 @@ const getSubmissionBySubmissionId = AsyncHandler(async (req, res) => {
     {
       submission,
     },
-    "Submission successfully fetched"
+    "Submission successfully fetched",
   ).send(res);
 });
 const getSubmissionByProblemId = AsyncHandler(async (req, res) => {
@@ -70,7 +69,7 @@ const getSubmissionByProblemId = AsyncHandler(async (req, res) => {
   const userId = req.user?.id;
 
   const { data, success } = getSubmissionByProblemIdParamsSchema.safeParse(
-    req.params
+    req.params,
   );
 
   if (!success) {
@@ -103,7 +102,7 @@ const getSubmissionByProblemId = AsyncHandler(async (req, res) => {
 
 const getSubmissionsCountByProblemId = AsyncHandler(async (req, res) => {
   const { data, success } = getSubmissionByProblemIdParamsSchema.safeParse(
-    req.params
+    req.params,
   );
 
   if (!success) {

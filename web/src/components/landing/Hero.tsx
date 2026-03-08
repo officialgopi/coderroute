@@ -2,6 +2,7 @@ import { motion, useInView } from "framer-motion";
 import Glow from "../ui/Glow";
 import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 export default function HeroSection() {
   const sectionRef = useRef(null);
@@ -9,109 +10,132 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative min-h-screen flex flex-col items-center justify-center  bg-white dark:bg-neutral-950 transition-colors "
       ref={sectionRef}
       id="hero"
+      className="relative min-h-screen flex items-center justify-center px-6 sm:px-10 lg:px-20 overflow-hidden bg-white dark:bg-neutral-950"
     >
-      {/* === Background Gradient Glow Layers === */}
+      {/* glow */}
       <Glow />
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, filter: "blur(6px)" }}
-        animate={
-          isInView
-            ? { opacity: 1, scale: 1, filter: "blur(0px)" }
-            : { opacity: 0, scale: 0.95, filter: "blur(6px)" }
-        }
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        className="relative flex items-center justify-center rounded-full p-[2px] overflow-hidden mb-4"
-      >
-        {/* Glowing conic border */}
-        <span className="absolute inset-0 rounded-full bg-[conic-gradient(at_top_left,_#7f5af0,_#3b82f6,_#7f5af0)] opacity-60 blur-md animate-spin-slow" />
+      {/* subtle grid background */}
+      <div className="absolute inset-0 -z-10 opacity-[0.06] bg-[linear-gradient(to_right,#8881_1px,transparent_1px),linear-gradient(to_bottom,#8881_1px,transparent_1px)] bg-[size:40px_40px]" />
 
-        {/* Badge text */}
-        <span className="relative z-10 px-4 py-1 text-[11px] font-semibold tracking-wide uppercase rounded-full bg-neutral-900 text-cyan-400 font-poppins shadow-[0_0_10px_rgba(63,191,255,0.5)]">
-          Early Access
-        </span>
-      </motion.div>
+      {/* radial glow */}
+      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-indigo-500/20 blur-[140px]" />
 
-      {/* Subtle radial glow behind hero content */}
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(140,140,180,0.08),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(160,160,220,0.08),transparent_70%)]" />
-
-      <div className="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-12">
-        {/* --- Text Section --- */}
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center relative z-10">
+        {/* TEXT SIDE */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, filter: "blur(8px)" }}
-          whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          viewport={{ once: true }}
-          className="text-center md:text-left flex-1 relative"
+          initial={{ opacity: 0, y: 40 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
         >
-          {/* Glow behind text */}
-          <div className="absolute -z-10 w-72 h-72 bg-indigo-400/10 dark:bg-indigo-500/10 blur-[100px] rounded-full top-[-4rem] left-1/2 md:left-1/4 -translate-x-1/2" />
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-neutral-200 dark:border-neutral-800 text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-6 backdrop-blur">
+            🚀 Early Access
+          </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-neutral-900 dark:text-neutral-100 leading-tight">
+          {/* Heading */}
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-neutral-900 dark:text-white leading-tight">
             Practice. Learn. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-neutral-600 via-indigo-500 to-neutral-600 dark:from-neutral-300 dark:via-indigo-400 dark:to-neutral-400">
+            <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">
               Master Coding.
             </span>
           </h1>
 
-          <p className="mt-5 text-base md:text-lg text-neutral-600 dark:text-neutral-400 max-w-xl mx-auto md:mx-0 font-sans">
-            CoderRoute helps you learn, solve, and grow through structured
-            coding problems, real-time feedback, and personalized roadmaps.
+          {/* Description */}
+          <p className="mt-6 text-lg text-neutral-600 dark:text-neutral-400 max-w-xl">
+            CoderRoute helps developers practice DSA, track progress, and master
+            coding interviews through structured learning and real-time
+            insights.
           </p>
 
-          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-            <Link to={"/login"}>
-              <motion.div
-                whileTap={{ scale: 0.97 }}
-                className="relative px-6 py-3 rounded-xl font-medium text-sm bg-neutral-900 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 shadow-md transition-colors hover:bg-neutral-800 dark:hover:bg-neutral-200"
+          {/* Buttons */}
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Link to="/login">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.96 }}
+                className="flex items-center gap-2 px-6 py-3 rounded-xl
+                bg-neutral-900 text-white
+                dark:bg-white dark:text-neutral-900
+                text-sm font-medium shadow-lg hover:shadow-xl transition"
               >
-                {/* subtle glow */}
-                <span className="absolute inset-0 rounded-xl bg-indigo-500/30 dark:bg-indigo-400/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-                Get Started
-              </motion.div>
+                Start Practicing
+                <ArrowRight size={16} />
+              </motion.button>
             </Link>
-            <motion.a
-              whileTap={{ scale: 0.97 }}
-              href="#features"
-              className="relative px-6 py-3 rounded-xl font-medium text-sm border border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            >
-              {/* subtle glow */}
-              <span className="absolute inset-0 rounded-xl bg-purple-400/20 dark:bg-purple-500/20 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-              Learn More
-            </motion.a>
+
+            <a href="#features">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.96 }}
+                className="px-6 py-3 rounded-xl border
+                border-neutral-300 dark:border-neutral-700
+                text-sm font-medium
+                hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+              >
+                Explore Features
+              </motion.button>
+            </a>
+          </div>
+
+          {/* Stats */}
+          <div className="flex gap-10 mt-10 text-sm">
+            <div>
+              <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
+                200+
+              </p>
+              <p className="text-neutral-500">Problems</p>
+            </div>
+
+            <div>
+              <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
+                10+
+              </p>
+              <p className="text-neutral-500">Coding Sheets</p>
+            </div>
+
+            <div>
+              <p className="text-2xl font-semibold text-neutral-900 dark:text-white">
+                AI
+              </p>
+              <p className="text-neutral-500">Assistant</p>
+            </div>
           </div>
         </motion.div>
 
-        {/* --- Illustration / Code Preview --- */}
+        {/* CODE PREVIEW */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, filter: "blur(8px)" }}
-          whileInView={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
-          viewport={{ once: true }}
-          className="flex-1 flex justify-center md:justify-end relative"
+          initial={{ opacity: 0, y: 40 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.7, delay: 0.15 }}
+          className="relative"
         >
-          {/* Glowing backdrop behind code block */}
-          <div className="absolute -z-10 w-[18rem] h-[18rem] bg-indigo-400/10 dark:bg-indigo-500/10 blur-[90px] rounded-full bottom-[-3rem] right-[-2rem]" />
+          <div className="absolute -z-10 w-[320px] h-[320px] bg-purple-500/20 blur-[120px] rounded-full right-[-60px] bottom-[-40px]" />
 
-          <div className="relative w-[90%] max-w-md rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/70 backdrop-blur-md p-4 shadow-lg shadow-neutral-200/20 dark:shadow-neutral-900/20">
-            <div className="flex gap-2 mb-3">
-              <span className="w-3 h-3 rounded-full bg-red-400/70"></span>
-              <span className="w-3 h-3 rounded-full bg-yellow-400/70"></span>
-              <span className="w-3 h-3 rounded-full bg-green-400/70"></span>
+          <div className="rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white/70 dark:bg-neutral-900/70 backdrop-blur-xl p-5 shadow-xl">
+            {/* window buttons */}
+            <div className="flex gap-2 mb-4">
+              <span className="w-3 h-3 rounded-full bg-red-400" />
+              <span className="w-3 h-3 rounded-full bg-yellow-400" />
+              <span className="w-3 h-3 rounded-full bg-green-400" />
             </div>
-            <pre className="text-xs sm:text-sm font-mono text-neutral-800 dark:text-neutral-200 overflow-x-auto">
+
+            <pre className="text-xs sm:text-sm font-mono text-neutral-800 dark:text-neutral-200">
               {`function twoSum(nums, target) {
-  const map = {};
+  const map = new Map();
+
   for (let i = 0; i < nums.length; i++) {
     const complement = target - nums[i];
-    if (map[complement] !== undefined) {
-      return [map[complement], i];
+
+    if (map.has(complement)) {
+      return [map.get(complement), i];
     }
-    map[nums[i]] = i;
+
+    map.set(nums[i], i);
   }
+
   return [];
 }`}
             </pre>

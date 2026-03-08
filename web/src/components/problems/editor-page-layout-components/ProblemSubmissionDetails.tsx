@@ -42,14 +42,28 @@ const ProblemSubmissionDetails = () => {
           <div className="py-3">
             <SectionHighlight
               label="Memory Usage"
-              value={submission?.memory ?? "N/A"}
+              value={
+                (JSON.parse(submission?.memory!) as string[])
+                  .map((str) => Number(str.split("KB")[0]))
+                  .reduce((a, b) => a + b, 0)
+                  .toFixed(0)
+                  .toString()
+                  .concat(" KB") ?? "N/A"
+              }
             />
           </div>
 
           <div className="py-3">
             <SectionHighlight
               label="Time Taken"
-              value={submission?.time ?? "N/A"}
+              value={
+                (JSON.parse(submission?.time!) as string[])
+                  .map((str) => Number(str.split("s")[0]))
+                  .reduce((a, b) => a + b, 0)
+                  .toFixed(2)
+                  .toString()
+                  .concat(" s") ?? "N/A"
+              }
             />
           </div>
 
