@@ -43,7 +43,7 @@ const oauthLogin = AsyncHandler(async (req, res) => {
   const refreshToken = generateJWT(
     user.id,
     env.JWT_REFRESH_SECRET,
-    env.JWT_REFRESH_EXPIRES_IN
+    env.JWT_REFRESH_EXPIRES_IN,
   );
 
   await db.session.create({
@@ -57,7 +57,9 @@ const oauthLogin = AsyncHandler(async (req, res) => {
   res.cookie("access-token", accessToken, COOKIE_OPTIONS);
   res.cookie("refresh-token", refreshToken, COOKIE_OPTIONS);
 
-  return res.redirect(`${env.CLIENT_URL}/problems`);
+  return res.redirect(
+    `${env.NODE_ENV == "development" ? `http://localhost:${env.PORT}` : env.CLIENT_URL}/problems`,
+  );
 });
 
 const getProfile = AsyncHandler(async (req, res) => {
@@ -92,7 +94,7 @@ const getProfile = AsyncHandler(async (req, res) => {
     {
       user: sanitizeUser(user as User),
     },
-    "User fetched successfully"
+    "User fetched successfully",
   ).send(res);
 });
 
@@ -141,13 +143,13 @@ const refreshAccessToken = AsyncHandler(async (req, res) => {
   const newAccessToken = generateJWT(
     session.user.id,
     env.JWT_SECRET,
-    env.JWT_EXPIRES_IN
+    env.JWT_EXPIRES_IN,
   );
 
   const newRefreshToken = generateJWT(
     session.user.id,
     env.JWT_REFRESH_SECRET,
-    env.JWT_REFRESH_EXPIRES_IN
+    env.JWT_REFRESH_EXPIRES_IN,
   );
 
   await db.session.update({
