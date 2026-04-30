@@ -11,7 +11,7 @@ export const CORS_OPTIONS: CorsOptions = {
 export const COOKIE_OPTIONS: CookieOptions = {
   // domain: env.CLIENT_URL,
   httpOnly: true,
-  secure: true,
+  // secure: true,
   sameSite: "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
