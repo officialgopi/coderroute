@@ -11,9 +11,16 @@ import cors from "cors";
 app.use(cookieParser());
 app.use(
   cors({
-    origin: env.NODE_ENV === "development" ? "*" : env.CLIENT_URL,
+    origin: [
+      env.CLIENT_URL,
+      ...(env.NODE_ENV === "development" && [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:4173",
+      ]),
+    ],
     credentials: true,
-  })
+  }),
 );
 
 import { initPassport } from "./libs/passport.lib";
