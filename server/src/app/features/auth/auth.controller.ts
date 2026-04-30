@@ -39,6 +39,8 @@ const oauthLogin = AsyncHandler(async (req, res) => {
     });
   }
 
+  console.log(user);
+
   const accessToken = generateJWT(user.id, env.JWT_SECRET, env.JWT_EXPIRES_IN);
   const refreshToken = generateJWT(
     user.id,
