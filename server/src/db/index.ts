@@ -25,8 +25,9 @@ const prisma =
     adapter,
   });
 
-if (env.NODE_ENV !== "production") {
-  globalThis.prisma = prisma;
-}
+// if (env.NODE_ENV !== "production") {
+//   globalThis.prisma = prisma;
+// }
+globalThis.prisma = prisma;
 
 export { prisma as db };
