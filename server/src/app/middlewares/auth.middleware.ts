@@ -28,7 +28,7 @@ const isAuthenticated = AsyncHandler(async (req, res, next) => {
       id: decoded.userId,
     },
   });
-
+  console.log(user);
   if (!user) {
     throw new ApiError(401, "Unauthorized");
   }
