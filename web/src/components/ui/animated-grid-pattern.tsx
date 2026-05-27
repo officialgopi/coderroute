@@ -4,23 +4,20 @@ import {
   useId,
   useRef,
   useState,
+  useMemo,
 } from "react";
 import { motion } from "motion/react";
-
 import { cn } from "@/lib/utils";
 
-export interface AnimatedGridPatternProps
-  extends ComponentPropsWithoutRef<"svg"> {
+export interface AnimatedGridPatternProps extends ComponentPropsWithoutRef<"svg"> {
   width?: number;
   height?: number;
   x?: number;
   y?: number;
-  strokeDasharray?: number;
+  strokeDasharray?: string | number;
   numSquares?: number;
   maxOpacity?: number;
   duration?: number;
-  repeatDelay?: number;
-  toLeft?: boolean;
 }
 
 export function AnimatedGridPattern({
@@ -29,56 +26,21 @@ export function AnimatedGridPattern({
   x = -1,
   y = -1,
   strokeDasharray = 0,
-  numSquares = 50,
+  numSquares = 40,
   className,
-  maxOpacity = 0.5,
+  maxOpacity = 0.4,
   duration = 4,
-  toLeft = false,
   ...props
 }: AnimatedGridPatternProps) {
   const id = useId();
-  const containerRef = useRef(null);
+  const containerRef = useRef<SVGSVGElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [squares, setSquares] = useState(() => generateSquares(numSquares));
 
-  function getPos() {
-    return [
-      Math.floor((Math.random() * dimensions.width) / width),
-      Math.floor((Math.random() * dimensions.height) / height),
-    ];
-  }
-
-  // Adjust the generateSquares function to return objects with an id, x, and y
-  function generateSquares(count: number) {
-    return Array.from({ length: count }, (_, i) => ({
-      id: i,
-      pos: getPos(),
-    }));
-  }
-
-  // Function to update a single square's position
-  const updateSquarePosition = (id: number) => {
-    setSquares((currentSquares) =>
-      currentSquares.map((sq) =>
-        sq.id === id
-          ? {
-              ...sq,
-              pos: getPos(),
-            }
-          : sq
-      )
-    );
-  };
-
-  // Update squares to animate in
+  // Handle container resizing cleanly via a structured Observer loop
   useEffect(() => {
-    if (dimensions.width && dimensions.height) {
-      setSquares(generateSquares(numSquares));
-    }
-  }, [dimensions, numSquares]);
+    const currentContainer = containerRef.current;
+    if (!currentContainer) return;
 
-  // Resize observer to update container dimensions
-  useEffect(() => {
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         setDimensions({
@@ -88,27 +50,38 @@ export function AnimatedGridPattern({
       }
     });
 
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
-
+    resizeObserver.observe(currentContainer);
     return () => {
-      if (containerRef.current) {
-        resizeObserver.unobserve(containerRef.current);
-      }
+      if (currentContainer) resizeObserver.unobserve(currentContainer);
     };
-  }, [containerRef]);
+  }, []);
+
+  // Performance Gains: Memoize the grid layout generation matrix.
+  // The layout recalculates ONLY when viewport dimensions scale or structural configurations shift.
+  const gridSquares = useMemo(() => {
+    if (!dimensions.width || !dimensions.height) return [];
+
+    const columns = Math.ceil(dimensions.width / width);
+    const rows = Math.ceil(dimensions.height / height);
+
+    return Array.from({ length: numSquares }, (_, i) => ({
+      id: `grid-sq-${i}`,
+      x: Math.floor(Math.random() * columns),
+      y: Math.floor(Math.random() * rows),
+      // Randomize animation timelines so tiles pulse out of phase smoothly
+      delay: Math.random() * duration,
+      duration: duration + (Math.random() * 2 - 1),
+    }));
+  }, [dimensions, width, height, numSquares, duration]);
 
   return (
     <svg
       ref={containerRef}
       aria-hidden="true"
       className={cn(
-        "pointer-events-none absolute inset-0 h-full w-full fill-gray-400/30 stroke-gray-400/30 ",
-        toLeft
-          ? "[mask-image:linear-gradient(to_left,transparent,black)] [-webkit-mask-image:linear-gradient(to_left,transparent,black)]"
-          : "[mask-image:linear-gradient(to_right,transparent,black)] [-webkit-mask-image:linear-gradient(to_right,transparent,black)]",
-        className
+        "pointer-events-none absolute inset-0 h-full w-full stroke-border-subtle/30 fill-border-subtle/10 text-text-secondary/10 transition-colors duration-300",
+        "[mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]",
+        className,
       )}
       {...props}
     >
@@ -128,26 +101,31 @@ export function AnimatedGridPattern({
           />
         </pattern>
       </defs>
-      <rect width="100%" height="100%" fill={`url(#${id})`} />
+
+      {/* Background Grid Canvas Base Layer */}
+      <rect width="100%" height="100%" fill={`url(#${id})`} strokeWidth={0} />
+
+      {/* Dynamic Hardware-Accelerated Shimmer Tiles Overlay */}
       <svg x={x} y={y} className="overflow-visible">
-        {squares.map(({ pos: [x, y], id }, index) => (
+        {gridSquares.map((square) => (
           <motion.rect
-            initial={{ opacity: 0 }}
-            animate={{ opacity: maxOpacity }}
-            transition={{
-              duration,
-              repeat: 1,
-              delay: index * 0.1,
-              repeatType: "reverse",
-            }}
-            onAnimationComplete={() => updateSquarePosition(id)}
-            key={`${x}-${y}-${index}`}
+            key={square.id}
             width={width - 1}
             height={height - 1}
-            x={x * width + 1}
-            y={y * height + 1}
+            x={square.x * width + 1}
+            y={square.y * height + 1}
             fill="currentColor"
             strokeWidth="0"
+            initial={{ opacity: 0 }}
+            animate={{
+              opacity: [0, maxOpacity, 0],
+            }}
+            transition={{
+              duration: square.duration,
+              delay: square.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
           />
         ))}
       </svg>
