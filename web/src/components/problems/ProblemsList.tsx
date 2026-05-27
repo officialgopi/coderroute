@@ -7,20 +7,28 @@ import { Code2, Inbox, RefreshCw } from "lucide-react";
 // Performance Optimization: Prevent runtime garbage collection overhead by extracting the static array
 const SKELETON_ROWS = Array.from({ length: 5 });
 
+// Refactored to map the exact 12-column grid layout configuration of our row elements
 const ProblemListSkeleton = () => (
-  <div className="w-full divide-y divide-border-subtle dark:divide-border-subtle/60 animate-pulse">
+  <div className="w-full divide-y divide-border-subtle/40 dark:divide-border-subtle/30 animate-pulse">
     {SKELETON_ROWS.map((_, i) => (
       <div
         key={`problem-skeleton-${i}`}
-        className="p-5 flex items-center justify-between bg-surface-panel/40"
+        className="grid grid-cols-12 px-6 h-11 items-center bg-surface-panel/20"
       >
-        <div className="space-y-2.5 w-1/3">
-          <div className="h-4 bg-surface-card dark:bg-zinc-800 rounded-md w-3/4" />
-          <div className="h-3 bg-surface-card/60 dark:bg-zinc-800/60 rounded-md w-1/2" />
+        {/* COL 1: STATUS CIRCLE SKELETON */}
+        <div className="col-span-1 flex items-center">
+          <div className="w-1.5 h-1.5 rounded-full bg-surface-card/80 dark:bg-zinc-800" />
         </div>
-        <div className="flex gap-6 items-center w-1/4 justify-end">
-          <div className="h-4 bg-surface-card dark:bg-zinc-800 rounded-md w-12" />
-          <div className="h-5 bg-surface-card dark:bg-zinc-800 rounded-full w-16" />
+
+        {/* COL 2: TITLE STRIP SKELETON (Takes up remaining mobile width) */}
+        <div className="col-span-11 sm:col-span-9 lg:col-span-9 flex items-center gap-4">
+          <div className="h-3 bg-surface-card/60 dark:bg-zinc-800/60 rounded w-8 font-mono shrink-0" />
+          <div className="h-3 bg-surface-card dark:bg-zinc-800 rounded w-1/2 sm:w-1/3" />
+        </div>
+
+        {/* COL 3: DIFFICULTY BADGE SKELETON (Aligned far right) */}
+        <div className="hidden sm:flex col-span-2 justify-end items-center">
+          <div className="h-3.5 bg-surface-card/80 dark:bg-zinc-800/80 rounded w-12" />
         </div>
       </div>
     ))}
@@ -72,8 +80,10 @@ export const ProblemsList = () => {
       {/* Datagrid Table Header Layout Column Guides */}
       <div className="hidden sm:grid grid-cols-12 px-6 py-3.5 bg-surface-card/30 dark:bg-zinc-950/20 border-b border-border-subtle dark:border-border-subtle text-[11px] font-mono font-bold tracking-wider uppercase text-text-secondary dark:text-text-secondary opacity-60 select-none">
         <div className="col-span-1">Status</div>
-        <div className="col-span-6 lg:col-span-7">Problem Title</div>
-        <div className="col-span-3 lg:col-span-2 text-center">Acceptance</div>
+
+        {/* Balanced alignment grid mapping */}
+        <div className="col-span-9 lg:col-span-9">Problem Title</div>
+
         <div className="col-span-2 text-right">Difficulty</div>
       </div>
 
@@ -88,10 +98,10 @@ export const ProblemsList = () => {
             hidden: { opacity: 0 },
             visible: {
               opacity: 1,
-              transition: { staggerChildren: 0.03 },
+              transition: { staggerChildren: 0.02 }, // Slightly stepped up orchestration timings
             },
           }}
-          className="divide-y divide-border-subtle dark:divide-border-subtle/60"
+          className="divide-y divide-border-subtle/30 dark:divide-zinc-900/40"
         >
           {problems.map((p, i) => (
             <motion.div
@@ -101,7 +111,7 @@ export const ProblemsList = () => {
                 visible: {
                   opacity: 1,
                   y: 0,
-                  transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+                  transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
                 },
               }}
             >
@@ -111,7 +121,7 @@ export const ProblemsList = () => {
         </motion.div>
       )}
 
-      {/* Background Re-validation Sync Indicator (Protects layout flow from shifting) */}
+      {/* Background Re-validation Sync Indicator */}
       {isProblemsLoading && problems.length > 0 && (
         <div className="absolute top-3 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-panel dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800 shadow-xs animate-fade-in">
           <RefreshCw
