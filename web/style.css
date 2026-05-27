@@ -1,233 +1,107 @@
 @import "tailwindcss";
 
-@import "tw-animate-css";
+@import "tailwindcss";
 
-/** Dark Mode Variant **/
-@custom-variant dark (&:is(.dark *));
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/** Colors **/
-:root {
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: var(--color-white);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --border: oklch(
-    0.922 0 0
-  ); /* between --color-zinc-100 and --color-zinc-200 */
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: var(--color-white);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
-/** Theme Setup **/
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-sm: calc(var(--radius) - 4px);
-
-  --animate-marquee: marquee var(--duration) infinite linear;
-  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-
-  @keyframes marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(calc(-100% - var(--gap)));
-    }
-  }
-
-  @keyframes marquee-vertical {
-    from {
-      transform: translateY(0);
-    }
-    to {
-      transform: translateY(calc(-100% - var(--gap)));
-    }
-  }
-}
-
-/** Global Styles **/
-@layer base {
-  * {
-    @apply border-border;
-  }
-
-  *:focus-visible {
-    @apply outline-ring rounded-xs shadow-none outline-2 outline-offset-3 transition-none!;
-  }
-}
-
-/** Custom Scrollbar **/
-@layer base {
-  ::-webkit-scrollbar {
-    width: 5px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--input);
-    border-radius: 5px;
-  }
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--input) transparent;
-  }
-}
-
-/** Custom Container **/
-@utility container {
-  margin-inline: auto;
-  padding-inline: 1.5rem;
-  @media (width >= --theme(--breakpoint-sm)) {
-    max-width: none;
-  }
-  @media (width >= 1440px) {
-    padding-inline: 2rem;
-    max-width: 1440px;
-  }
-}
-
-/** Smooth scroll **/
+@variant dark (&:where(.dark, .dark *));
 html {
   scroll-behavior: smooth;
 }
-/*---break---*/
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
+
+/* Optional: Respect user system accessibility settings for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }
-.input-field {
-  @apply w-full rounded-md bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 
-  text-neutral-800 dark:text-neutral-100 px-2 py-1.5 text-[13px]
-  focus:outline-none focus:ring-1 focus:ring-neutral-500 
-  placeholder:text-neutral-500 dark:placeholder:text-neutral-400 transition-all;
+
+/* 1. Standardizing your asset path definitions */
+@font-face {
+  font-family: "Geist Sans";
+  src: url("/fonts/Geist-VariableFont_wght.ttf") format("ttf");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
 }
 
-.btn-main {
-  @apply bg-neutral-800 dark:bg-neutral-200 text-neutral-50 dark:text-neutral-900 
-  font-medium rounded-md shadow-sm hover:shadow-md
-  transition-all focus:ring-1 focus:ring-neutral-500 focus:outline-none;
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
 }
 
-.btn-sub {
-  @apply bg-neutral-200 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 
-  rounded-md px-2.5 py-1 flex items-center gap-1.5 text-[13px]
-  hover:bg-neutral-300 dark:hover:bg-neutral-700 border border-neutral-300 dark:border-neutral-700 transition-all;
+/* 2. Overriding structural Tailwind v4 design tokens */
+@theme {
+  --font-sans: "Geist Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", monospace;
+
+  --color-background: var(--bg-main);
+  --color-surface-panel: var(--bg-panel);
+  --color-surface-card: var(--bg-card);
+  --color-brand-primary: var(--brand-accent);
+  --color-border-subtle: var(--border-muted);
+  --color-border-intense: var(--border-default);
 }
 
-.btn-danger {
-  @apply text-red-500 hover:text-red-400 dark:hover:text-red-300 text-[13px] transition-all;
+/* ... keep your theme variable configuration block here ... */
+
+@theme {
+  /* Design Tokens mapped to Global CSS Variables */
+  --color-background: var(--bg-main);
+  --color-surface-panel: var(--bg-panel);
+  --color-surface-card: var(--bg-card);
+
+  --color-brand-primary: var(--brand-accent);
+  --color-brand-success: var(--brand-success);
+
+  --color-border-subtle: var(--border-muted);
+  --color-border-intense: var(--border-default);
+
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --animate-fade-in: fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Theme Configuration Roots */
+:root,
+[data-theme="light"] {
+  --bg-main: #f9fafb; /* neutral 50 */
+  --bg-panel: #ffffff; /* white */
+  --bg-card: #f3f4f6; /* neutral 100 */
+
+  --brand-accent: #000000; /* High contrast dark accent */
+  --brand-success: #16a34a; /* green 600 */
+
+  --border-muted: #e5e7eb; /* neutral 200 */
+  --border-default: #d1d5db; /* neutral 300 */
+
+  --text-main: #111827; /* neutral 900 */
+  --text-muted: #4b5563; /* neutral 600 */
+}
+
+[data-theme="dark"] {
+  --bg-main: #09090b; /* zinc 950 */
+  --bg-panel: #18181b; /* zinc 900 */
+  --bg-card: #27272a; /* zinc 800 */
+
+  --brand-accent: #ffffff; /* High contrast light accent */
+  --brand-success: #22c55e; /* green 500 */
+
+  --border-muted: #27272a; /* zinc 800 */
+  --border-default: #3f3f46; /* zinc 700 */
+
+  --text-main: #fafafa; /* zinc 50 */
+  --text-muted: #a1a1aa; /* zinc 400 */
+}
+
+/* Base resets applying variables */
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
