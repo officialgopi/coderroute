@@ -1,154 +1,289 @@
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  useRef,
+  memo,
+  useCallback,
+} from "react";
+import {
+  Panel,
+  PanelGroup,
+  PanelResizeHandle,
+  type ImperativePanelHandle,
+} from "react-resizable-panels";
 import { Button } from "@/components/ui/button";
 import { useThemeStore } from "@/lib/theme.lib";
 import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
 import { useProblemStore } from "@/store/problem.store";
+import { ChevronDown, Sparkles, Check, Code } from "lucide-react";
 import type { IProblem, TLanguage } from "@/types/types";
-import { ChevronDown } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 const Editor = lazy(() => import("@monaco-editor/react"));
 const AIChatPanel = lazy(
   () =>
-    import("@/components/problems/editor-page-layout-components/AiChatPanel")
+    import("@/components/problems/editor-page-layout-components/AiChatPanel"),
 );
 
-const CodeEditorPane = ({
-  isProblemDetailsLoading,
-  problemDetails,
-}: {
+interface CodeEditorPaneProps {
   isProblemDetailsLoading: boolean;
   problemDetails: IProblem | undefined;
-}) => {
-  const {
-    fontSize,
-    tabSize,
-    minimap,
-    lineNumbers,
-    wordWrap,
-    language,
-    setLanguage,
-  } = useCodeEditorSettingsStore();
+}
+
+// Clean text configuration without relying on emojis or raw language logos
+const LANGUAGE_CONFIG: Record<string, { label: string }> = {
+  PYTHON: { label: "Python" },
+  JAVASCRIPT: { label: "JavaScript" },
+};
+
+/* --- 💎 PREMIUM ISOLATED LANGUAGE SELECTOR COMPONENT --- */
+const LanguageSelector = memo(() => {
+  const { language, setLanguage } = useCodeEditorSettingsStore();
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isOpen]);
+
+  const handleSelect = (lang: TLanguage) => {
+    setLanguage(lang);
+    setIsOpen(false);
+  };
+
+  const currentMeta = LANGUAGE_CONFIG[language.toUpperCase()] || {
+    label: language,
+  };
+
+  return (
+    <div className="relative inline-block" ref={menuRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="flex items-center gap-2 h-6 px-2.5 rounded-md border border-border-subtle dark:border-zinc-800/80 bg-surface-panel/60 dark:bg-zinc-900/50 text-text-secondary hover:text-text-primary hover:border-border-intense dark:hover:border-zinc-700 font-mono text-[11px] font-bold tracking-tight outline-none cursor-pointer transition-all duration-150 focus-visible:ring-1 focus-visible:ring-amber-500/30"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+      >
+        <Code size={11} className="opacity-60 text-text-secondary" />
+        <span>{currentMeta.label}</span>
+        <ChevronDown
+          size={10}
+          className={`opacity-60 transition-transform duration-200 stroke-[2.5] ${isOpen ? "rotate-180 text-amber-500" : ""}`}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 mt-1.5 w-40 rounded-lg border border-border-subtle dark:border-zinc-800/80 bg-surface-panel/90 dark:bg-zinc-900/90 backdrop-blur-xl shadow-xl py-1 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div
+            role="listbox"
+            aria-label="Workspace compiler language environments"
+          >
+            {Object.entries(LANGUAGE_CONFIG).map(([key, meta]) => {
+              const isSelected = language.toUpperCase() === key;
+              return (
+                <button
+                  key={`lang-item-${key}`}
+                  role="option"
+                  aria-selected={isSelected}
+                  onClick={() => handleSelect(key as TLanguage)}
+                  className={`flex items-center justify-between w-full px-3 h-8 text-left text-[11px] font-mono font-medium transition-colors cursor-pointer outline-none ${
+                    isSelected
+                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold"
+                      : "text-text-secondary hover:bg-surface-card/60 dark:hover:bg-zinc-800/30 hover:text-text-primary"
+                  }`}
+                >
+                  <span className="truncate">{meta.label}</span>
+
+                  {isSelected && (
+                    <Check
+                      size={11}
+                      className="text-amber-500 shrink-0 stroke-[2.5] animate-scale-in"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+});
+
+LanguageSelector.displayName = "LanguageSelector";
+
+/* --- MAIN WORKSPACE CANVAS WRAPPER --- */
+export const CodeEditorPane = ({
+  isProblemDetailsLoading,
+  problemDetails,
+}: CodeEditorPaneProps) => {
+  const { fontSize, tabSize, minimap, lineNumbers, wordWrap, language } =
+    useCodeEditorSettingsStore();
+
   const [isAiChatOpen, setIsAiChatOpen] = useState<boolean>(false);
+  const aiPanelRef = useRef<ImperativePanelHandle>(null);
 
   const { theme } = useThemeStore();
   const { codeInEditor, setCodeInEditor } = useProblemStore();
+
   useEffect(() => {
-    setCodeInEditor(
-      problemDetails?.problemDetails?.find((pd) => pd.language === language)
-        ?.codeSnippet || ""
+    const targetSnippet = problemDetails?.problemDetails?.find(
+      (pd) => pd.language?.toUpperCase() === language?.toUpperCase(),
+    )?.codeSnippet;
+
+    setCodeInEditor(targetSnippet || "");
+  }, [language, problemDetails, setCodeInEditor]);
+
+  const handlePanelExpand = useCallback(() => setIsAiChatOpen(true), []);
+  const handlePanelCollapse = useCallback(() => setIsAiChatOpen(false), []);
+
+  const toggleAiChatChannel = useCallback(() => {
+    const targetPanel = aiPanelRef.current;
+    if (!targetPanel) return;
+
+    if (targetPanel.isCollapsed()) {
+      targetPanel.expand(35);
+    } else {
+      targetPanel.collapse();
+    }
+  }, []);
+
+  if (isProblemDetailsLoading) {
+    return (
+      <div className="h-full w-full bg-surface-panel/50 dark:bg-zinc-900/20 animate-pulse flex items-center justify-center font-mono text-xs text-text-secondary opacity-40">
+        // Syncing virtual stream files...
+      </div>
     );
-  }, [language, problemDetails]);
+  }
 
-  return isProblemDetailsLoading ? (
-    <div className="h-full w-full rounded-md bg-neutral-100 dark:bg-neutral-500/20 animate-pulse" />
-  ) : (
-    <div className="h-full flex flex-col rounded-md overflow-hidden  ">
-      <div className="flex items-center justify-between px-4 py-2 ">
-        <div className="relative inline-block">
-          <select
-            className="appearance-none pr-8 w-fit rounded-md border bg-neutral-100 dark:bg-neutral-900
-               border-neutral-300 dark:border-neutral-700 text-neutral-800 dark:text-neutral-100
-               text-sm px-3 py-1.5 outline-none transition-all duration-200
-               focus:ring-2 focus:ring-neutral-400 dark:focus:ring-neutral-600
-               hover:bg-neutral-200 dark:hover:bg-neutral-800 cursor-pointer"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value as TLanguage)}
-          >
-            {["PYTHON", "JAVASCRIPT"].map((lang, idx) => (
-              <option key={idx} value={lang}>
-                {lang.toUpperCase()}
-              </option>
-            ))}
-          </select>
+  return (
+    <div className="h-full w-full flex flex-col bg-bg-canvas dark:bg-zinc-950/40 overflow-hidden">
+      {/* --- INTEGRATED SUB-HEADER MICRO TOOLBAR --- */}
+      <div className="h-9 shrink-0 flex items-center justify-between px-4 bg-surface-card/40 dark:bg-zinc-950/40 border-b border-border-subtle/50 dark:border-zinc-900/60 relative z-50 select-none">
+        <LanguageSelector />
 
-          <ChevronDown
-            size={14}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-600 dark:text-neutral-400 pointer-events-none"
-          />
-        </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center">
           <Button
-            variant={"outline"}
-            onClick={() => setIsAiChatOpen((o) => !o)}
+            variant="ghost"
+            onClick={toggleAiChatChannel}
+            className={`h-6 px-2.5 rounded-md border text-[11px] font-medium gap-1.5 cursor-pointer transition-all duration-150 shadow-2xs focus-visible:ring-1 focus-visible:ring-amber-500/30 ${
+              isAiChatOpen
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 font-semibold"
+                : "bg-surface-panel dark:bg-zinc-900 border-border-subtle dark:border-zinc-800 text-text-secondary hover:text-text-primary hover:border-border-intense dark:hover:border-zinc-700"
+            }`}
           >
-            {isAiChatOpen ? "Close AI Chat" : "Open AI Chat"}
+            <Sparkles
+              size={11}
+              className={isAiChatOpen ? "text-amber-500" : "opacity-70"}
+            />
+            <span>AI Copilot</span>
           </Button>
         </div>
       </div>
-      <div className="flex-1 rounded-md overflow-hidden w-full h-full">
+
+      {/* --- RUNTIME SOURCE VIEW SPLIT GRID --- */}
+      <div className="flex-1 w-full overflow-hidden relative">
         <PanelGroup
           direction="horizontal"
-          className=" bg-transparent border-0 overflow-hidden rounded-md h-full w-full"
+          autoSaveId="coderroute-editor-inner-v4"
+          className="w-full h-full"
         >
-          <Panel
-            maxSize={isAiChatOpen ? 70 : 100}
-            minSize={isAiChatOpen ? 50 : 100}
-            defaultSize={isAiChatOpen ? 50 : 100}
-            className="h-full border-0 rounded-md overflow-hidden "
-          >
-            <Suspense
-              fallback={
-                <div className="h-full w-full bg-neutral-100 dark:bg-neutral-500/20 animate-pulse " />
-              }
-            >
-              <Editor
-                height="100%"
-                className="px-2 dark:bg-neutral-500/20 rounded-md"
-                theme={theme === "dark" ? "vs-dark" : "vs-light"}
-                value={codeInEditor}
-                language={language.toLowerCase()}
-                onChange={(value) => {
-                  setCodeInEditor(value || "");
-                }}
-                options={{
-                  language: language.toLowerCase(),
-                  minimap: {
-                    enabled: minimap,
-                  },
-                  fontSize: fontSize,
-                  tabSize: tabSize,
-                  wordWrap: wordWrap ? "on" : "off",
-                  lineNumbers: lineNumbers ? "on" : "off",
-                  wrappingIndent: "indent",
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                  padding: {
-                    top: 10,
-                    bottom: 10,
-                  },
-                  lineHeight: 1.5,
-                  lineNumbersMinChars: 1,
-                  lineDecorationsWidth: 20, // adds spacing on the left
-                  quickSuggestions: true,
-                  quickSuggestionsDelay: 200,
-                }}
-              />
-            </Suspense>
+          <Panel minSize={45} className="h-full relative overflow-hidden">
+            <div className="absolute inset-0 pt-2 bg-transparent">
+              <Suspense
+                fallback={
+                  <div className="h-full w-full bg-transparent animate-pulse flex items-center justify-center font-mono text-xs text-text-secondary opacity-30">
+                    // Compiling editor frame buffer...
+                  </div>
+                }
+              >
+                <Editor
+                  height="100%"
+                  theme={theme === "dark" ? "vs-dark" : "vs-light"}
+                  value={codeInEditor}
+                  language={language.toLowerCase()}
+                  onChange={(value) => setCodeInEditor(value || "")}
+                  options={{
+                    minimap: { enabled: minimap },
+                    fontSize: fontSize,
+                    tabSize: tabSize,
+                    wordWrap: wordWrap ? "on" : "off",
+                    lineNumbers: lineNumbers ? "on" : "off",
+                    fontFamily:
+                      "JetBrains Mono, Fira Code, Menlo, Monaco, monospace",
+                    fontLigatures: true,
+                    wrappingIndent: "indent",
+                    scrollBeyondLastLine: false,
+                    automaticLayout: true,
+                    padding: { top: 12, bottom: 12 },
+                    lineHeight: 1.6,
+                    lineNumbersMinChars: 3,
+                    lineDecorationsWidth: 12,
+                    scrollbar: {
+                      vertical: "visible",
+                      horizontal: "visible",
+                      verticalScrollbarSize: 8,
+                      horizontalScrollbarSize: 8,
+                      useShadows: false,
+                    },
+                    quickSuggestions: true,
+                    renderLineHighlight: "all",
+                    cursorBlinking: "smooth",
+                    cursorSmoothCaretAnimation: "on",
+                  }}
+                />
+              </Suspense>
+            </div>
           </Panel>
-          <PanelResizeHandle className="cursor-ew-resize bg-transparent border-0" />
-          <Panel
-            maxSize={isAiChatOpen ? 50 : 0}
-            defaultSize={isAiChatOpen ? 50 : 0}
-            minSize={isAiChatOpen ? 30 : 0}
-            className="h-full border-0 rounded-md overflow-hidden "
+
+          <PanelResizeHandle
+            className={`w-1.5 group relative flex items-center justify-center transition-colors duration-150 z-50 ${
+              isAiChatOpen
+                ? "cursor-col-resize hover:bg-amber-500/10 active:bg-amber-500/20"
+                : "pointer-events-none"
+            }`}
           >
-            {isAiChatOpen && (
-              <div className="h-full w-full  border-l px-2 ">
-                <Suspense
-                  fallback={
-                    <div className="h-full w-full bg-neutral-100 dark:bg-neutral-500/20 animate-pulse" />
-                  }
-                >
-                  {/* AI Chat Component */}
-                  <AIChatPanel />
-                </Suspense>
-              </div>
-            )}
+            <div
+              className={`w-[1px] h-full transition-colors duration-150 ${
+                isAiChatOpen
+                  ? "bg-border-subtle/50 dark:bg-zinc-800/80 group-hover:bg-amber-500/40"
+                  : "bg-transparent"
+              }`}
+            />
+          </PanelResizeHandle>
+
+          <Panel
+            ref={aiPanelRef}
+            maxSize={50}
+            minSize={25}
+            collapsible
+            defaultSize={0}
+            onExpand={handlePanelExpand}
+            onCollapse={handlePanelCollapse}
+            className="h-full"
+          >
+            <div className="h-full pl-0.5 border-l border-border-subtle/50 dark:border-zinc-900/60 bg-surface-card/10 backdrop-blur-xs">
+              <Suspense
+                fallback={
+                  <div className="h-full w-full bg-surface-panel/30 animate-pulse border-l border-border-subtle" />
+                }
+              >
+                <AIChatPanel />
+              </Suspense>
+            </div>
           </Panel>
         </PanelGroup>
       </div>
     </div>
   );
 };
-export default CodeEditorPane;
+
+export default memo(CodeEditorPane);

@@ -48,10 +48,10 @@ interface ISubmisisonStore {
   isSubmissionLoading: boolean;
 
   getSubmissionBySubmissionId: (
-    submissionId: string
+    submissionId: string,
   ) => Promise<ISubmission | void>;
   getSubmissionsByProblemId: (
-    problemId: string
+    problemId: string,
   ) => Promise<ISubmission[] | void>;
   setSubmission: (submission: ISubmission) => void;
 }
@@ -66,7 +66,7 @@ const useSubmissionStore = create<ISubmisisonStore>((set, get) => ({
 
     if (
       get().allSubmissions.some((s) =>
-        s.submissions.some((sub) => sub.id === submissionId)
+        s.submissions.some((sub) => sub.id === submissionId),
       )
     ) {
       const existingSubmission = get()
@@ -105,7 +105,7 @@ const useSubmissionStore = create<ISubmisisonStore>((set, get) => ({
 
   getSubmissionsByProblemId: async (problemId: string) => {
     const existingSubmissions = get().allSubmissions.find(
-      (s) => s.problemId === problemId
+      (s) => s.problemId === problemId,
     );
     if (existingSubmissions) {
       return existingSubmissions?.submissions;
@@ -148,7 +148,7 @@ const useSubmissionStore = create<ISubmisisonStore>((set, get) => ({
   },
   setSubmission: (submission: ISubmission) => {
     const submisssionOfProblem = get().allSubmissions.find(
-      (s) => s.problemId === submission.problemId
+      (s) => s.problemId === submission.problemId,
     );
     if (submisssionOfProblem) {
       const updatedSubmissions = {
@@ -156,14 +156,14 @@ const useSubmissionStore = create<ISubmisisonStore>((set, get) => ({
         submissions: [
           submission,
           ...submisssionOfProblem.submissions.filter(
-            (s) => s.id !== submission.id
+            (s) => s.id !== submission.id,
           ),
         ],
       };
       set({
         allSubmissions: [
           ...get().allSubmissions.filter(
-            (s) => s.problemId !== submission.problemId
+            (s) => s.problemId !== submission.problemId,
           ),
           updatedSubmissions,
         ],

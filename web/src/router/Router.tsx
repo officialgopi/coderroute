@@ -26,36 +26,36 @@ const LoginPage = lazy(() => import("../pages/(auth)/Login"));
 //Problems Pages
 const ProblemsPage = lazy(() => import("@/pages/(problems)/ProblemsPage"));
 const ProblemDescriptionPage = lazy(
-  () => import("@/pages/(problems)/ProblemDescriptionPage")
+  () => import("@/pages/(problems)/ProblemDescriptionPage"),
 );
 const ProblemEditorialPage = lazy(
-  () => import("@/pages/(problems)/ProblemEditorialPage")
+  () => import("@/pages/(problems)/ProblemEditorialPage"),
 );
 const ProblemSolutionPage = lazy(
-  () => import("@/pages/(problems)/ProblemSolutionPage")
+  () => import("@/pages/(problems)/ProblemSolutionPage"),
 );
 const ProblemSubmissionPage = lazy(
-  () => import("@/pages/(problems)/ProblemSubmissionPage")
+  () => import("@/pages/(problems)/ProblemSubmissionPage"),
 );
 const ProblemSubmissionDetailsPage = lazy(
-  () => import("@/pages/(problems)/ProblemSubmissionDetailsPage")
+  () => import("@/pages/(problems)/ProblemSubmissionDetailsPage"),
 );
 
 //Discussion Pages
 const DiscussionsPage = lazy(
-  () => import("@/pages/(discussions)/DiscussionsPage")
+  () => import("@/pages/(discussions)/DiscussionsPage"),
 );
 const CreateDiscussionPage = lazy(
-  () => import("@/pages/(discussions)/CreateDiscussionPage")
+  () => import("@/pages/(discussions)/CreateDiscussionPage"),
 );
 const DiscussionDetailPage = lazy(
-  () => import("@/pages/(discussions)/DiscussionDetailPage")
+  () => import("@/pages/(discussions)/DiscussionDetailPage"),
 );
 
 //Sheets Page
 const SheetsPage = lazy(() => import("@/pages/(sheets)/SheetsPage"));
 const SheetsDetailsPage = lazy(
-  () => import("@/pages/(sheets)/SheetsDetailsPage")
+  () => import("@/pages/(sheets)/SheetsDetailsPage"),
 );
 
 //Profile Page
@@ -64,10 +64,10 @@ const UserProfilePage = lazy(() => import("@/pages/(profile)/UserProfilePage"));
 //ADMIN PAGES
 const AdminPanelPage = lazy(() => import("@/pages/(admin)/AdminPanelPage"));
 const CreateProblemPage = lazy(
-  () => import("@/pages/(admin)/CreateProblemPage")
+  () => import("@/pages/(admin)/CreateProblemPage"),
 );
 const ManageProblemsPage = lazy(
-  () => import("@/pages/(admin)/ManageProblemsPage")
+  () => import("@/pages/(admin)/ManageProblemsPage"),
 );
 const ViewMetricsPage = lazy(() => import("@/pages/(admin)/ViewMetricsPage"));
 const Router = () => {
@@ -137,7 +137,7 @@ const Router = () => {
                   element={<ProblemEditorialPage key={"code-editor"} />}
                 />
                 <Route
-                  path="/problems/:slug/solution"
+                  path="/problems/:slug/solutions"
                   element={<ProblemSolutionPage key={"code-editor"} />}
                 />
                 <Route
