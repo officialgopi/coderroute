@@ -3,7 +3,7 @@ import { useAiStore } from "@/store/ai.store";
 import { useCodeEditorSettingsStore } from "@/store/code-editor-settings.store";
 import { useProblemStore } from "@/store/problem.store";
 import { env } from "@/env";
-import { Sparkles, Send, Bot, User, AlertCircle } from "lucide-react";
+import { Sparkles, Send, Bot, User } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 

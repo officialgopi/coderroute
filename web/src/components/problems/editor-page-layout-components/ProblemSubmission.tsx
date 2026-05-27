@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import {
   History,
   Calendar,
-  Code2,
   ArrowRight,
   CheckCircle2,
   XCircle,

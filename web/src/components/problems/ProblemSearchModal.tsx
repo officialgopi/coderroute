@@ -9,7 +9,7 @@ export const ProblemSearchModal = () => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [searchedProblems, setSearchedProblems] = useState<IProblem[]>([]);
-  const [page, setPage] = useState(1);
+  const [_page, setPage] = useState(1);
   const [isSearching, setIsSearching] = useState(false);
 
   const { problems, getProblems } = useProblemStore();
