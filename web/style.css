@@ -7,6 +7,15 @@ html {
   scroll-behavior: smooth;
 }
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Optional: Respect user system accessibility settings for reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html {
