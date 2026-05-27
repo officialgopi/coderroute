@@ -1,14 +1,14 @@
 // import { createSlice } from "@reduxjs/toolkit";
 
-export enum Role {
-  ADMIN = "ADMIN",
-  USER = "USER",
-}
+// export enum Role {
+//   ADMIN = "ADMIN",
+//   USER = "USER",
+// }
 
-export enum AuthProvider {
-  GOOGLE = "GOOGLE",
-  EMAIL = "EMAIL",
-}
+// export enum AuthProvider {
+//   GOOGLE = "GOOGLE",
+//   EMAIL = "EMAIL",
+// }
 
 // export class AuthState {
 //   id: string;
