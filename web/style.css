@@ -1,12 +1,14 @@
+/* src/styles/main.css */
 @import "tailwindcss";
 
-@import "tailwindcss";
-
+/* 1. Custom Core Variants & Modifiers Configuration */
 @variant dark (&:where(.dark, .dark *));
+
 html {
   scroll-behavior: smooth;
 }
 
+/* Hardware-Accelerated Shimmer Keyframe Layer */
 @keyframes shimmer {
   0% {
     transform: translateX(-100%);
@@ -16,17 +18,17 @@ html {
   }
 }
 
-/* Optional: Respect user system accessibility settings for reduced motion */
+/* Accessibility Core: Respect user preference profiles for reduced animation paths */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 }
 
-/* 1. Standardizing your asset path definitions */
+/* 2. Embedded Font-Face Asset Engine Definitions */
 @font-face {
   font-family: "Geist Sans";
-  src: url("/fonts/Geist-VariableFont_wght.ttf") format("ttf");
+  src: url("/fonts/Geist-VariableFont_wght.ttf") format("truetype");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -40,24 +42,14 @@ html {
   font-display: swap;
 }
 
-/* 2. Overriding structural Tailwind v4 design tokens */
+/* 3. Unified Tailwind v4 Unified Custom Theme Token Space */
 @theme {
-  --font-sans: "Geist Sans", system-ui, -apple-system, sans-serif;
+  /* System Typography Mappings */
+  --font-sans: "Geist Sans", "Inter", system-ui, -apple-system, sans-serif;
   --font-mono: "Geist Mono", "JetBrains Mono", monospace;
 
-  --color-background: var(--bg-main);
-  --color-surface-panel: var(--bg-panel);
-  --color-surface-card: var(--bg-card);
-  --color-brand-primary: var(--brand-accent);
-  --color-border-subtle: var(--border-muted);
-  --color-border-intense: var(--border-default);
-}
-
-/* ... keep your theme variable configuration block here ... */
-
-@theme {
-  /* Design Tokens mapped to Global CSS Variables */
-  --color-background: var(--bg-main);
+  /* Semantic Interface Design Token Registries */
+  --color-bg-canvas: var(--bg-main);
   --color-surface-panel: var(--bg-panel);
   --color-surface-card: var(--bg-card);
 
@@ -67,15 +59,15 @@ html {
   --color-border-subtle: var(--border-muted);
   --color-border-intense: var(--border-default);
 
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  --color-text-primary: var(--text-main);
+  --color-text-secondary: var(--text-muted);
 
+  /* Performance Micro-Animations */
   --animate-fade-in: fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Theme Configuration Roots */
-:root,
-[data-theme="light"] {
+/* 4. Global Theming Architecture Variables */
+:root {
   --bg-main: #f9fafb; /* neutral 50 */
   --bg-panel: #ffffff; /* white */
   --bg-card: #f3f4f6; /* neutral 100 */
@@ -90,7 +82,7 @@ html {
   --text-muted: #4b5563; /* neutral 600 */
 }
 
-[data-theme="dark"] {
+.dark {
   --bg-main: #09090b; /* zinc 950 */
   --bg-panel: #18181b; /* zinc 900 */
   --bg-card: #27272a; /* zinc 800 */
@@ -105,12 +97,16 @@ html {
   --text-muted: #a1a1aa; /* zinc 400 */
 }
 
-/* Base resets applying variables */
-body {
-  background-color: var(--bg-main);
-  color: var(--text-main);
-  font-family: var(--font-sans);
-  transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease;
+/* 5. Production Global Document Reset Layer */
+@layer base {
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    transition:
+      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 }
