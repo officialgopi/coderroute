@@ -27,12 +27,13 @@ export const LeftSidebar = ({
         className="flex items-center gap-1.5 h-7 w-full"
         aria-label="Challenge workspace context selector navigation"
       >
-        {!isProblemDetailsLoading &&
-          problemDetails &&
+        {problemDetails &&
           tabs.map((tab) => (
             <NavLink
               to={`/problems/${problemDetails.slug}/${tab.path}`}
               key={`workspace-tab-${tab.path}`}
+              title={tab.label}
+              aria-disabled={isProblemDetailsLoading}
               className={({ isActive }) => `
                 relative inline-flex items-center justify-center h-full px-3 rounded-md
                 text-xs font-medium tracking-tight whitespace-nowrap transition-all duration-150 outline-none
@@ -53,7 +54,7 @@ export const LeftSidebar = ({
           ))}
 
         {/* --- BALANCED SKELETON PLACEHOLDERS LOADING TRACK --- */}
-        {isProblemDetailsLoading && (
+        {!problemDetails && isProblemDetailsLoading && (
           <div className="flex items-center gap-2 h-full w-full animate-pulse">
             {[...Array(4)].map((_, i) => (
               <div
