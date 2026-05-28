@@ -1,6 +1,8 @@
-import { useSheetStore, type ISheet } from "@/store/sheet.store";
-import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useState } from "react";
+// src/components/problems/ProblemListModal.tsx
+import React, { useEffect, useState, useTransition, memo } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { useSheetStore } from "@/store/sheet.store";
+import { ListPlus, X, FolderHeart, Loader2 } from "lucide-react";
 
 interface ProblemListModalProps {
   open: boolean;
@@ -15,63 +17,75 @@ export const ProblemListModal: React.FC<ProblemListModalProps> = ({
 }) => {
   const { getSheets, addProblemToSheet, deleteProblemFromSheet, sheets } =
     useSheetStore();
+
   useEffect(() => {
+    if (!open) return;
     const fetchSheets = async () => {
       await getSheets();
     };
     fetchSheets();
-  }, [getSheets]);
+  }, [getSheets, open]);
+
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0, y: -10, scale: 0.97 }}
+          initial={{ opacity: 0, y: -2, scale: 0.99 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10, scale: 0.97 }}
-          transition={{ duration: 0.18, ease: "easeOut" }}
-          className="
-            absolute right-0 top-10
-            w-80 rounded-xl p-4
-            bg-neutral-100 dark:bg-neutral-900
-            border border-neutral-700/40
-            shadow-[0_8px_30px_rgba(0,0,0,0.35)]
-            backdrop-blur-md
-            text-neutral-900 dark:text-neutral-100
-            select-none
-          "
+          exit={{ opacity: 0, y: -2, scale: 0.99 }}
+          transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          /* 
+            CRITICAL FIX: Added 'bg-bg-secondary' explicitly to make the layout 
+            completely solid and opaque, plus deep shadows to elevate it from the table.
+          */
+          className="absolute right-0 top-6 w-72 bg-bg-canvas border border-border-subtle rounded-xl shadow-[0_10px_32px_-4px_rgba(0,0,0,0.4)] dark:shadow-[0_12px_36px_-6px_rgba(0,0,0,0.8)] p-3.5 text-text-primary z-50 select-none overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
-          <h2 className="text-lg font-semibold mb-3 tracking-tight">
-            My Lists
-          </h2>
-
-          <div className="space-y-2">
-            {sheets?.map(({ id, name }) => {
-              return (
-                <Items
-                  addProblemToSheet={addProblemToSheet}
-                  deleteProblemFromSheet={deleteProblemFromSheet}
-                  key={id}
-                  id={id}
-                  name={name}
-                  sheets={sheets || []}
-                  problemId={problemId}
-                />
-              );
-            })}
+          {/* HEADER ROW ACTIONS CONTROL PANEL */}
+          <div className="flex items-center justify-between border-b border-border-subtle pb-2 mb-2.5">
+            <div className="flex items-center gap-1.5 text-text-primary">
+              <ListPlus size={12} className="text-accent-gold/90" />
+              <h2 className="text-[10px] font-bold tracking-wider uppercase font-mono text-text-secondary">
+                Collect Track
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1 rounded-md text-text-muted hover:text-text-secondary hover:bg-bg-primary/50 transition-colors cursor-pointer"
+            >
+              <X size={11} className="stroke-[2.5]" />
+            </button>
           </div>
 
-          <div
-            onClick={onClose}
-            className="
-              mt-4 w-full py-2 
-              rounded-lg text-sm font-medium
-              bg-neutral-200 dark:bg-neutral-800
-              hover:bg-neutral-300 dark:hover:bg-neutral-700
-              transition-colors
-            "
-          >
-            Close
+          {/* SCROLLABLE GRID FEED TRACKS */}
+          <div className="space-y-0.5 max-h-48 overflow-y-auto pr-0.5">
+            {sheets && sheets.length > 0 ? (
+              sheets.map((sheet) => {
+                const isInitiallyChecked =
+                  sheet.problems?.some((p) => p.problemId === problemId) ??
+                  false;
+
+                return (
+                  <MemoizedSheetItem
+                    key={sheet.id}
+                    id={sheet.id}
+                    name={sheet.name}
+                    problemId={problemId}
+                    isInitiallyChecked={isInitiallyChecked}
+                    addProblemToSheet={addProblemToSheet}
+                    deleteProblemFromSheet={deleteProblemFromSheet}
+                  />
+                );
+              })
+            ) : (
+              <div className="py-6 flex flex-col items-center justify-center text-center space-y-2 opacity-40">
+                <FolderHeart size={14} />
+                <span className="text-[9px] font-mono tracking-tight">
+                  // No sheets found
+                </span>
+              </div>
+            )}
           </div>
         </motion.div>
       )}
@@ -79,64 +93,85 @@ export const ProblemListModal: React.FC<ProblemListModalProps> = ({
   );
 };
 
-const Items = ({
-  id,
-  name,
-  sheets,
-  problemId,
-  addProblemToSheet,
-  deleteProblemFromSheet,
-}: {
+interface SheetItemProps {
   id: string;
   name: string;
   problemId: string;
-  sheets: ISheet[];
+  isInitiallyChecked: boolean;
   addProblemToSheet: (
     sheetId: string,
-    problemId: string
+    problemId: string,
   ) => Promise<boolean | void>;
   deleteProblemFromSheet: (
     sheetId: string,
-    problemId: string
+    problemId: string,
   ) => Promise<boolean | void>;
+}
+
+const SheetItem: React.FC<SheetItemProps> = ({
+  id,
+  name,
+  problemId,
+  isInitiallyChecked,
+  addProblemToSheet,
+  deleteProblemFromSheet,
 }) => {
-  const [isProblemInSheet, setIsProblemInSheet] = useState<boolean>(
-    sheets
-      .find((sheet) => sheet.id === id)
-      ?.problems?.some((p) => p.problemId === problemId) ?? false
-  );
+  const [, startMutationTransition] = useTransition();
+  const [checked, setChecked] = useState<boolean>(isInitiallyChecked);
+  const [isPending, setIsPending] = useState<boolean>(false);
+
   useEffect(() => {
-    setIsProblemInSheet(
-      sheets
-        .find((sheet) => sheet.id === id)
-        ?.problems?.some((p) => p.problemId === problemId) ?? false
-    );
-  }, [sheets, problemId]);
+    setChecked(isInitiallyChecked);
+  }, [isInitiallyChecked]);
+
+  const handleToggle = () => {
+    const nextState = !checked;
+    setChecked(nextState);
+    setIsPending(true);
+
+    startMutationTransition(async () => {
+      try {
+        if (!nextState) {
+          await deleteProblemFromSheet(id, problemId);
+        } else {
+          await addProblemToSheet(id, problemId);
+        }
+      } catch {
+        setChecked(checked); // Rollback on failure
+      } finally {
+        setIsPending(false);
+      }
+    });
+  };
+
   return (
     <label
-      key={id}
-      className="
-                  flex items-center gap-3 px-2 py-2
-                  rounded-md cursor-pointer
-                  hover:bg-neutral-200/50 dark:hover:bg-neutral-800/60
-                  transition-colors
-                "
+      className={`flex items-center justify-between px-2 h-7.5 rounded-md cursor-pointer text-xs text-text-secondary transition-all duration-100 relative ${
+        checked
+          ? "bg-bg-primary/50 text-text-primary font-medium"
+          : "hover:bg-bg-primary/25 hover:text-text-primary"
+      }`}
     >
-      <input
-        type="checkbox"
-        className="w-4 h-4 accent-neutral-700 dark:accent-neutral-300 cursor-pointer"
-        onChange={async () => {
-          if (isProblemInSheet) {
-            await deleteProblemFromSheet(id, problemId);
-          } else {
-            await addProblemToSheet(id, problemId);
-          }
-        }}
-        checked={isProblemInSheet}
-      />
-      <span className="text-sm">{name}</span>
+      <div className="flex items-center gap-2 min-w-0 flex-1">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={handleToggle}
+          className="size-3 rounded-xs border-border-subtle bg-bg-primary/40 text-accent-gold accent-accent-gold focus:ring-0 focus:ring-offset-0 cursor-pointer transition-colors"
+        />
+        <span className="truncate pr-4 tracking-tight">{name}</span>
+      </div>
+
+      {isPending && (
+        <Loader2
+          size={10}
+          className="animate-spin text-accent-gold/60 shrink-0 absolute right-2"
+        />
+      )}
     </label>
   );
 };
+
+const MemoizedSheetItem = memo(SheetItem);
 
 export default ProblemListModal;

@@ -60,7 +60,7 @@ export const ProblemsList = () => {
   // View Rule: Present full layout placeholder skeleton during primary initialization fetch
   if (isProblemsLoading && problems.length === 0) {
     return (
-      <div className="w-full border border-border-subtle dark:border-border-subtle rounded-xl bg-surface-panel/30 overflow-hidden shadow-xs">
+      <div className="w-full border border-border-subtle dark:border-border-subtle rounded-xl bg-surface-panel/30  shadow-xs">
         <div className="px-5 py-4 bg-bg-canvas dark:bg-zinc-950/40 border-b border-border-subtle dark:border-border-subtle flex items-center gap-2">
           <Code2
             size={14}
@@ -76,7 +76,7 @@ export const ProblemsList = () => {
   }
 
   return (
-    <div className="w-full border border-border-subtle dark:border-border-subtle rounded-xl bg-surface-panel/30 backdrop-blur-md overflow-hidden shadow-xs relative">
+    <div className="w-full border border-border-subtle dark:border-border-subtle rounded-xl bg-surface-panel/30 backdrop-blur-md  shadow-xs relative">
       {/* Datagrid Table Header Layout Column Guides */}
       <div className="hidden sm:grid grid-cols-12 px-6 py-3.5 bg-surface-card/30 dark:bg-zinc-950/20 border-b border-border-subtle dark:border-border-subtle text-[11px] font-mono font-bold tracking-wider uppercase text-text-secondary dark:text-text-secondary opacity-60 select-none">
         <div className="col-span-1">Status</div>
