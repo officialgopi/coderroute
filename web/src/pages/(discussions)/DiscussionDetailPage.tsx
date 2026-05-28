@@ -33,7 +33,7 @@ const ThreadDetailSkeleton = memo(() => (
     </div>
 
     {/* Decorative Bottom Actions Tray Spacer */}
-    <div className="pt-2 flex items-center gap-4 border-t border-border-subtle/20 dark:border-zinc-900/40">
+    <div className="pt-2 flex items-center gap-4 border-t border-border-subtle/20">
       <div className="h-4 w-12 rounded bg-neutral-100 dark:bg-zinc-900" />
       <div className="h-4 w-12 rounded bg-neutral-100 dark:bg-zinc-900" />
     </div>
@@ -79,7 +79,7 @@ export const DiscussionDetailPage = () => {
       <div className="flex items-center select-none pb-1">
         <Link
           to="/discussions"
-          className="h-7 w-7 rounded-lg border border-border-subtle/60 dark:border-zinc-900/60 bg-zinc-50 dark:bg-zinc-900/20 text-text-secondary hover:text-text-primary hover:border-border-intense dark:hover:border-zinc-800 flex items-center justify-center transition-all cursor-pointer outline-none shadow-3xs"
+          className="h-7 w-7 rounded-lg border border-border-subtle/20 dark:border-border-subtle/20 bg-zinc-50 dark:bg-zinc-900/20 text-text-secondary hover:text-text-primary hover:border-border-subtle/20 dark:hover:border-border-subtle/20 flex items-center justify-center transition-all cursor-pointer outline-none shadow-3xs"
           aria-label="Return to full historical index discussion feed list"
         >
           <ArrowLeft size={14} className="stroke-[2.5]" />

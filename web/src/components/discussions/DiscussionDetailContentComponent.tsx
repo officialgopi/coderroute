@@ -8,7 +8,7 @@ import { useAuthStore } from "@/store/auth.store";
 import type { IDiscussion, IUser } from "@/types/types";
 
 const DiscussionAvatar = ({ src, name }: { src?: string; name: string }) => (
-  <div className="w-5 h-5 rounded-full bg-bg-surface border border-border-primary flex items-center justify-center font-mono font-bold text-[9px] text-text-secondary select-none shrink-0 overflow-hidden">
+  <div className="w-5 h-5 rounded-full bg-bg-surface border border-border-subtle  flex items-center justify-center font-mono font-bold text-[9px] text-text-secondary select-none shrink-0 overflow-hidden">
     {src ? (
       <img src={src} alt={name} className="w-full h-full object-cover" />
     ) : (
@@ -175,7 +175,7 @@ export const DiscussionDetailContentComponent: React.FC<Props> = ({
               {discussion.user?.name}
             </span>
             {isRoot && (
-              <span className="px-1 py-0.2 rounded bg-bg-tertiary border border-border-primary/40 text-[9px] font-mono text-text-muted scale-95 origin-left">
+              <span className="px-1 py-0.2 rounded bg-bg-tertiary border border-border-subtle  text-[9px] font-mono text-text-muted scale-95 origin-left">
                 OP
               </span>
             )}
@@ -219,7 +219,7 @@ export const DiscussionDetailContentComponent: React.FC<Props> = ({
           <AnimatePresence>
             {showReplyBox && (
               <motion.div
-                className="mt-3 max-w-xl w-full border border-border-primary/60 bg-bg-primary rounded-lg overflow-hidden focus-within:border-accent-gold/40 transition-all duration-150 shadow-2xs"
+                className="mt-3 max-w-xl w-full border border-border-subtle  bg-bg-primary rounded-lg overflow-hidden focus-within:border-accent-gold/40 transition-all duration-150 shadow-2xs"
                 initial={{ opacity: 0, y: -2 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -2 }}
@@ -235,7 +235,7 @@ export const DiscussionDetailContentComponent: React.FC<Props> = ({
                   onChange={(e) => setReplyText(e.target.value)}
                   disabled={isSending}
                 />
-                <div className="h-7 px-2.5 bg-bg-secondary border-t border-border-primary/40 flex items-center justify-between text-[9px] font-mono text-text-muted/50 select-none">
+                <div className="h-7 px-2.5 bg-bg-secondary border-t border-border-subtle  flex items-center justify-between text-[9px] font-mono text-text-muted  select-none">
                   <span>↵ to commit | ⌥↵ next line</span>
                   <div className="flex items-center gap-2">
                     <button
@@ -273,7 +273,7 @@ export const DiscussionDetailContentComponent: React.FC<Props> = ({
             exit={{ opacity: 0 }}
           >
             {/* Ultra-faint Guide Track Line - Turns Amber Gold on Hover */}
-            <div className="absolute left-0 top-0 bottom-2 w-[1px] bg-neutral-200 dark:bg-neutral-800/80 group-hover/thread:bg-accent-gold/20 transition-colors duration-200 pointer-events-none" />
+            <div className="absolute left-0 top-0 bottom-2 w-[1px] bg-neutral-200 dark:bg-neutral-800/80 group-hover/thread:bg-accent-gold  transition-colors duration-200 pointer-events-none" />
 
             {isRepliesLoading ? (
               <RepliesSkeleton />
@@ -299,7 +299,7 @@ export const DiscussionDetailContentComponent: React.FC<Props> = ({
 
 const RepliesSkeleton = () => (
   <div className="space-y-1.5 animate-pulse py-1 pl-1 w-1/2">
-    <div className="h-3 bg-bg-surface/50 rounded-sm w-3/4" />
+    <div className="h-3 bg-bg-surface  rounded-sm w-3/4" />
     <div className="h-2 bg-bg-surface/30 rounded-sm w-1/2" />
   </div>
 );

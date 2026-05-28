@@ -121,10 +121,7 @@ const LanguageSelector = memo(() => {
 LanguageSelector.displayName = "LanguageSelector";
 
 /* --- MAIN WORKSPACE CANVAS WRAPPER --- */
-export const CodeEditorPane = ({
-  isProblemDetailsLoading,
-  problemDetails,
-}: CodeEditorPaneProps) => {
+export const CodeEditorPane = ({ problemDetails }: CodeEditorPaneProps) => {
   const { fontSize, tabSize, minimap, lineNumbers, wordWrap, language } =
     useCodeEditorSettingsStore();
 
@@ -156,7 +153,7 @@ export const CodeEditorPane = ({
     }
   }, []);
 
-  if (isProblemDetailsLoading) {
+  if (!problemDetails) {
     return (
       <div className="h-full w-full bg-surface-panel/50 dark:bg-zinc-900/20 animate-pulse flex items-center justify-center font-mono text-xs text-text-secondary opacity-40">
         // Syncing virtual stream files...

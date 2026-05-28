@@ -7,7 +7,7 @@ import { useProblemStore } from "@/store/problem.store";
 type TConsoleTab = "testcase" | "result";
 
 export const Testcases = () => {
-  const { isProblemDetailsLoading, problemInCodeEditor } = useProblemStore();
+  const { problemInCodeEditor } = useProblemStore();
   const { currentProblemRunningResult, isRunning } = useCodeExecutionStore();
 
   const [activeTestcase, setActiveTestcase] = useState(0);
@@ -60,7 +60,7 @@ export const Testcases = () => {
     });
   }, [problemInCodeEditor, currentProblemRunningResult]);
 
-  if (isProblemDetailsLoading) {
+  if (!problemInCodeEditor) {
     return (
       <div className="h-full flex flex-col items-center justify-center font-mono text-xs text-text-secondary opacity-40 select-none animate-pulse">
         <span>Loading testcases…</span>

@@ -110,3 +110,75 @@ html {
     -moz-osx-font-smoothing: grayscale;
   }
 }
+/* src/styles/scrollbar.css or add to globals.css */
+
+/* Global configuration for modern compliant engines (Firefox, etc.) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+/* ==========================================================================
+   WEBKIT CONTAINER SYSTEM (Chrome, Safari, Edge, Opera)
+   ========================================================================== */
+
+/* 1. Track Dimensions - Dialed down to a minimalist width to optimize workspace pixels */
+::-webkit-scrollbar {
+  width: 6px; /* Width profile for vertical scroll lines */
+  height: 6px; /* Height profile for horizontal pointer channels */
+}
+
+/* 2. Hidden background channel track layer */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 3. The Core Interactive Thumb Indicator Grid */
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 9999px; /* Smooth rounded pill aesthetic */
+  border: 1px solid transparent; /* Acts as a padding offset mask */
+  background-clip: padding-box;
+  transition: background-color 0.15s ease;
+}
+
+/* 4. Soft highlight interpolation when actively hovering over the track */
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* 5. Prevent corner intersection visual blocks */
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ==========================================================================
+   DYNAMIC DESIGN SYSTEM VARIABLES EXTENSION
+   ========================================================================== */
+:root,
+.light {
+  /* Minimal neutral-200/300 trace tones for light viewports */
+  --scrollbar-thumb: rgba(115, 115, 115, 0.15);
+  --scrollbar-thumb-hover: rgba(115, 115, 115, 0.35);
+}
+
+.dark {
+  /* Faint, ultra-muted charcoal layers for high-end neutral-950 dark setups */
+  --scrollbar-thumb: rgba(255, 255, 255, 0.05);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.15);
+}
+/* Add to your utility classes sheet */
+
+/* Hide track elements entirely by default */
+.scroll-clean-hover::-webkit-scrollbar-thumb {
+  background-color: transparent;
+}
+
+/* Dynamically reveal our custom low-profile thumb pill when hovering over the parent element */
+.scroll-clean-hover:hover::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+}
+
+.scroll-clean-hover:hover::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
