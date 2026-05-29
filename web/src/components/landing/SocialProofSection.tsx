@@ -30,7 +30,10 @@ const TechMarquee = ({ reverse = false }: TechMarqueeProps) => {
   const items = [...techIcons, ...techIcons, ...techIcons];
 
   return (
-    <div className="flex w-full overflow-hidden select-none group/marquee">
+    <div
+      className="flex w-full overflow-hidden select-none group/marquee"
+      id="social-proofs"
+    >
       <motion.div
         className="flex gap-4 pr-4 py-3 flex-shrink-0 whitespace-nowrap min-w-full"
         animate={{ x: reverse ? ["-33.33%", "0%"] : ["0%", "-33.33%"] }}

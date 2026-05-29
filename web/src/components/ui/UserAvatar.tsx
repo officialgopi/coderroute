@@ -60,7 +60,7 @@ export const UserAvatar = ({
     >
       {hasValidAvatar ? (
         <img
-          src={avatar.trim()}
+          src={avatar?.trim()}
           alt={`${resolvedName}'s user portal profile avatar`}
           loading="lazy"
           onError={() => setImageError(true)}
