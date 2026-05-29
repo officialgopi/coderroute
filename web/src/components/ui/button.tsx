@@ -5,7 +5,7 @@ import { Slot as SlotPrimitive } from "radix-ui";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "cursor-pointer group whitespace-nowrap focus-visible:outline-hidden inline-flex items-center justify-center has-data-[arrow=true]:justify-between whitespace-nowrap text-sm font-medium ring-offset-background transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-60 [&_svg]:shrink-0",
+  "cursor-pointer group whitespace-nowrap focus-visible:outline-hidden inline-flex items-center justify-center has-data-[arrow=true]:justify-between text-sm font-medium ring-offset-background transition-[color,box-shadow] disabled:pointer-events-none disabled:opacity-60 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -99,7 +99,7 @@ const buttonVariants = cva(
           "[&_svg:not([role=img]):not([class*=text-]):not([class*=opacity-])]:opacity-60",
       },
 
-      // Icons opacity for default mode
+      // Icons opacity for alternative mode structures
       {
         variant: "outline",
         mode: "input",
@@ -113,7 +113,7 @@ const buttonVariants = cva(
           "[&_svg:not([role=img]):not([class*=text-]):not([class*=opacity-])]:opacity-60",
       },
 
-      // Auto height
+      // Auto height compound overrides
       {
         size: "xs",
         autoHeight: true,
@@ -135,7 +135,7 @@ const buttonVariants = cva(
         className: "h-auto min-h-10",
       },
 
-      // Shadow support
+      // Standard Theme Depth Shadow support
       {
         variant: "primary",
         mode: "default",
@@ -173,7 +173,7 @@ const buttonVariants = cva(
         className: "shadow-xs shadow-black/5",
       },
 
-      // Shadow support
+      // Icon Variant Mode Shadows
       {
         variant: "primary",
         mode: "icon",
@@ -211,7 +211,7 @@ const buttonVariants = cva(
         className: "shadow-xs shadow-black/5",
       },
 
-      // Link
+      // Micro-Link Routing Variant Parameters
       {
         variant: "primary",
         mode: "link",
@@ -299,7 +299,7 @@ const buttonVariants = cva(
           "font-medium text-foreground [&_svg:not([role=img]):not([class*=text-])]:opacity-60 underline underline-offset-4 decoration-dashed decoration-1",
       },
 
-      // Ghost
+      // Ghost Accent Styles
       {
         variant: "primary",
         appearance: "ghost",
@@ -318,16 +318,16 @@ const buttonVariants = cva(
         className: "text-muted-foreground",
       },
 
-      // Size
+      // Fixed: Typo compilation bracket layout leaks resolved below safely ([[&_svg -> opacity tokens)
       {
         size: "xs",
         mode: "icon",
-        className: "w-7 h-7 p-0 [[&_svg:not([class*=size-])]:size-3.5",
+        className: "w-7 h-7 p-0 [&_svg:not([class*=size-])]:size-3.5",
       },
       {
         size: "sm",
         mode: "icon",
-        className: "w-8 h-8 p-0 [[&_svg:not([class*=size-])]:size-3.5",
+        className: "w-8 h-8 p-0 [&_svg:not([class*=size-])]:size-3.5",
       },
       {
         size: "md",
@@ -344,7 +344,7 @@ const buttonVariants = cva(
         className: "w-10 h-10 p-0 [&_svg:not([class*=size-])]:size-4",
       },
 
-      // Input mode
+      // Input Mode Processing Hooks
       {
         mode: "input",
         placeholder: true,
@@ -377,69 +377,76 @@ const buttonVariants = cva(
       radius: "md",
       appearance: "default",
     },
-  }
+  },
 );
 
-function Button({
-  className,
-  selected,
-  variant,
-  radius,
-  appearance,
-  mode,
-  size,
-  autoHeight,
-  underlined,
-  underline,
-  asChild = false,
-  placeholder = false,
-  ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    selected?: boolean;
-    asChild?: boolean;
-  }) {
-  const Comp = asChild ? SlotPrimitive.Slot : "button";
-  return (
-    <Comp
-      data-slot="button"
-      className={cn(
-        buttonVariants({
-          variant,
-          size,
-          radius,
-          appearance,
-          mode,
-          autoHeight,
-          placeholder,
-          underlined,
-          underline,
-          className,
-        }),
-        asChild && props.disabled && "pointer-events-none opacity-50"
-      )}
-      {...(selected && { "data-state": "open" })}
-      {...props}
-    />
-  );
+export interface ButtonProps
+  extends React.ComponentProps<"button">, VariantProps<typeof buttonVariants> {
+  selected?: boolean;
+  asChild?: boolean;
 }
+
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  (
+    {
+      className,
+      selected,
+      variant,
+      radius,
+      appearance,
+      mode,
+      size,
+      autoHeight,
+      underlined,
+      underline,
+      asChild = false,
+      placeholder = false,
+      ...props
+    },
+    ref,
+  ) => {
+    const Comp = asChild ? SlotPrimitive.Slot : "button";
+    return (
+      <Comp
+        ref={ref}
+        data-slot="button"
+        className={cn(
+          buttonVariants({
+            variant,
+            size,
+            radius,
+            appearance,
+            mode,
+            autoHeight,
+            placeholder,
+            underlined,
+            underline,
+            className,
+          }),
+          asChild && props.disabled && "pointer-events-none opacity-50",
+        )}
+        {...(selected && { "data-state": "open" })}
+        {...props}
+      />
+    );
+  },
+);
+Button.displayName = "Button";
 
 interface ButtonArrowProps extends React.SVGProps<SVGSVGElement> {
-  icon?: LucideIcon; // Allows passing any Lucide icon
+  icon?: LucideIcon;
 }
 
-function ButtonArrow({
-  icon: Icon = ChevronDown,
-  className,
-  ...props
-}: ButtonArrowProps) {
-  return (
-    <Icon
-      data-slot="button-arrow"
-      className={cn("ms-auto -me-1", className)}
-      {...props}
-    />
-  );
-}
-
-export { Button, ButtonArrow, buttonVariants };
+export const ButtonArrow = React.forwardRef<SVGSVGElement, ButtonArrowProps>(
+  ({ icon: Icon = ChevronDown, className, ...props }, ref) => {
+    return (
+      <Icon
+        ref={ref}
+        data-slot="button-arrow"
+        className={cn("ms-auto -me-1", className)}
+        {...props}
+      />
+    );
+  },
+);
+ButtonArrow.displayName = "ButtonArrow";

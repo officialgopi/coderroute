@@ -1,5 +1,14 @@
-import React, { useMemo } from "react";
+import React, { useMemo, memo } from "react";
 import { motion } from "framer-motion";
+import {
+  Check,
+  Terminal,
+  Beaker,
+  HelpCircle,
+  BookOpen,
+  FileCode2,
+  Eye,
+} from "lucide-react";
 
 interface TabsProps {
   tabs: string[];
@@ -7,107 +16,113 @@ interface TabsProps {
   onChange: (tab: string) => void;
 }
 
-const STEP_SIZE_PX = 36; // adjust globally (controls circle size)
+// Maps appropriate technical icons to maintain design context across tabs
+const getTabIcon = (tab: string) => {
+  switch (tab.toLowerCase()) {
+    case "metadata":
+      return BookOpen;
+    case "testcases":
+      return Beaker;
+    case "hints":
+      return HelpCircle;
+    case "editorial":
+      return Terminal;
+    case "code setup":
+      return FileCode2;
+    case "review":
+      return Eye;
+    default:
+      return Terminal;
+  }
+};
 
 export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange }) => {
   const activeIndex = tabs.indexOf(activeTab);
-  const maxIndex = Math.max(0, tabs.length - 1);
-
-  // percentage of the line that should be filled
-  const fillPercent = useMemo(() => {
-    if (maxIndex === 0) return 100;
-    return (activeIndex / maxIndex) * 100;
-  }, [activeIndex, maxIndex]);
 
   return (
-    <div
-      className="relative w-full"
-      style={{
-        // make sure left/right padding equals circle radius so line aligns with circle centers
-        paddingLeft: `${STEP_SIZE_PX / 2}px`,
-        paddingRight: `${STEP_SIZE_PX / 2}px`,
-      }}
-    >
-      {/* base line */}
-      <div
-        aria-hidden
-        className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[2px] bg-neutral-300 dark:bg-neutral-800"
-        style={{ zIndex: 0 }}
-      />
-
-      {/* filled line (exact width computed) */}
-      <motion.div
-        aria-hidden
-        className="absolute left-0 top-1/2 -translate-y-1/2 h-[2px] bg-neutral-800 dark:bg-neutral-100"
-        style={{ zIndex: 1, width: `${fillPercent}%` }}
-        transition={{ duration: 0.35, ease: "easeInOut" }}
-      />
-
-      {/* steps */}
-      <div className="relative z-10 flex items-center justify-between">
+    <div className="w-full font-sans select-none border-b border-border-subtle/30 dark:border-zinc-900/60 pb-px">
+      {/* --- FLEX SLIDER DECK SYSTEM --- */}
+      <div className="w-full flex items-center justify-start gap-1 sm:gap-2 overflow-x-auto scrollbar-none snap-x mask-fade-right">
         {tabs.map((tab, index) => {
           const isActive = index === activeIndex;
           const isCompleted = index < activeIndex;
           const isClickable = index <= activeIndex;
-          const isDisabled = index > activeIndex;
           const isFinal = tab.toLowerCase() === "review";
 
+          const TabIcon = getTabIcon(tab);
+
           return (
-            <div
-              key={tab}
-              className="flex-1 flex flex-col items-center text-center"
+            <button
+              key={`tech-tab-${tab}`}
+              type="button"
+              disabled={!isClickable}
+              onClick={() => onChange(tab)}
+              className={`group flex items-center gap-2 h-9 px-3.5 rounded-t-xl transition-all duration-200 outline-none relative snap-contained shrink-0 ${
+                isActive
+                  ? "text-text-primary"
+                  : isCompleted
+                    ? "text-emerald-600 dark:text-emerald-400/80 hover:text-text-primary"
+                    : "text-text-secondary opacity-50 hover:opacity-100 hover:text-text-primary"
+              } ${isClickable ? "cursor-pointer" : "cursor-not-allowed"}`}
             >
-              <motion.button
-                onClick={() => isClickable && onChange(tab)}
-                disabled={isDisabled}
-                whileHover={isClickable ? { scale: 1.06 } : {}}
-                whileTap={isClickable ? { scale: 0.96 } : {}}
-                className={`flex items-center justify-center rounded-full border select-none
-                  `}
-                style={{
-                  width: STEP_SIZE_PX,
+              {/* --- PERSISTENT ACTIVE PILL BACKGROUND DECK --- */}
+              {isActive && (
+                <motion.div
+                  layoutId="activeAdminTabDeck"
+                  className="absolute inset-0 bg-neutral-100/70 dark:bg-zinc-900/40 rounded-t-xl border-t border-x border-border-subtle/40 dark:border-zinc-800/80 z-0"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
 
-                  height: STEP_SIZE_PX,
-                  zIndex: 20,
-                  // visual states
-                  background: isActive
-                    ? undefined
-                    : isCompleted
-                    ? undefined
-                    : undefined,
-                }}
-              >
-                <span
-                  className={[
-                    "inline-flex items-center justify-center w-full h-full text-[13px] font-semibold transition-colors",
-                    isFinal && isActive
-                      ? "bg-green-600 text-white rounded-full"
-                      : isActive
-                      ? "bg-neutral-800 dark:bg-neutral-100 text-white dark:text-neutral-900 rounded-full"
-                      : isCompleted
-                      ? "bg-neutral-300 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-full"
-                      : "bg-neutral-100 dark:bg-neutral-900 text-neutral-400 dark:text-neutral-600 rounded-full",
-                  ].join(" ")}
-                >
-                  {index + 1}
-                </span>
-              </motion.button>
+              {/* --- TAB INDICATOR DOT / ICON RAIL --- */}
+              <div className="relative z-10 flex items-center justify-center shrink-0">
+                {isCompleted ? (
+                  <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="h-4 w-4 rounded-md bg-emerald-500/10 flex items-center justify-center"
+                  >
+                    <Check
+                      size={10}
+                      className="stroke-[3.5] text-emerald-600 dark:text-emerald-400"
+                    />
+                  </motion.div>
+                ) : (
+                  <TabIcon
+                    size={13}
+                    className={`stroke-[2.2] transition-colors ${
+                      isActive
+                        ? isFinal
+                          ? "text-emerald-500"
+                          : "text-amber-500"
+                        : "text-text-secondary"
+                    }`}
+                  />
+                )}
+              </div>
 
-              <div
-                className={`mt-2 text-[13px] font-medium transition-colors ${
-                  isFinal && isActive
-                    ? "text-green-600 dark:text-green-400"
-                    : isActive
-                    ? "text-neutral-900 dark:text-neutral-100"
-                    : isCompleted
-                    ? "text-neutral-700 dark:text-neutral-300"
-                    : "text-neutral-500 dark:text-neutral-600"
+              {/* --- STEP TEXT STRING ROW --- */}
+              <span
+                className={`relative z-10 font-sans text-xs tracking-tight transition-all ${
+                  isActive ? "font-bold" : "font-medium"
                 }`}
-                style={{ maxWidth: 100 }}
               >
                 {tab}
-              </div>
-            </div>
+              </span>
+
+              {/* --- DYNAMIC BOTTOM RULER HIGHLIGHT LINE --- */}
+              {isActive && (
+                <motion.div
+                  layoutId="activeAdminTabLine"
+                  className={`absolute bottom-0 left-0 right-0 h-[2px] z-20 ${
+                    isFinal
+                      ? "bg-emerald-500 dark:bg-emerald-400"
+                      : "bg-amber-500"
+                  }`}
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+            </button>
           );
         })}
       </div>
@@ -115,4 +130,4 @@ export const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onChange }) => {
   );
 };
 
-export default Tabs;
+export default memo(Tabs);
