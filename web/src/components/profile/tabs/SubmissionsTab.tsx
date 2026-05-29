@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { Terminal, Cpu, Clock, Check, X } from "lucide-react";
+import { Cpu, Clock, Check, X } from "lucide-react";
 
 const SUBMISSIONS_MOCK = [
   {

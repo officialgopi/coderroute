@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { MessageSquare, ThumbsUp, Eye } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 
 interface DiscussionStatsProps {
   replies: number;
@@ -12,6 +12,9 @@ export const DiscussionStats = ({
   likes = 0,
   views = 0,
 }: DiscussionStatsProps) => {
+  likes = Math.max(0, likes); // Ensure non-negative values
+  views = Math.max(0, views);
+  replies = Math.max(0, replies);
   return (
     <div className="flex items-center gap-3.5 font-mono text-[11px] text-text-secondary opacity-60 select-none">
       {/* 

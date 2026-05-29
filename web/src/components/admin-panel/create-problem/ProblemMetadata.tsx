@@ -11,7 +11,7 @@ interface ProblemMetadataProps {
 }
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, Check, ShieldAlert, Layers } from "lucide-react";
+import { ChevronDown, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CriteriaSelectorsProps {

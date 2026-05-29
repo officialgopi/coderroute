@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, Code2, ExternalLink } from "lucide-react";
+import { CheckCircle2, Code2 } from "lucide-react";
 
 // Mock payload schema representing real user metrics maps
 const SOLVED_MOCK = {
@@ -91,7 +91,7 @@ export const SolvedTab = () => {
         </h3>
 
         <div className="flex flex-col gap-2">
-          {items.map((item, index) => (
+          {items.map((item, _index) => (
             <div
               key={item.id}
               className="w-full h-14 rounded-xl border border-border-subtle/40 dark:border-zinc-900 bg-surface-card/20 dark:bg-zinc-900/10 hover:border-border-intense dark:hover:border-zinc-800 px-4 flex items-center justify-between gap-4 transition-all shadow-3xs group"
