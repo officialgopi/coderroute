@@ -13,11 +13,13 @@ app.use(
   cors({
     origin: [
       env.CLIENT_URL,
-      ...(env.NODE_ENV === "development" && [
-        "http://localhost:5173",
-        "http://localhost:5174",
-        "http://localhost:4173",
-      ]),
+      ...(env.NODE_ENV !== "production"
+        ? [
+            env.CLIENT_URL_LOCAL_1 || "http://localhost:5173",
+            env.CLIENT_URL_LOCAL_2 || "http://localhost:5174",
+            env.CLIENT_URL_LOCAL_3 || "http://localhost:4173",
+          ]
+        : []),
     ],
     credentials: true,
   }),

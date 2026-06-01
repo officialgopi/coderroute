@@ -60,7 +60,7 @@ const oauthLogin = AsyncHandler(async (req, res) => {
   res.cookie("refresh-token", refreshToken, COOKIE_OPTIONS);
 
   return res.redirect(
-    `${env.NODE_ENV == "development" ? `http://localhost:5173` : env.CLIENT_URL}/problems`,
+    `${env.NODE_ENV !== "production" ? `http://localhost:5173` : env.CLIENT_URL}/problems`,
   );
 });
 
