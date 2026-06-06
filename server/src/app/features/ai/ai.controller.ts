@@ -117,7 +117,6 @@ const chatWithAiAssistant = AsyncHandler(async (req, res) => {
   let assistantMessage = "";
 
   try {
-    console.log(messages);
     const stream = await gemini.chat.completions.create({
       model: GEMINI_MODELS.GEMINI_FLASH_2_5,
       messages: messages as ChatCompletionMessageParam[],
