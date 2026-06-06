@@ -1,9 +1,11 @@
-import { useState } from "react";
+// src/components/layout/Navbar.tsx
+import { useState, memo } from "react";
 import { motion, AnimatePresence, type Transition } from "motion/react";
 import { Menu, X, Sun, Moon, Loader2 } from "lucide-react";
 import { useThemeStore } from "@/lib/theme.lib";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/auth.store";
+import { UserAvatarDropdown } from "@/components/shared/UserAvatarDropdown";
 
 const NAV_LINKS = [
   { label: "Social Proofs", href: "#social-proofs" },
@@ -14,7 +16,7 @@ const NAV_LINKS = [
   { label: "CTA", href: "#cta" },
 ] as const;
 
-export default function Navbar() {
+export const Navbar = () => {
   const { theme, toggleTheme } = useThemeStore();
   const { user, isAuthLoading } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,31 +32,32 @@ export default function Navbar() {
       initial={{ opacity: 0, y: -8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={smoothTransition}
-      className="fixed top-0 left-0 w-full z-50 h-16 border-b border-neutral-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md font-sans antialiased selection:bg-neutral-900/10 dark:selection:bg-white/10 transition-colors duration-200"
+      className="fixed top-0 left-0 w-full z-50 h-16 border-b border-border-subtle bg-bg-primary/80 backdrop-blur-xl font-sans antialiased transition-colors duration-200"
     >
       <div className="mx-auto h-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-full items-center justify-between gap-4">
-          {/* --- Brand & Logo Layout Area --- */}
+
+          {/* LOGO & PLATFORM TITLE CHANNELS */}
           <a
             href="/#hero"
-            className="group flex shrink-0 items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-900 dark:focus-visible:outline-white rounded-sm"
+            className="group flex shrink-0 items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-gold rounded-sm"
           >
-            <div className="w-9 h-9 rounded-lg bg-neutral-100 dark:bg-zinc-900 flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:scale-[1.02]">
+            <div className="w-8 h-8 rounded-lg bg-bg-secondary border border-border-subtle flex items-center justify-center overflow-hidden transition-all duration-300 group-hover:scale-[1.02] shadow-3xs">
               <img
                 src="/coderroute.png"
                 alt="logo"
-                className="w-[40px] h-[40px] object-contain"
+                className="w-5 h-5 object-contain"
               />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-zinc-50">
+            <h1 className="text-lg font-bold tracking-tight text-text-primary">
               Coder
-              <span className="font-medium text-neutral-500 dark:text-zinc-400 transition-colors duration-200 group-hover:text-neutral-900 dark:group-hover:text-zinc-50">
+              <span className="font-medium text-text-muted transition-colors duration-200 group-hover:text-text-primary">
                 Route
               </span>
             </h1>
           </a>
 
-          {/* --- Structural Desktop Navigation Core --- */}
+          {/* DESKTOP ROUTE SECTIONS RAILS */}
           <div
             className="hidden md:flex items-center gap-0.5"
             onMouseLeave={() => setHoveredIndex(null)}
@@ -64,7 +67,7 @@ export default function Navbar() {
                 key={link.label}
                 href={link.href}
                 onMouseEnter={() => setHoveredIndex(idx)}
-                className="relative px-3.5 py-1.5 text-[13px] font-medium tracking-tight text-neutral-600 dark:text-zinc-400 hover:text-neutral-900 dark:hover:text-zinc-50 transition-colors duration-200 rounded-md focus-visible:outline-2 focus-visible:outline-neutral-900 dark:focus-visible:outline-white"
+                className="relative px-3.5 py-1.5 text-xs font-medium tracking-wide text-text-secondary hover:text-text-primary transition-colors duration-200 rounded-md focus-visible:outline-2 focus-visible:outline-accent-gold"
               >
                 <span className="relative z-10">{link.label}</span>
                 <AnimatePresence>
@@ -74,12 +77,8 @@ export default function Navbar() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 180,
-                        damping: 26,
-                      }}
-                      className="absolute inset-0 z-0 rounded-md bg-neutral-100/70 dark:bg-zinc-900/50 border border-neutral-200/40 dark:border-zinc-800/30"
+                      transition={{ type: "spring", stiffness: 180, damping: 26 }}
+                      className="absolute inset-0 z-0 rounded-lg bg-bg-secondary border border-border-subtle/50"
                     />
                   )}
                 </AnimatePresence>
@@ -87,13 +86,12 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* --- Global Controls & User Action Context Engine --- */}
+          {/* GLOBAL CONFIGURATION HUB RAIL ACTIONS */}
           <div className="hidden md:flex items-center gap-3">
-            {/* Custom Theme Toggle preserving your exact execution callback syntax */}
             <button
               onClick={() => toggleTheme()}
               aria-label="Toggle platform theme"
-              className="relative flex h-9 w-9 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-neutral-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 text-neutral-500 dark:text-zinc-400 hover:text-neutral-900 dark:hover:text-zinc-50 hover:border-neutral-300 dark:hover:border-zinc-700 transition-colors focus-visible:outline-2 focus-visible:outline-neutral-900 dark:focus-visible:outline-white"
+              className="relative flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-border-subtle bg-bg-secondary text-text-secondary hover:text-text-primary hover:border-text-muted/20 transition-colors focus-visible:outline-2 focus-visible:outline-accent-gold shadow-3xs"
             >
               <AnimatePresence mode="wait" initial={false}>
                 {theme === "dark" ? (
@@ -104,7 +102,7 @@ export default function Navbar() {
                     exit={{ y: -12, opacity: 0, rotate: 20 }}
                     transition={smoothTransition}
                   >
-                    <Moon size={15} className="stroke-[2.2]" />
+                    <Moon size={14} className="stroke-[2.2]" />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -114,39 +112,27 @@ export default function Navbar() {
                     exit={{ y: -12, opacity: 0, rotate: -20 }}
                     transition={smoothTransition}
                   >
-                    <Sun size={15} className="stroke-[2.2]" />
+                    <Sun size={14} className="stroke-[2.2]" />
                   </motion.div>
                 )}
               </AnimatePresence>
             </button>
 
-            <div className="h-4 w-px bg-neutral-200 dark:bg-zinc-800" />
+            <div className="h-3.5 w-px bg-border-subtle" />
 
             {isAuthLoading ? (
-              <div className="flex h-9 w-9 items-center justify-center">
-                <Loader2 className="h-4 w-4 animate-spin text-neutral-400" />
+              <div className="flex h-8 w-8 items-center justify-center">
+                <Loader2 className="h-3.5 w-3.5 animate-spin text-text-muted" />
               </div>
             ) : user ? (
-              <Link
-                to={`/${user.username}`}
-                className="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 dark:focus-visible:outline-white rounded-full"
-              >
-                <motion.img
-                  whileHover={{
-                    borderColor: theme === "dark" ? "#52525b" : "#d4d4d8",
-                  }}
-                  transition={smoothTransition}
-                  src={user.avatar}
-                  alt={`${user.username}'s avatar`}
-                  className="h-8 w-8 rounded-full border border-neutral-200 dark:border-zinc-800 object-cover transition-colors"
-                />
-              </Link>
+              /* ISOLATED MEMOIZED PROFILE DROPDOWN COMPONENT ENTRY */
+              <UserAvatarDropdown user={user} />
             ) : (
               <Link to="/login">
                 <motion.button
-                  whileHover={{ opacity: 0.85 }}
+                  whileHover={{ opacity: 0.9 }}
                   transition={smoothTransition}
-                  className="h-8 cursor-pointer px-3 text-[12px] font-semibold tracking-wider uppercase rounded-md bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-neutral-900 dark:focus-visible:outline-white font-mono"
+                  className="h-8 cursor-pointer px-3.5 text-[11px] font-bold tracking-wider uppercase rounded-lg bg-bg-primary text-text-primary dark:bg-bg-primary dark:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-gold font-mono"
                 >
                   Sign In
                 </motion.button>
@@ -154,26 +140,26 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* --- Responsive Mobile Trigger Interface --- */}
+          {/* RESPONSIVE HAMBURGER TRIGGERS */}
           <div className="flex md:hidden items-center gap-2">
             <button
               onClick={() => toggleTheme()}
-              className="p-2 rounded-lg border border-neutral-200 dark:border-zinc-800 text-neutral-500 dark:text-zinc-400 bg-white dark:bg-zinc-950"
+              className="p-2 rounded-lg border border-border-subtle text-text-secondary bg-bg-secondary"
             >
-              {theme === "dark" ? <Moon size={15} /> : <Sun size={15} />}
+              {theme === "dark" ? <Moon size={14} /> : <Sun size={14} />}
             </button>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle mobile navigation menu"
-              className="p-2 rounded-lg border border-neutral-200 dark:border-zinc-800 text-neutral-500 dark:text-zinc-400 bg-white dark:bg-zinc-950 hover:bg-neutral-50 dark:hover:bg-zinc-900 transition-colors"
+              className="p-2 rounded-lg border border-border-subtle text-text-secondary bg-bg-secondary hover:bg-bg-primary transition-colors"
             >
-              {isMobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
+              {isMobileMenuOpen ? <X size={15} /> : <Menu size={15} />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* --- Mobile View Drawer Canvas Engine --- */}
+      {/* MOBILE EXPANSION DRAWERS CANVAS */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -181,7 +167,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={smoothTransition}
-            className="md:hidden border-b border-neutral-200 dark:border-zinc-800 bg-white/95 dark:bg-zinc-950/95 backdrop-blur-xl overflow-hidden"
+            className="md:hidden border-b border-border-subtle bg-bg-secondary backdrop-blur-2xl overflow-hidden"
           >
             <div className="px-4 pt-2 pb-6 space-y-0.5">
               {NAV_LINKS.map((link) => (
@@ -189,7 +175,7 @@ export default function Navbar() {
                   key={link.label}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-[14px] font-medium tracking-tight text-neutral-500 dark:text-zinc-400 hover:text-neutral-900 dark:hover:text-zinc-50 hover:bg-neutral-50 dark:hover:bg-zinc-900 transition-colors"
+                  className="block px-3 py-2 rounded-xl text-sm font-medium tracking-tight text-text-secondary hover:text-text-primary hover:bg-bg-primary transition-colors"
                 >
                   {link.label}
                 </a>
@@ -198,7 +184,7 @@ export default function Navbar() {
               {!user && !isAuthLoading && (
                 <div className="pt-4 px-3">
                   <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <button className="w-full h-9 text-xs font-semibold uppercase tracking-wider rounded-md bg-neutral-900 text-white dark:bg-white dark:text-neutral-950 font-mono">
+                    <button className="w-full h-9 text-xs font-bold uppercase tracking-wider rounded-lg bg-text-primary text-bg-primary font-mono">
                       Sign In to Platform
                     </button>
                   </Link>
@@ -210,4 +196,6 @@ export default function Navbar() {
       </AnimatePresence>
     </motion.nav>
   );
-}
+};
+
+export default memo(Navbar);
