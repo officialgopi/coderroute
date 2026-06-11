@@ -114,10 +114,10 @@ const Router = () => {
                   }
                 />
                 <Route
-                  path="/admin-panel/manage-problem"
+                  path="/admin-panel/manage-problems"
                   element={<ManageProblemsPage />}
                 />
-                <Route path="/admin-panel/manage-problem/:problemId" />
+                <Route path="/admin-panel/manage-problems/:problemId" />
                 <Route
                   path="/admin-panel/view-metrics"
                   element={<ViewMetricsPage />}
