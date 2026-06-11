@@ -123,7 +123,7 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ problem }) => {
                     Inputs
                   </span>
                   <ul className="space-y-1 pl-1">
-                    {t.std.stdin.map((inp, idx) => (
+                    {t?.std?.stdin?.map((inp, idx) => (
                       <li
                         key={`rev-tc-${i}-in-${idx}`}
                         className="font-mono text-[11px] truncate select-text"

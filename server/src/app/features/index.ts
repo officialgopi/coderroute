@@ -8,7 +8,7 @@ import { liveblocksRoutes } from "./collaborative-code-editor/collaborative-code
 import { discussionRouter } from "./discussion/discussion.route";
 import { sheetRouter } from "./sheet/sheet.route";
 import { aiRouter } from "./ai/ai.route";
-
+import { manualDb } from "./manual-db/discussion/manual-db.route";
 const allRoutes = Router();
 
 allRoutes.use("/auth", authRouter);
@@ -19,5 +19,6 @@ allRoutes.use("/liveblocks", liveblocksRoutes);
 allRoutes.use("/discussion", discussionRouter);
 allRoutes.use("/sheet", sheetRouter);
 allRoutes.use("/ai", rateLimitting(), aiRouter);
+allRoutes.use("/manual-db", manualDb);
 
 export { allRoutes };

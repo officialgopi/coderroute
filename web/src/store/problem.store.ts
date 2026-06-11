@@ -96,8 +96,8 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
         const updatedProblems = get().problems.filter(
           (existingProblem) =>
             !response.data!.problems.some(
-              (newProblem) => newProblem.id === existingProblem.id
-            )
+              (newProblem) => newProblem.id === existingProblem.id,
+            ),
         );
         if (response.data.problems.length === 0) {
           set({
@@ -121,8 +121,9 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
     }
   },
   createProblem: async (problem: CreateProblemBody) => {
-    const { data, success } = createProblemBodySchema.safeParse(problem);
+    const { data, success, error } = createProblemBodySchema.safeParse(problem);
     if (!success) {
+      console.log(error);
       toast.error("Validation failed. Check your inputs.");
       return;
     }
@@ -164,7 +165,7 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
       if (response.success && response.data) {
         if (problem) {
           const updatedProblems = get().problems.map((p) =>
-            p.id === problem.id ? response.data!.problem : p
+            p.id === problem.id ? response.data!.problem : p,
           );
           set({ problems: updatedProblems });
         } else {
@@ -176,7 +177,7 @@ export const useProblemStore = create<ProblemState>((set, get) => ({
       }
     } catch (error) {
       toast.error(
-        "An unexpected error occurred while fetching problem details"
+        "An unexpected error occurred while fetching problem details",
       );
     } finally {
       set({ isProblemDetailsLoading: false });

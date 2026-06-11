@@ -99,11 +99,11 @@ export const createProblemBodySchema = z.object({
   testcases: z.array(
     z.object({
       std: z.object({
-        stdin: z.array(z.string()),
-        stdout: z.string(),
+        stdin: z.array(z.any()),
+        stdout: z.coerce.string(),
       }),
       explanation: z.string().optional(),
-    })
+    }),
   ),
   details: z.array(
     z.object({
@@ -111,6 +111,6 @@ export const createProblemBodySchema = z.object({
       codeSnippet: z.string(),
       backgroundCode: z.string(),
       referenceSolution: z.string(),
-    })
+    }),
   ),
 });

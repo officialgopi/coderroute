@@ -1,3 +1,4 @@
+// src/components/admin-panel/pages/CreateProblemPage.tsx
 import React, {
   useState,
   useEffect,
@@ -7,15 +8,22 @@ import React, {
   useMemo,
   memo,
 } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
-import { Sparkles, ArrowLeft, ArrowRight, RotateCcw, Save } from "lucide-react";
+import {
+  Sparkles,
+  ArrowLeft,
+  ArrowRight,
+  RotateCcw,
+  Save,
+  Code2,
+} from "lucide-react";
 import { useProblemStore } from "@/store/problem.store";
 import { Tabs } from "@/components/admin-panel/create-problem/Tabs";
 import { Button } from "@/components/ui/button";
+import { ImportProblemJsonModal } from "@/components/admin-panel/create-problem/ImportProblemJsonModal"; // New Sub-Component
 import type { CreateProblemBody } from "@/types/types";
 
-// Dynamic Code-Splitting Asset Map Modules
 const ProblemMetadata = lazy(
   () => import("@/components/admin-panel/create-problem/ProblemMetadata"),
 );
@@ -41,7 +49,6 @@ const CreateProblemWithAIModal = lazy(
 
 const STORAGE_KEY = "coderroute_create_problem_draft";
 
-// Immutable Master Blueprint State Object Schema Contract
 const FIXED_INITIAL_PROBLEM_STATE: CreateProblemBody = {
   title: "",
   description: "",
@@ -52,12 +59,7 @@ const FIXED_INITIAL_PROBLEM_STATE: CreateProblemBody = {
   editorial: "",
   args: [],
   output_format: "PLAIN",
-  testcases: [
-    {
-      std: { stdin: [], stdout: "" },
-      explanation: "",
-    },
-  ],
+  testcases: [{ std: { stdin: [], stdout: "" }, explanation: "" }],
   details: [
     {
       language: "JAVASCRIPT",
@@ -74,7 +76,6 @@ const FIXED_INITIAL_PROBLEM_STATE: CreateProblemBody = {
   ],
 };
 
-/* --- HIGH-FIDELITY SUB-SECTION SHIMMER SUSPENSE WRAPPER --- */
 const TabSectionFallback = memo(() => (
   <div
     className="w-full space-y-4 py-8 animate-pulse select-none pointer-events-none"
@@ -95,6 +96,7 @@ TabSectionFallback.displayName = "TabSectionFallback";
 export const CreateProblemPage: React.FC = () => {
   const { createProblem } = useProblemStore();
   const [aiModalOpen, setAiModalOpen] = useState<boolean>(false);
+  const [jsonModalOpen, setJsonModalOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<number>(0);
 
   const tabs = useMemo(
@@ -109,13 +111,10 @@ export const CreateProblemPage: React.FC = () => {
     [],
   );
 
-  // Safe Lazy Initializer shields processor cycles from recurring IO disk parse bottlenecks
   const [problem, setProblem] = useState<CreateProblemBody>(() => {
     try {
       const savedDraftString = localStorage.getItem(STORAGE_KEY);
-      if (savedDraftString) {
-        return JSON.parse(savedDraftString);
-      }
+      if (savedDraftString) return JSON.parse(savedDraftString);
     } catch {
       console.error(
         "Failed to rehydrate local draft validation matrices safely.",
@@ -124,7 +123,6 @@ export const CreateProblemPage: React.FC = () => {
     return structuredClone(FIXED_INITIAL_PROBLEM_STATE);
   });
 
-  // Keep disk state synchronized in the background
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(problem));
   }, [problem]);
@@ -162,6 +160,67 @@ export const CreateProblemPage: React.FC = () => {
     toast.success("Form structural configurations reverted to base standard.");
   }, []);
 
+  // NEW INTERCEPTOR HOOK: Populates data graphs instantly and routes you straight to preview tab
+  const handleJsonImportSuccess = useCallback(
+    (importedProblem: any) => {
+      // Graceful Normalization: Catch if incoming payload uses 'problemDetails' instead of 'details'
+      const normalizedProblem = {
+        ...importedProblem,
+        testcases:
+          importedProblem?.testcases?.map(
+            (val: {
+              std: {
+                stdin: any[];
+                stdout: any;
+              };
+              explanation?: string;
+            }) => {
+              const stdin_res = val?.std?.stdin?.map((val: any) => {
+                if (typeof val === "string") return val;
+                return JSON.stringify(val);
+              });
+
+              return {
+                std: {
+                  stdin: stdin_res,
+                  stdout: val?.std?.stdout,
+                },
+                explanation: val?.explanation,
+              };
+            },
+          ) || [],
+        details: importedProblem.details ||
+          importedProblem.problemDetails || [
+            {
+              language: "JAVASCRIPT",
+              codeSnippet: "",
+              backgroundCode:
+                "function solve() {\n  /* <WRITE_CODE_HERE> */\n}\n",
+              referenceSolution: "",
+            },
+            {
+              language: "PYTHON",
+              codeSnippet: "",
+              backgroundCode: "def solve():\n    # <WRITE_CODE_HERE>\n",
+              referenceSolution: "",
+            },
+          ],
+      };
+
+      console.log(normalizedProblem);
+
+      // Clean up the duplicate key reference if it exists
+      delete normalizedProblem.problemDetails;
+
+      setProblem(normalizedProblem);
+
+      const reviewTabIndex = tabs.indexOf("Review");
+      setActiveTab(reviewTabIndex !== -1 ? reviewTabIndex : 0);
+      toast.success("JSON matrix normalized and ingested cleanly.");
+    },
+    [tabs],
+  );
+
   const renderActiveTabContent = () => {
     const contextProps = { problem, setProblem };
     switch (tabs[activeTab]) {
@@ -184,7 +243,6 @@ export const CreateProblemPage: React.FC = () => {
 
   return (
     <div className="w-full max-w-5xl mx-auto flex flex-col gap-5 p-4 md:p-6 text-text-primary antialiased select-none font-sans">
-      {/* --- INVISIBLE ROUTE MODALS --- */}
       <Suspense fallback={null}>
         <CreateProblemWithAIModal
           open={aiModalOpen}
@@ -193,7 +251,14 @@ export const CreateProblemPage: React.FC = () => {
         />
       </Suspense>
 
-      {/* --- UPPER ACTION BAR HEADER ROW --- */}
+      {/* NEW NATIVE JSON BINDING PORTAL MOUNT */}
+      <ImportProblemJsonModal
+        open={jsonModalOpen}
+        onClose={() => setJsonModalOpen(false)}
+        onImportSuccess={handleJsonImportSuccess}
+      />
+
+      {/* UPPER ACTION BAR HEADER ROW */}
       <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-border-subtle/20 dark:border-zinc-900/40 pb-4">
         <div>
           <h1 className="text-xl font-bold tracking-tight">
@@ -205,18 +270,29 @@ export const CreateProblemPage: React.FC = () => {
           </p>
         </div>
 
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          whileHover={{ scale: 1.01 }}
-          onClick={() => setAiModalOpen(true)}
-          className="w-full sm:w-auto h-8 px-4 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 dark:hover:bg-amber-500/15 text-amber-600 dark:text-amber-400 font-sans text-xs font-semibold flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer outline-none focus:border-amber-500"
-        >
-          <Sparkles size={12} className="stroke-[2.5]" />
-          <span>Generate Boilerplate with AI</span>
-        </motion.button>
+        <div className="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+          {/* PASTE FROM RAW JSON TOGGLE UTILITY BUTTON */}
+          <button
+            onClick={() => setJsonModalOpen(true)}
+            className="w-full sm:w-auto h-8 px-3.5 rounded-xl border border-border-subtle bg-bg-secondary hover:bg-bg-primary/80 text-text-secondary hover:text-text-primary font-sans text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-3xs outline-hidden"
+          >
+            <Code2 size={12} className="opacity-70" />
+            <span>Import JSON</span>
+          </button>
+
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.01 }}
+            onClick={() => setAiModalOpen(true)}
+            className="w-full sm:w-auto h-8 px-4 rounded-xl border border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 dark:hover:bg-amber-500/15 text-amber-600 dark:text-amber-400 font-sans text-xs font-semibold flex items-center justify-center gap-2 shadow-2xs transition-all cursor-pointer outline-none focus:border-amber-500"
+          >
+            <Sparkles size={12} className="stroke-[2.5]" />
+            <span>Generate Boilerplate with AI</span>
+          </motion.button>
+        </div>
       </div>
 
-      {/* --- WIZARD BREADCRUMB TAB CONTROL MODULE --- */}
+      {/* WIZARD BREADCRUMB TAB CONTROL MODULE */}
       <div className="w-full">
         <Tabs
           tabs={tabs}
@@ -225,7 +301,7 @@ export const CreateProblemPage: React.FC = () => {
         />
       </div>
 
-      {/* --- ACTIVE CENTRAL WIZARD DISPLAY CONTAINER --- */}
+      {/* ACTIVE CENTRAL WIZARD DISPLAY CONTAINER */}
       <div className="w-full rounded-2xl border border-border-subtle/40 dark:border-zinc-900/60 bg-surface-card/30 dark:bg-zinc-950/10 shadow-3xs p-5 md:p-6 min-h-[420px]">
         <AnimatePresence mode="wait">
           <motion.div
@@ -243,9 +319,8 @@ export const CreateProblemPage: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* --- LOWER FOOTER FLOW STEERING CONTROL RAIL --- */}
+      {/* LOWER FOOTER FLOW CONTROL RAIL */}
       <div className="w-full flex items-center justify-between pt-2 border-t border-border-subtle/20 dark:border-zinc-900/40 font-sans">
-        {/* Step Backward/Destructive Controls Group */}
         <div className="flex items-center gap-2">
           {activeTab > 0 && (
             <Button
@@ -263,14 +338,13 @@ export const CreateProblemPage: React.FC = () => {
             variant="destructive"
             size="sm"
             onClick={handleResetDraft}
-            className="h-8 rounded-lg text-xs font-medium cursor-pointer flex items-center gap-1.5 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:border-rose-500/30 transition-all shadow-3xs shadow-rose-500/2"
+            className="h-8 rounded-lg text-xs font-medium cursor-pointer flex items-center gap-1.5 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 border border-rose-500/20 hover:border-rose-500/30 transition-all shadow-3xs"
           >
             <RotateCcw size={11} className="stroke-[2.5]" />
             <span>Reset Draft</span>
           </Button>
         </div>
 
-        {/* Step Forward/Save Controls Group */}
         {activeTab < tabs.length - 1 ? (
           <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
             <Button
@@ -287,7 +361,7 @@ export const CreateProblemPage: React.FC = () => {
             <Button
               size="sm"
               onClick={handleCreateProblem}
-              className="h-8 rounded-lg text-xs font-semibold cursor-pointer flex items-center gap-1.5 border border-transparent bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-zinc-950 transition-all shadow-sm shadow-emerald-600/10"
+              className="h-8 rounded-lg text-xs font-semibold cursor-pointer flex items-center gap-1.5 border border-transparent bg-emerald-600 hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400 text-white dark:text-zinc-950 transition-all shadow-sm"
             >
               <Save size={11} className="stroke-[2.5]" />
               <span>Create Problem</span>

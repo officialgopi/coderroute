@@ -55,7 +55,7 @@ const createProblem = AsyncHandler(async (req, res) => {
     }
 
     const tokens = responseFromJudge0AfterCreatingSubmissionBatch.data.map(
-      (submission) => submission.token
+      (submission) => submission.token,
     );
 
     const responseFromJudge0AfterPoolingBatchResults =
@@ -67,7 +67,6 @@ const createProblem = AsyncHandler(async (req, res) => {
     ) {
       throw new ApiError(500, "Failed to pool batch results in Judge0");
     }
-
     const submissions = responseFromJudge0AfterPoolingBatchResults.data;
     for (let i = 0; i < submissions.length; i++) {
       const result = submissions[i];
@@ -80,8 +79,9 @@ const createProblem = AsyncHandler(async (req, res) => {
           `Test case ${(
             i + Number(1)
           ).toString()} failed for language ${Judge0.getJudge0LanguageName(
-            submissionBatchParameter[0].language_id
-          )}`
+            submissionBatchParameter[0].language_id,
+          )}`,
+          [result],
         );
       }
 
@@ -95,8 +95,8 @@ const createProblem = AsyncHandler(async (req, res) => {
           `Test case ${(
             i + Number(1)
           ).toString()} produced incorrect output for language ${Judge0.getJudge0LanguageName(
-            submissionBatchParameter[0].language_id
-          )}`
+            submissionBatchParameter[0].language_id,
+          )}`,
         );
       }
     }
@@ -251,7 +251,7 @@ const deleteProblem = AsyncHandler(async (req, res) => {
   }
 
   const { data, success } = deleteProblemBySlugParamsSchema.safeParse(
-    req.params
+    req.params,
   );
   if (!success || !data) {
     throw new ApiError(400, "Invalid request data");
@@ -356,7 +356,7 @@ const updateProblemMetadata = AsyncHandler(async (req, res) => {
     {
       problem: updatedProblem,
     },
-    "Problem updated successfully"
+    "Problem updated successfully",
   ).send(res);
 });
 
@@ -372,7 +372,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
   }
 
   const { data, success } = addTestcaseToProblemParamsSchema.safeParse(
-    req.params
+    req.params,
   );
 
   if (!success || !data) {
@@ -405,7 +405,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
   };
 
   const formattedParameter = generateFormattedInputForJudge0ForCreatingProblem(
-    formattedParameterArgData
+    formattedParameterArgData,
   );
 
   if (!formattedParameter) {
@@ -426,7 +426,7 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
     }
 
     const tokens = responseFromJudge0AfterCreatingSubmissionBatch.data.map(
-      (submission) => submission.token
+      (submission) => submission.token,
     );
 
     const responseFromJudge0AfterPoolingBatchResults =
@@ -450,8 +450,8 @@ const addTestcaseToProblemById = AsyncHandler(async (req, res) => {
           `Test case ${(
             i + Number(1)
           ).toString()} failed for language ${Judge0.getJudge0LanguageName(
-            submissionBatchParameter[0].language_id
-          )}`
+            submissionBatchParameter[0].language_id,
+          )}`,
         );
       }
     }
@@ -479,7 +479,7 @@ const deleteTestcaseFromProblemById = AsyncHandler(async (req, res) => {
 
   const { data, success } =
     deleteTestcaseFromProblemByIdAndTestcaseIdParamsSchema.safeParse(
-      req.params
+      req.params,
     );
 
   if (!success || !data) {
@@ -487,7 +487,7 @@ const deleteTestcaseFromProblemById = AsyncHandler(async (req, res) => {
   }
 
   const body = deleteTestcaseFromProblemByIdAndTestcaseIdBodySchema.safeParse(
-    req.body
+    req.body,
   );
 
   if (!body.success || !body.data) {

@@ -157,7 +157,11 @@ export const TestcasesSection: React.FC<TestcasesSectionProps> = ({
                     <textarea
                       rows={1}
                       placeholder={`value for ${arg || "argument"}`}
-                      value={tc.std?.stdin?.[argIdx] || ""}
+                      value={
+                        tc.std?.stdin?.[argIdx]
+                          ? JSON.stringify(tc.std.stdin[argIdx])
+                          : ""
+                      }
                       onChange={(e) => updateStdin(i, argIdx, e.target.value)}
                       className="w-full min-h-[36px] px-2.5 py-1.5 text-[11px] font-mono border border-border-subtle/80 dark:border-zinc-800 bg-surface-card dark:bg-zinc-950/40 rounded-lg outline-none focus:border-border-intense text-text-primary placeholder:opacity-30 scrollbar-none shadow-3xs"
                     />

@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 
 const isAuthenticated = AsyncHandler(async (req, res, next) => {
   const accessToken = req.cookies["access-token"];
-  console.log(accessToken);
+  // console.log(accessToken);
   if (!accessToken) {
     throw new ApiError(401, "Unauthorized");
   }
@@ -28,7 +28,7 @@ const isAuthenticated = AsyncHandler(async (req, res, next) => {
       id: decoded.userId,
     },
   });
-  console.log(user);
+  // console.log(user);
   if (!user) {
     throw new ApiError(401, "Unauthorized");
   }
