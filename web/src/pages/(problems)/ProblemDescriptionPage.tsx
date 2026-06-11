@@ -7,7 +7,6 @@ import {
   ShieldAlert,
   Sparkles,
   Terminal,
-  FileText,
 } from "lucide-react";
 import { useProblemStore } from "@/store/problem.store"; // Pulls directly from your existing store architecture
 
