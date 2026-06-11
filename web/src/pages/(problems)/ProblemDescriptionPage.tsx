@@ -8,7 +8,7 @@ import {
   Sparkles,
   Terminal,
 } from "lucide-react";
-import { useProblemStore } from "@/store/problem.store"; // Pulls directly from your existing store architecture
+import { useProblemStore } from "@/store/problem.store";
 
 const ProblemDescription = lazy(
   () =>
@@ -18,7 +18,7 @@ const ProblemDescription = lazy(
 /* --- 💎 PREMIUM TYPOGRAPHY SKELETON LOADER --- */
 const DescriptionSkeleton = memo(() => (
   <div
-    className="space-y-5 max-w-4xl p-4 animate-pulse select-none pointer-events-none"
+    className="space-y-5 max-w-4xl animate-pulse select-none pointer-events-none"
     aria-hidden="true"
   >
     <div className="pb-3 border-b border-border-subtle/50">
@@ -80,20 +80,27 @@ HintAccordionItem.displayName = "HintAccordionItem";
 
 /* --- MAIN PAGE CONTEXT WRAPPER --- */
 export const ProblemDescriptionPage = () => {
-  // Pull your live active, validated problem data schema directly from your Zustand store
   const { problemInCodeEditor: currentProblem } = useProblemStore();
 
   if (!currentProblem) {
-    return <DescriptionSkeleton />;
+    return (
+      <div className="w-full p-4">
+        <DescriptionSkeleton />
+      </div>
+    );
   }
 
-  // Safe internal extraction mapping to guard against runtime typing disruptions
   const constraints = currentProblem.constraints || [];
   const hints = currentProblem.hints || [];
   const testcases = currentProblem.testcases || [];
 
   return (
-    <div className="w-full h-full overflow-y-auto custom-scrollbar bg-bg-primary px-4 py-5 sm:px-6 space-y-7 antialiased">
+    /* FIXED SCROLLBARS DUPLICATION:
+      - Changed 'h-full' to 'h-auto' so the layout doesn't assert an absolute bounding dimension constraint.
+      - Removed 'overflow-y-auto' and 'custom-scrollbar' to yield full scroll handling up to the active parent Outlet.
+      - Dropped vertical padding ('py-5') to completely stop inner clipping at layout boundaries.
+    */
+    <div className="w-full h-auto bg-bg-primary  space-y-7 antialiased">
       {/* 1. CORE DESCRIPTION MARKDOWN MODULE */}
       <div className="prose prose-sm dark:prose-invert max-w-none border-b border-border-subtle pb-6">
         <Suspense fallback={<DescriptionSkeleton />}>
@@ -113,7 +120,6 @@ export const ProblemDescriptionPage = () => {
 
           <div className="space-y-4">
             {testcases.slice(0, 3).map((tc, idx) => {
-              // Gracefully handle nested array conversion string operations safely
               const formattedStdin = Array.isArray(tc.std?.stdin)
                 ? tc.std.stdin
                     .map((val) =>
