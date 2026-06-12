@@ -145,6 +145,7 @@ model User {
   contestParticipations ContestParticipation[]
   userActivities        UserActivity[]
   aiChatHistories       AiChatHistory[]
+  topicProgresses       UserTopicProgress[]
 
   //INDEXES
   @@index([username])
@@ -224,6 +225,7 @@ model Problem {
   discussions    Discussion[]
   contestProblem ContestProblem[]
   aiChatHistories AiChatHistory[]
+  topicProblems   TopicProblem[]
 
   //INDEXES
   @@index([createdByUserId])
@@ -497,4 +499,149 @@ model AiChatMessages {
   //Relationships
   chatHistory AiChatHistory @relation(fields: [chatHistoryId], references: [id], onDelete: Cascade)
   @@index([chatHistoryId])
+}
+
+
+
+
+enum TopicStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum SectionType {
+  THEORY
+  EXAMPLE
+  ANALOGY
+  DIAGRAM
+  INTERVIEW
+  REVISION
+}
+
+model Subject {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?
+
+  chapters    Chapter[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([slug])
+}
+
+model Chapter {
+  id          String    @id @default(uuid())
+
+  subjectId   String
+  subject     Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  title       String
+  slug        String
+
+  description String?
+
+  order       Int
+
+  topics      Topic[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([subjectId, slug])
+
+  @@index([subjectId])
+  @@index([order])
+}
+
+model Topic {
+  id             String        @id @default(uuid())
+
+  chapterId      String
+  chapter        Chapter       @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+
+  title          String
+  slug           String
+
+  summary        String?
+
+  difficulty     DIFFICULTY?
+
+  estimatedTime  Int?
+
+  status         TopicStatus   @default(DRAFT)
+
+  sections       TopicSection[]
+  problems       TopicProblem[]
+  progress       UserTopicProgress[]
+
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([chapterId, slug])
+
+  @@index([chapterId])
+  @@index([status])
+}
+
+model TopicSection {
+  id          String       @id @default(uuid())
+
+  topicId     String
+  topic       Topic        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  title       String
+
+  type        SectionType
+
+  content     String       @db.Text
+
+  order       Int
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([topicId])
+  @@index([order])
+}
+
+model TopicProblem {
+  id          String      @id @default(uuid())
+
+  topicId     String
+  topic       Topic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  problemId   String
+  problem     Problem     @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime    @default(now())
+
+  @@unique([topicId, problemId])
+
+  @@index([topicId])
+  @@index([problemId])
+}
+
+model UserTopicProgress {
+  id            String     @id @default(uuid())
+
+  userId        String
+  topicId       String
+
+  topic         Topic      @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  completed     Boolean    @default(false)
+
+  completedAt   DateTime?
+
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@unique([userId, topicId])
+
+  @@index([userId])
+  @@index([topicId])
 }
