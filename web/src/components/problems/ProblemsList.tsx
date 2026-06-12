@@ -1,72 +1,115 @@
-import { useEffect, memo } from "react";
+// src/components/problems/editor-page-layout-components/ProblemsList.tsx
+import { useEffect, useRef, useCallback, memo } from "react";
 import { useProblemStore } from "@/store/problem.store";
-import { motion } from "motion/react";
+import { motion } from "framer-motion";
 import { ProblemItem } from "./ProblemItem";
-import { Code2, Inbox, RefreshCw } from "lucide-react";
+import { Code2, Inbox, RefreshCw, Loader2 } from "lucide-react";
 
-// Performance Optimization: Prevent runtime garbage collection overhead by extracting the static array
+// Performance Optimization: Prevent runtime garbage collection overhead
 const SKELETON_ROWS = Array.from({ length: 5 });
 
-// Refactored to map the exact 12-column grid layout configuration of our row elements
-const ProblemListSkeleton = () => (
-  <div className="w-full divide-y divide-border-subtle/40 dark:divide-border-subtle/30 animate-pulse">
+/* --- PREMIUM TYPOGRAPHY SKELETON LOADER --- */
+const ProblemListSkeleton = memo(() => (
+  <div className="w-full divide-y divide-border-subtle/40 animate-pulse">
     {SKELETON_ROWS.map((_, i) => (
       <div
         key={`problem-skeleton-${i}`}
-        className="grid grid-cols-12 px-6 h-11 items-center bg-surface-panel/20"
+        className="grid grid-cols-12 px-6 h-11 items-center bg-bg-secondary/10"
       >
-        {/* COL 1: STATUS CIRCLE SKELETON */}
+        {/* COL 1: STATUS SPOT */}
         <div className="col-span-1 flex items-center">
-          <div className="w-1.5 h-1.5 rounded-full bg-surface-card/80 dark:bg-zinc-800" />
+          <div className="w-1.5 h-1.5 rounded-full bg-bg-secondary" />
         </div>
 
-        {/* COL 2: TITLE STRIP SKELETON (Takes up remaining mobile width) */}
+        {/* COL 2: TEXT STRIPS */}
         <div className="col-span-11 sm:col-span-9 lg:col-span-9 flex items-center gap-4">
-          <div className="h-3 bg-surface-card/60 dark:bg-zinc-800/60 rounded w-8 font-mono shrink-0" />
-          <div className="h-3 bg-surface-card dark:bg-zinc-800 rounded w-1/2 sm:w-1/3" />
+          <div className="h-3 bg-bg-secondary rounded w-8 font-mono shrink-0" />
+          <div className="h-3 bg-bg-secondary rounded w-1/3" />
         </div>
 
-        {/* COL 3: DIFFICULTY BADGE SKELETON (Aligned far right) */}
+        {/* COL 3: ALIGNED DIFFICULTY SPACE */}
         <div className="hidden sm:flex col-span-2 justify-end items-center">
-          <div className="h-3.5 bg-surface-card/80 dark:bg-zinc-800/80 rounded w-12" />
+          <div className="h-3.5 bg-bg-secondary rounded w-12" />
         </div>
       </div>
     ))}
   </div>
-);
+));
+ProblemListSkeleton.displayName = "ProblemListSkeleton";
 
-const EmptyState = () => (
-  <div className="text-center py-16 px-4 flex flex-col items-center bg-surface-panel/10">
-    <div className="w-12 h-12 rounded-xl bg-surface-card dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800 flex items-center justify-center text-text-secondary mb-4 shadow-xs">
+/* --- CLEAN FALLBACK INVENTORY VACANCY PANEL --- */
+const EmptyState = memo(() => (
+  <div className="text-center py-16 px-4 flex flex-col items-center bg-bg-secondary/5 border border-dashed border-border-subtle rounded-xl">
+    <div className="w-12 h-12 rounded-xl bg-bg-secondary border border-border-subtle flex items-center justify-center text-text-secondary mb-4 shadow-3xs">
       <Inbox size={18} className="text-text-secondary opacity-60" />
     </div>
-    <h3 className="text-sm font-semibold text-text-primary dark:text-text-primary">
+    <h3 className="text-sm font-semibold text-text-primary">
       No challenges found
     </h3>
-    <p className="text-xs text-text-secondary dark:text-text-secondary max-w-xs mt-1 leading-relaxed opacity-80">
+    <p className="text-xs text-text-secondary max-w-xs mt-1 leading-relaxed opacity-80">
       We couldn't find any challenges matching your filters. Try adjusting your
-      search query.
+      search query parameters.
     </p>
   </div>
-);
+));
+EmptyState.displayName = "EmptyState";
 
+/* --- MAIN INFINITE-SCROLL CATALOG GRID --- */
 export const ProblemsList = () => {
-  const { isProblemsLoading, problems, getProblems } = useProblemStore();
+  const { isProblemsLoading, problems, getProblems, hasMore } =
+    useProblemStore();
+  const observerAnchorRef = useRef<HTMLDivElement | null>(null);
 
+  /* --- 💎 FIXED INITIALIZATION MOUNT LOOP --- */
   useEffect(() => {
-    getProblems();
+    // Only execute initial fetch if the active inventory array is empty
+    if (problems.length === 0) {
+      getProblems({ resetPagination: true });
+    }
   }, [getProblems]);
 
-  // View Rule: Present full layout placeholder skeleton during primary initialization fetch
+  /* --- 💎 VIEWPORT INTERSECTION INTERCEPTOR --- */
+  const handleScrollIntersection = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const targetAnchor = entries[0];
+
+      // Safety gate prevents intersection tracking from racing against page 1 setups
+      if (
+        targetAnchor.isIntersecting &&
+        hasMore &&
+        !isProblemsLoading &&
+        problems.length > 0
+      ) {
+        getProblems();
+      }
+    },
+    [getProblems, hasMore, isProblemsLoading, problems.length],
+  );
+
+  useEffect(() => {
+    const observerElement = observerAnchorRef.current;
+    if (!observerElement) return;
+
+    const scrollObserver = new IntersectionObserver(handleScrollIntersection, {
+      root: null, // Monitors window root viewport boundaries cleanly
+      rootMargin: "240px", // Pre-fetch upcoming challenges early to keep scrolling fluid
+      threshold: 0.1,
+    });
+
+    scrollObserver.observe(observerElement);
+
+    return () => {
+      scrollObserver.disconnect();
+    };
+  }, [handleScrollIntersection]);
+
+  // View Rule: Present full skeleton during primary initialization fetch
   if (isProblemsLoading && problems.length === 0) {
     return (
-      <div className="w-full border border-border-subtle dark:border-border-subtle rounded-xl bg-surface-panel/30  shadow-xs">
-        <div className="px-5 py-4 bg-bg-canvas dark:bg-zinc-950/40 border-b border-border-subtle dark:border-border-subtle flex items-center gap-2">
-          <Code2
-            size={14}
-            className="text-text-secondary dark:text-text-secondary animate-pulse"
-          />
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-secondary dark:text-text-secondary opacity-70">
+      <div className="w-full border border-border-subtle rounded-xl bg-bg-secondary/20 shadow-3xs">
+        <div className="px-5 py-4 bg-bg-secondary/40 border-b border-border-subtle flex items-center gap-2">
+          <Code2 size={14} className="text-text-secondary animate-pulse" />
+          <span className="text-xs font-mono font-bold uppercase tracking-wider text-text-secondary opacity-70">
             Loading problem indices...
           </span>
         </div>
@@ -76,14 +119,11 @@ export const ProblemsList = () => {
   }
 
   return (
-    <div className="w-full border border-border-subtle dark:border-border-subtle rounded-xl bg-surface-panel/30 backdrop-blur-md  shadow-xs relative">
+    <div className="w-full border border-border-subtle rounded-xl bg-bg-secondary/10 backdrop-blur-md shadow-3xs relative flex flex-col overflow-hidden">
       {/* Datagrid Table Header Layout Column Guides */}
-      <div className="hidden sm:grid grid-cols-12 px-6 py-3.5 bg-surface-card/30 dark:bg-zinc-950/20 border-b border-border-subtle dark:border-border-subtle text-[11px] font-mono font-bold tracking-wider uppercase text-text-secondary dark:text-text-secondary opacity-60 select-none">
+      <div className="hidden sm:grid grid-cols-12 px-6 py-3.5 bg-bg-secondary/40 border-b border-border-subtle text-[11px] font-mono font-bold tracking-wider uppercase text-text-secondary opacity-60 select-none">
         <div className="col-span-1">Status</div>
-
-        {/* Balanced alignment grid mapping */}
         <div className="col-span-9 lg:col-span-9">Problem Title</div>
-
         <div className="col-span-2 text-right">Difficulty</div>
       </div>
 
@@ -91,44 +131,57 @@ export const ProblemsList = () => {
       {problems.length === 0 ? (
         <EmptyState />
       ) : (
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: { staggerChildren: 0.02 }, // Slightly stepped up orchestration timings
-            },
-          }}
-          className="divide-y divide-border-subtle/30 dark:divide-zinc-900/40"
-        >
-          {problems.map((p, i) => (
-            <motion.div
-              key={p.id}
-              variants={{
-                hidden: { opacity: 0, y: 6 },
-                visible: {
-                  opacity: 1,
-                  y: 0,
-                  transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
-                },
-              }}
-            >
-              <ProblemItem problem={p} index={i} />
-            </motion.div>
-          ))}
-        </motion.div>
+        <>
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: {
+                opacity: 1,
+                transition: { staggerChildren: 0.015 },
+              },
+            }}
+            className="divide-y divide-border-subtle/30"
+          >
+            {problems.map((p, i) => (
+              <motion.div
+                key={p.id}
+                variants={{
+                  hidden: { opacity: 0, y: 6 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.22, ease: [0.16, 1, 0.3, 1] },
+                  },
+                }}
+              >
+                <ProblemItem problem={p} index={i} />
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* 💎 LINEAR SCROLL TRIGGER DETECTOR ANCHOR */}
+          <div
+            ref={observerAnchorRef}
+            className="w-full h-14 flex items-center justify-center select-none pointer-events-none border-t border-border-subtle/5"
+            aria-hidden="true"
+          >
+            {isProblemsLoading && hasMore && (
+              <div className="flex items-center gap-2 text-text-muted/60 font-mono text-[10px] tracking-tight">
+                <Loader2 size={11} className="animate-spin text-accent-gold" />
+                <span>Hydrating operational challenge layers...</span>
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* Background Re-validation Sync Indicator */}
-      {isProblemsLoading && problems.length > 0 && (
-        <div className="absolute top-3 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-panel dark:bg-zinc-900 border border-border-subtle dark:border-zinc-800 shadow-xs animate-fade-in">
-          <RefreshCw
-            size={11}
-            className="text-amber-500 animate-spin duration-2000"
-          />
-          <span className="text-[10px] font-mono font-semibold text-text-secondary dark:text-text-secondary opacity-70">
+      {isProblemsLoading && problems.length > 0 && !hasMore && (
+        <div className="absolute top-3 right-4 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-bg-secondary border border-border-subtle shadow-3xs animate-fade-in select-none">
+          <RefreshCw size={11} className="text-accent-gold animate-spin" />
+          <span className="text-[10px] font-mono font-semibold text-text-secondary opacity-70">
             Syncing
           </span>
         </div>
