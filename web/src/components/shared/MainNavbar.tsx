@@ -2,18 +2,21 @@
 import { useEffect, useState, memo } from "react";
 import { useThemeStore } from "@/lib/theme.lib";
 import { useAuthStore } from "@/store/auth.store";
-import { motion } from "motion/react";
+import { motion } from "framer-motion"; // Cleaned namespace reference matching framer updates
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Moon, Sun, ShieldAlert } from "lucide-react";
+import { Menu, X, Moon, Sun, ShieldAlert, GraduationCap } from "lucide-react";
 import { UserAvatarDropdown } from "./UserAvatarDropdown";
 
 interface NavItem {
   href: string;
   label: string;
   isAdmin?: boolean;
+  isAcademy?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
+  /* 💎 ENHANCED: DOCHUB ACADEMY ENTRY POINT ADDED AT POSITION 0 */
+  { href: "/learn", label: "Learn", isAcademy: true },
   { href: "/problems", label: "Problems" },
   { href: "/discussions", label: "Discussions" },
   { href: "/sheets", label: "Sheets" },
@@ -65,7 +68,7 @@ export const MainNavbar = () => {
           className="hidden md:flex items-center gap-1.5"
           onMouseLeave={() => setHoveredTab(null)}
         >
-          {NAV_ITEMS.map(({ href, label, isAdmin }) => {
+          {NAV_ITEMS.map(({ href, label, isAdmin, isAcademy }) => {
             if (isAdmin && user?.role?.toLowerCase() === "user") return null;
 
             const isActive = location.pathname.startsWith(href);
@@ -75,10 +78,11 @@ export const MainNavbar = () => {
                 key={href}
                 to={href}
                 onMouseEnter={() => setHoveredTab(href)}
-                className={`relative px-4 py-2 text-xs font-medium tracking-wide font-sans rounded-lg transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent-gold/30 ${isActive
-                  ? "text-text-primary font-semibold"
-                  : "text-text-secondary hover:text-text-primary"
-                  }`}
+                className={`relative px-4 py-2 text-xs font-medium tracking-wide font-sans rounded-lg transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent-gold/30 ${
+                  isActive
+                    ? "text-text-primary font-semibold"
+                    : "text-text-secondary hover:text-text-primary"
+                }`}
               >
                 {hoveredTab === href && (
                   <motion.div
@@ -90,7 +94,15 @@ export const MainNavbar = () => {
 
                 <div className="flex items-center gap-1.5">
                   {isAdmin && (
-                    <ShieldAlert size={12} className="text-accent-gold" />
+                    <ShieldAlert size={12} className="text-accent-crimson" />
+                  )}
+                  {isAcademy && (
+                    <GraduationCap
+                      size={12}
+                      className={
+                        isActive ? "text-accent-gold" : "text-text-muted"
+                      }
+                    />
                   )}
                   <span>{label}</span>
                 </div>
@@ -125,7 +137,11 @@ export const MainNavbar = () => {
             className="p-2 rounded-xl md:hidden text-text-secondary hover:text-text-primary cursor-pointer transition-colors"
             aria-label="Toggle mobile menu drawer"
           >
-            {isOpen ? <X size={18} strokeWidth={2.5} /> : <Menu size={18} strokeWidth={2.5} />}
+            {isOpen ? (
+              <X size={18} strokeWidth={2.5} />
+            ) : (
+              <Menu size={18} strokeWidth={2.5} />
+            )}
           </button>
         </div>
       </div>
@@ -139,7 +155,7 @@ export const MainNavbar = () => {
           className="md:hidden border-t border-border-subtle bg-bg-secondary backdrop-blur-2xl shadow-xl w-full"
         >
           <div className="flex flex-col px-4 py-4 space-y-2">
-            {NAV_ITEMS.map(({ href, label, isAdmin }) => {
+            {NAV_ITEMS.map(({ href, label, isAdmin, isAcademy }) => {
               if (isAdmin && user?.role?.toLowerCase() === "user") return null;
 
               const isActive = location.pathname.startsWith(href);
@@ -148,13 +164,19 @@ export const MainNavbar = () => {
                 <Link
                   key={`mobile-${href}`}
                   to={href}
-                  className={`w-full px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${isActive
-                    ? "bg-bg-primary border border-border-subtle text-text-primary font-bold"
-                    : "text-text-secondary hover:text-text-primary"
-                    }`}
+                  className={`w-full px-4 py-2.5 rounded-xl text-sm font-medium transition-colors border ${
+                    isActive
+                      ? "bg-bg-primary border-border-subtle text-text-primary font-bold shadow-3xs"
+                      : "border-transparent text-text-secondary hover:text-text-primary"
+                  }`}
                 >
                   <div className="flex items-center gap-2">
-                    {isAdmin && <ShieldAlert size={14} className="text-accent-gold" />}
+                    {isAdmin && (
+                      <ShieldAlert size={14} className="text-accent-crimson" />
+                    )}
+                    {isAcademy && (
+                      <GraduationCap size={14} className="text-accent-gold" />
+                    )}
                     <span>{label}</span>
                   </div>
                 </Link>

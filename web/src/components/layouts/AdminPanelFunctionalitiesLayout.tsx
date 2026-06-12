@@ -9,9 +9,11 @@ interface AdminPanelFunctionalitiesLayoutProps {
   children: React.ReactNode;
   backHref?: string;
   className?: string;
+  containerVariant?: "copy" | "default" | "fluid";
 }
 
 export const AdminPanelFunctionalitiesLayout = ({
+  containerVariant = "default",
   title,
   children,
   backHref = "/admin-panel",
@@ -19,6 +21,7 @@ export const AdminPanelFunctionalitiesLayout = ({
 }: AdminPanelFunctionalitiesLayoutProps) => {
   return (
     <Container
+      variant={containerVariant}
       className={cn(
         "py-4 sm:py-6 font-sans text-text-primary antialiased selection:bg-amber-500/10",
         className,

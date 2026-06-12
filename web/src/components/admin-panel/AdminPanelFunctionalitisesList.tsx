@@ -1,6 +1,13 @@
+// src/components/admin/AdminPanelFunctionalitiesList.tsx
 import { memo } from "react";
 import { Link } from "react-router-dom";
-import { Plus, SlidersHorizontal, BarChart3, ArrowUpRight } from "lucide-react";
+import {
+  Plus,
+  SlidersHorizontal,
+  BarChart3,
+  ArrowUpRight,
+  GraduationCap,
+} from "lucide-react";
 import { Card, CardHeader, CardContent } from "./AdminFunctionalityCard";
 
 interface AdminActionNode {
@@ -11,8 +18,8 @@ interface AdminActionNode {
 }
 
 export const AdminPanelFunctionalitiesList = () => {
-  // Balanced management schema mapping consistent monochrome Lucide icon keys
-  const functionalities: AdminActionNode[] = [
+  // Core Sandbox Problem Action Items
+  const sandboxFunctionalities: AdminActionNode[] = [
     {
       title: "Create New Problem",
       description:
@@ -36,9 +43,20 @@ export const AdminPanelFunctionalitiesList = () => {
     },
   ];
 
-  return (
-    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 py-2 font-sans select-none">
-      {functionalities.map((func) => {
+  /* 💎 NEW: DOCHUB ACADEMY SYLLABUS CURRICULUM MANAGEMENT NODE */
+  const docHubFunctionalities: AdminActionNode[] = [
+    {
+      title: "Manage DocHub Subjects",
+      description:
+        "Configure core subjects, curate structural module chapters, and write dynamic blog markdown sections.",
+      icon: GraduationCap,
+      href: "/admin-panel/dochub/subjects",
+    },
+  ];
+
+  const renderActionCards = (items: AdminActionNode[]) => (
+    <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 font-sans select-none">
+      {items.map((func) => {
         const IconComponent = func.icon;
 
         return (
@@ -47,9 +65,8 @@ export const AdminPanelFunctionalitiesList = () => {
             key={`admin-route-${func.title}`}
             className="group block outline-none focus:ring-0"
           >
-            <Card className="h-32 w-full rounded-2xl border border-border-subtle/40 dark:border-zinc-900 bg-surface-card/40 dark:bg-zinc-950/20 p-4 flex flex-col justify-between hover:border-border-intense dark:hover:border-zinc-800 hover:bg-neutral-50/50 dark:hover:bg-zinc-950/60 transition-all duration-200 shadow-3xs group relative overflow-hidden">
+            <Card className="h-32 w-full rounded-2xl border border-border-subtle/40 dark:border-zinc-900 bg-surface-card/40 dark:bg-zinc-950/20 p-4 flex flex-col justify-between hover:border-border-intense dark:hover:border-zinc-800 hover:bg-neutral-50/50 dark:hover:bg-zinc-950/60 transition-all duration-200 group relative overflow-hidden shadow-3xs">
               <div className="space-y-1.5 w-full">
-                {/* Upper strip heading block */}
                 <CardHeader className="p-0 flex items-center justify-between w-full">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="h-6 w-6 rounded-lg border border-border-subtle/40 dark:border-zinc-800/80 bg-neutral-100 dark:bg-zinc-900/60 flex items-center justify-center text-text-secondary group-hover:text-text-primary group-hover:border-border-intense transition-colors shrink-0">
@@ -61,14 +78,12 @@ export const AdminPanelFunctionalitiesList = () => {
                   </div>
                 </CardHeader>
 
-                {/* Secondary data snippet layout block */}
                 <CardContent className="p-0 text-[11px] leading-relaxed text-text-secondary opacity-70 select-text max-w-xs">
                   {func.description}
                 </CardContent>
               </div>
 
-              {/* Action directional accent link text */}
-              <div className="flex items-center gap-1 font-mono text-[10px] font-bold text-text-secondary opacity-40 group-hover:opacity-100 group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-all self-end pointer-events-none">
+              <div className="flex items-center gap-1 font-mono text-[10px] font-bold text-text-secondary opacity-40 group-hover:opacity-100 group-hover:text-accent-gold transition-all self-end pointer-events-none">
                 <span>Launch Console</span>
                 <ArrowUpRight
                   size={10}
@@ -79,6 +94,26 @@ export const AdminPanelFunctionalitiesList = () => {
           </Link>
         );
       })}
+    </div>
+  );
+
+  return (
+    <div className="w-full space-y-6 py-2">
+      {/* SECTION 1: SANDBOX RUNTIME PROBLEMS MANAGEMENT */}
+      <div className="space-y-2.5">
+        <h2 className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-secondary opacity-50 pl-0.5">
+          // Sandbox Engine Repositories
+        </h2>
+        {renderActionCards(sandboxFunctionalities)}
+      </div>
+
+      {/* SECTION 2: DOCHUB ACADEMY SUBJECT MANAGEMENT */}
+      <div className="space-y-2.5">
+        <h2 className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-secondary opacity-50 pl-0.5">
+          // Academy Curriculum Engineering
+        </h2>
+        {renderActionCards(docHubFunctionalities)}
+      </div>
     </div>
   );
 };
