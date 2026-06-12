@@ -283,7 +283,8 @@ export const ReviewSection: React.FC<ReviewSectionProps> = ({ problem }) => {
                       Reference Solution
                     </span>
                     <pre className="bg-neutral-50 dark:bg-zinc-950/40 border border-border-subtle/40 dark:border-zinc-900 rounded-lg p-3 font-mono text-[11px] text-text-primary overflow-x-auto leading-relaxed select-text shadow-3xs">
-                      {d.referenceSolution.trim() || "// No code block written"}
+                      {d?.referenceSolution?.trim() ||
+                        "// No code block written"}
                     </pre>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 // src/components/problems/pages/ProblemDescriptionPage.tsx
-import { lazy, Suspense, memo, useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { lazy, Suspense, memo, useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown,
   Lightbulb,
@@ -9,6 +9,7 @@ import {
   Terminal,
 } from "lucide-react";
 import { useProblemStore } from "@/store/problem.store";
+import { cn } from "@/lib/utils";
 
 const ProblemDescription = lazy(
   () =>
@@ -37,7 +38,6 @@ DescriptionSkeleton.displayName = "DescriptionSkeleton";
 const HintAccordionItem = memo(
   ({ hint, index }: { hint: string; index: number }) => {
     const [isOpen, setIsOpen] = useState(false);
-
     return (
       <div className="border border-border-subtle bg-bg-secondary/40 rounded-xl overflow-hidden transition-colors duration-150 hover:bg-bg-secondary/60">
         <button
@@ -57,7 +57,6 @@ const HintAccordionItem = memo(
             className={`text-text-muted transition-transform duration-200 ${isOpen ? "rotate-180 text-accent-gold" : ""}`}
           />
         </button>
-
         <AnimatePresence initial={false}>
           {isOpen && (
             <motion.div
@@ -82,6 +81,15 @@ HintAccordionItem.displayName = "HintAccordionItem";
 export const ProblemDescriptionPage = () => {
   const { problemInCodeEditor: currentProblem } = useProblemStore();
 
+  // Extract clean argument name identifiers out of type tracking strings
+  const argumentNames = useMemo(() => {
+    if (!currentProblem?.args || !Array.isArray(currentProblem.args)) return [];
+    return currentProblem.args.map((arg) => {
+      if (typeof arg !== "string") return "";
+      return arg.split(":")[0].trim();
+    });
+  }, [currentProblem?.args]);
+
   if (!currentProblem) {
     return (
       <div className="w-full p-4">
@@ -95,12 +103,7 @@ export const ProblemDescriptionPage = () => {
   const testcases = currentProblem.testcases || [];
 
   return (
-    /* FIXED SCROLLBARS DUPLICATION:
-      - Changed 'h-full' to 'h-auto' so the layout doesn't assert an absolute bounding dimension constraint.
-      - Removed 'overflow-y-auto' and 'custom-scrollbar' to yield full scroll handling up to the active parent Outlet.
-      - Dropped vertical padding ('py-5') to completely stop inner clipping at layout boundaries.
-    */
-    <div className="w-full h-auto bg-bg-primary  space-y-7 antialiased">
+    <div className="w-full h-auto bg-bg-primary space-y-7 antialiased">
       {/* 1. CORE DESCRIPTION MARKDOWN MODULE */}
       <div className="prose prose-sm dark:prose-invert max-w-none border-b border-border-subtle pb-6">
         <Suspense fallback={<DescriptionSkeleton />}>
@@ -108,7 +111,7 @@ export const ProblemDescriptionPage = () => {
         </Suspense>
       </div>
 
-      {/* 2. HIGH-FIDELITY TESTCASE EXPLANATION SECTIONS (LEETCODE MATRIX FORMAT) */}
+      {/* 2. DYNAMIC MULTI-LINE TESTCASE EXPLANATION SECTIONS */}
       {testcases.length > 0 && (
         <div className="space-y-4 max-w-4xl pt-1">
           <div className="flex items-center gap-1.5 text-text-primary select-none">
@@ -117,40 +120,71 @@ export const ProblemDescriptionPage = () => {
               Examples & Traces
             </h3>
           </div>
-
           <div className="space-y-4">
             {testcases.slice(0, 3).map((tc, idx) => {
-              const formattedStdin = Array.isArray(tc.std?.stdin)
-                ? tc.std.stdin
-                    .map((val) =>
-                      typeof val === "object"
-                        ? JSON.stringify(val)
-                        : String(val),
-                    )
-                    .join(", ")
-                : String(tc.std?.stdin || "");
+              /* 💎 FIXED LOGIC: Map arguments to their own lines */
+              const renderedInputLines: string[] = [];
+
+              if (Array.isArray(tc.std?.stdin) && argumentNames.length > 0) {
+                tc.std.stdin.forEach((val, argIdx) => {
+                  const parameterName =
+                    argumentNames[argIdx] || `arg${argIdx + 1}`;
+                  const formattedValue =
+                    typeof val === "object" ? JSON.stringify(val) : String(val);
+                  renderedInputLines.push(
+                    `${parameterName} = ${formattedValue}`,
+                  );
+                });
+              } else {
+                // Secure fallback if array configurations map out-of-bounds
+                const formattedRawStdin = Array.isArray(tc.std?.stdin)
+                  ? tc.std.stdin
+                      .map((val) =>
+                        typeof val === "object"
+                          ? JSON.stringify(val)
+                          : String(val),
+                      )
+                      .join(", ")
+                  : String(tc.std?.stdin || "");
+                renderedInputLines.push(`args = [${formattedRawStdin}]`);
+              }
 
               return (
                 <div key={`example-node-${idx}`} className="space-y-2">
                   <h4 className="text-[11px] font-medium font-mono text-text-secondary pl-0.5">
                     Example {idx + 1}:
                   </h4>
-
-                  <div className="w-full rounded-xl border border-border-subtle bg-bg-secondary/30 p-4 font-mono text-[11px] space-y-1.5 leading-relaxed selection:bg-accent-gold/20 select-text">
-                    <div>
-                      <span className="text-text-muted">Input: </span>
-                      <span className="text-text-primary">
-                        args = [{formattedStdin}]
-                      </span>
+                  <div className="w-full rounded-xl border border-border-subtle bg-bg-secondary/30 p-4 font-mono text-[11px] space-y-2 leading-relaxed selection:bg-accent-gold/20 select-text">
+                    {/* INPUT SECTION BAR TRACK */}
+                    <div className="flex flex-col gap-1">
+                      {renderedInputLines.map((line, lineIdx) => (
+                        <div key={`input-line-${lineIdx}`}>
+                          {lineIdx === 0 && (
+                            <span className="text-text-muted">Input: </span>
+                          )}
+                          <span
+                            className={cn(
+                              "text-text-primary",
+                              lineIdx > 0 && "pl-11",
+                            )}
+                          >
+                            {line}
+                          </span>
+                        </div>
+                      ))}
                     </div>
+
+                    {/* OUTPUT CONTAINER BLOCK */}
                     <div>
                       <span className="text-text-muted">Output: </span>
                       <span className="text-text-primary">
                         {tc.std?.stdout}
                       </span>
                     </div>
+
+                    {/* OPTIONAL EXPLANATION BLOCK CONTAINER */}
                     {tc.explanation && (
-                      <div className="pt-1.5 mt-1.5 border-t border-border-subtle/30 text-text-secondary">
+                      <div className="pt-2 mt-1.5 border-t border-border-subtle/30 text-text-secondary">
                         <span className="text-text-muted font-sans font-medium italic">
                           Explanation:{" "}
                         </span>
@@ -174,7 +208,6 @@ export const ProblemDescriptionPage = () => {
               Constraints
             </h3>
           </div>
-
           <ul className="pl-4 space-y-1.5 font-mono text-[11px] tracking-tight text-text-secondary list-disc select-text">
             {constraints.map((constraint, index) => (
               <li
@@ -199,7 +232,6 @@ export const ProblemDescriptionPage = () => {
               Hints & Directives
             </h3>
           </div>
-
           <div className="space-y-1.5">
             {hints.map((hint, index) => (
               <HintAccordionItem

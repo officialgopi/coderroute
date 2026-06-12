@@ -44,7 +44,11 @@ export const SheetsDetailsPage: React.FC = () => {
     fetchSheetData();
   }, [sheetId, getSheetById]);
 
-  const handleDelete = async (problemId: string) => {
+  const handleDelete = async (e: React.MouseEvent, problemId: string) => {
+    // FIX INTENT: Block event bubbling so clicking delete doesn't fire parent Link redirection paths
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!sheetId || deletingProblemId) return;
 
     try {
@@ -59,7 +63,7 @@ export const SheetsDetailsPage: React.FC = () => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-bg-primary text-text-primary px-4 py-8 md:px-8 max-w-5xl mx-auto selection:bg-accent-gold/20 antialiased">
+    <div className="w-full min-h-screen bg-bg-primary text-text-primary px-4 py-8 md:px-8 max-w-5xl mx-auto selection:bg-accent-gold/20 antialiased font-sans">
       {/* 1. BACKWARD NAVIGATION TRACK LINE BAR */}
       <Link
         to="/sheets"
@@ -73,7 +77,7 @@ export const SheetsDetailsPage: React.FC = () => {
       </Link>
 
       {/* 2. DYNAMIC HEADER SECTION AREA */}
-      <div className="w-full border-b border-border-subtle pb-6 mb-8 flex flex-col gap-2">
+      <div className="w-full border-b border-border-subtle pb-6 mb-8 flex flex-col gap-2 select-none">
         {isLoading ? (
           <div className="space-y-2.5 w-full">
             <div className="h-7 bg-bg-secondary/60 border border-border-subtle rounded-md w-1/3 animate-pulse" />
@@ -86,7 +90,7 @@ export const SheetsDetailsPage: React.FC = () => {
                 {sheet.name}
               </h1>
               {sheet.description ? (
-                <p className="text-xs md:text-sm text-text-secondary leading-relaxed max-w-3xl">
+                <p className="text-xs md:text-sm text-text-secondary leading-relaxed max-w-3xl select-text">
                   {sheet.description}
                 </p>
               ) : (
@@ -101,7 +105,7 @@ export const SheetsDetailsPage: React.FC = () => {
 
       {/* 3. CORE SUB-PROBLEM ROUTING STACK GRID */}
       <div className="flex flex-col w-full">
-        {/* HYDRATION SKELETON PLACEHOLDERS TRACES */}
+        {/* HYDRATION SKELETON PLACEHOLDERS */}
         {isLoading && (
           <div className="space-y-3 w-full">
             {[...Array(4)].map((_, idx) => (
@@ -115,23 +119,28 @@ export const SheetsDetailsPage: React.FC = () => {
 
         {/* DATA LOOPING ARRAY EMISSION VIEW */}
         {!isLoading && sheet && sheet.problems && sheet.problems.length > 0 ? (
-          <div className="rounded-xl border border-border-subtle bg-bg-secondary/10 overflow-hidden divide-y divide-border-subtle">
+          <div className="rounded-xl border border-border-subtle bg-bg-secondary/10 overflow-hidden divide-y divide-border-subtle shadow-3xs">
             {sheet.problems.map(({ problem }) => {
               if (!problem) return null;
               const isRowDeleting = deletingProblemId === problem.id;
 
               return (
-                <div
+                /* FIXED DESIGN INTENT: 
+                  - Wrapped row layout inside a semantic, block-level Router 'Link' 
+                  - Routes users cleanly to the targeted algorithmic sandbox environment code editor
+                */
+                <Link
                   key={problem.id}
-                  className="group relative p-4 flex items-center justify-between transition-colors duration-150 hover:bg-bg-secondary/40 select-none"
+                  to={`/problems/${problem.slug}`}
+                  className="group relative p-4 flex items-center justify-between transition-colors duration-150 hover:bg-bg-secondary/40 select-none cursor-pointer outline-hidden focus:bg-bg-secondary/30 block"
                 >
                   <div className="flex items-center gap-3 min-w-0 pr-12">
-                    <div className="w-7 h-7 rounded-lg bg-bg-primary border border-border-subtle flex items-center justify-center text-text-muted shrink-0 shadow-3xs">
+                    <div className="w-7 h-7 rounded-lg bg-bg-primary border border-border-subtle flex items-center justify-center text-text-muted shrink-0 shadow-3xs group-hover:border-accent-gold/20 group-hover:text-text-primary transition-colors">
                       <Code2 size={13} />
                     </div>
 
-                    <div className="min-w-0 space-y-1">
-                      <h2 className="font-medium text-sm text-text-primary truncate tracking-tight">
+                    <div className="min-w-0 space-y-0.5">
+                      <h2 className="font-semibold text-sm text-text-primary truncate tracking-tight group-hover:text-accent-gold transition-colors select-text">
                         {problem.title}
                       </h2>
 
@@ -139,21 +148,21 @@ export const SheetsDetailsPage: React.FC = () => {
                       <div className="flex items-center gap-3 text-[10px] font-mono">
                         <span
                           className={cn(
-                            "font-bold tracking-wider text-[9px] uppercase px-1.5 py-0.5 rounded-sm",
+                            "font-bold tracking-wider text-[9px] uppercase px-1.5 py-0.5 rounded-sm border",
                             problem.difficulty === "EASY" &&
-                              "bg-emerald-500/5 text-emerald-400 border border-emerald-500/10",
+                              "bg-emerald-500/5 text-emerald-400 border-emerald-500/10",
                             problem.difficulty === "MEDIUM" &&
-                              "bg-amber-500/5 text-amber-400 border border-amber-500/10",
+                              "bg-amber-500/5 text-amber-400 border-amber-500/10",
                             problem.difficulty === "HARD" &&
-                              "bg-rose-500/5 text-rose-400 border border-rose-500/10",
+                              "bg-rose-500/5 text-rose-400 border-rose-500/10",
                           )}
                         >
                           {problem.difficulty || "UNKNOWN"}
                         </span>
-                        <span className="text-text-muted/30">|</span>
+                        <span className="text-text-muted/20">|</span>
                         <span className="text-text-muted/60 flex items-center gap-1">
                           <Calendar size={10} />
-                          <span>Vector Link Matrix Active</span>
+                          <span>Vector Matrix Verified</span>
                         </span>
                       </div>
                     </div>
@@ -161,10 +170,11 @@ export const SheetsDetailsPage: React.FC = () => {
 
                   {/* ISOLATED ROW DELETION CONTROLLER TARGET */}
                   <button
+                    type="button"
                     disabled={isRowDeleting}
-                    onClick={() => handleDelete(problem.id)}
-                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-150 p-1.5 text-text-muted hover:text-accent-crimson hover:bg-bg-primary rounded-md border border-transparent hover:border-border-subtle shadow-3xs cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 disabled:opacity-40"
-                    title="Unlink problem vector"
+                    onClick={(e) => handleDelete(e, problem.id)}
+                    className="opacity-0 group-hover:opacity-100 focus:opacity-100 focus:bg-bg-primary transition-all duration-150 p-1.5 text-text-muted hover:text-accent-crimson hover:bg-bg-primary rounded-md border border-transparent hover:border-border-subtle shadow-3xs cursor-pointer absolute right-4 top-1/2 -translate-y-1/2 disabled:opacity-40"
+                    title="Unlink problem vector from sheet"
                   >
                     {isRowDeleting ? (
                       <Loader2
@@ -175,7 +185,7 @@ export const SheetsDetailsPage: React.FC = () => {
                       <Trash2 size={13} />
                     )}
                   </button>
-                </div>
+                </Link>
               );
             })}
           </div>
