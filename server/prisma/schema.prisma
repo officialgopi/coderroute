@@ -520,9 +520,14 @@ enum SectionType {
 
 model Subject {
   id          String    @id @default(uuid())
+
   name        String
   slug        String    @unique
   description String?
+
+  order       Int       @default(0)
+
+  deletedAt   DateTime?
 
   chapters    Chapter[]
 
@@ -530,6 +535,8 @@ model Subject {
   updatedAt   DateTime  @updatedAt
 
   @@index([slug])
+  @@index([order])
+  @@index([deletedAt])
 }
 
 model Chapter {
@@ -545,6 +552,8 @@ model Chapter {
 
   order       Int
 
+  deletedAt   DateTime?
+
   topics      Topic[]
 
   createdAt   DateTime  @default(now())
@@ -554,6 +563,7 @@ model Chapter {
 
   @@index([subjectId])
   @@index([order])
+  @@index([deletedAt])
 }
 
 model Topic {
@@ -571,7 +581,11 @@ model Topic {
 
   estimatedTime  Int?
 
+  order          Int
+
   status         TopicStatus   @default(DRAFT)
+
+  deletedAt      DateTime?
 
   sections       TopicSection[]
   problems       TopicProblem[]
@@ -583,7 +597,10 @@ model Topic {
   @@unique([chapterId, slug])
 
   @@index([chapterId])
+  @@index([chapterId, order])
+  @@index([chapterId, status])
   @@index([status])
+  @@index([deletedAt])
 }
 
 model TopicSection {
@@ -596,15 +613,18 @@ model TopicSection {
 
   type        SectionType
 
-  content     String       @db.Text
+  content     Json
 
   order       Int
+
+  deletedAt   DateTime?
 
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
   @@index([topicId])
-  @@index([order])
+  @@index([topicId, order])
+  @@index([deletedAt])
 }
 
 model TopicProblem {
@@ -636,6 +656,7 @@ model UserTopicProgress {
   completed     Boolean    @default(false)
 
   completedAt   DateTime?
+  lastViewedAt  DateTime?
 
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt

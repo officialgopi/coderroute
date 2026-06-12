@@ -9,6 +9,7 @@ import { discussionRouter } from "./discussion/discussion.route";
 import { sheetRouter } from "./sheet/sheet.route";
 import { aiRouter } from "./ai/ai.route";
 import { manualDb } from "./manual-db/discussion/manual-db.route";
+import { dochubRouter } from "./doc-hub/doc-hub.route";
 const allRoutes = Router();
 
 allRoutes.use("/auth", authRouter);
@@ -20,5 +21,6 @@ allRoutes.use("/discussion", discussionRouter);
 allRoutes.use("/sheet", sheetRouter);
 allRoutes.use("/ai", rateLimitting(), aiRouter);
 allRoutes.use("/manual-db", manualDb);
+allRoutes.use("/doc-hub", dochubRouter);
 
 export { allRoutes };

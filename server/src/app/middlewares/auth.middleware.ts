@@ -5,8 +5,9 @@ import { ApiError, AsyncHandler } from "../utils";
 import jwt from "jsonwebtoken";
 
 const isAuthenticated = AsyncHandler(async (req, res, next) => {
-  const accessToken = req.cookies["access-token"];
-  // console.log(accessToken);
+  const accessToken =
+    req.cookies["access-token"] ??
+    req.headers["authorization"]?.toString().split(" ")[1];
   if (!accessToken) {
     throw new ApiError(401, "Unauthorized");
   }
