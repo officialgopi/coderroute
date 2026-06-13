@@ -11,175 +11,176 @@ import {
   Loader2,
   Award,
 } from "lucide-react";
-import { toast } from "sonner";
 
-// High-fidelity atomic elements matching your workspace design language
 import { Button } from "@/components/ui/button";
-
-interface ITopicNode {
-  id: string;
-  title: string;
-  slug: string;
-  estimatedTime: number;
-  isCompleted: boolean;
-  summary: string;
-}
-
-interface IChapterNode {
-  id: string;
-  title: string;
-  description: string;
-  order: number;
-  topics: ITopicNode[];
-}
-
-interface ISubjectDetails {
-  name: string;
-  slug: string;
-  description: string;
-  chapters: IChapterNode[];
-}
+import { useLearnStore } from "@/store/learn.store";
 
 export const DocHubSubjectDetailsPage: React.FC = () => {
   const { subjectSlug } = useParams<{ subjectSlug: string }>();
-  const [subject, setSubject] = useState<ISubjectDetails | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Track open state array coordinates for accordion lanes natively
+  // Ingest global cache buckets alongside flat tracking map slices
+  const {
+    subjects,
+    topics: storeTopics,
+    progress,
+    getSubjects,
+    getSubjectById,
+    getChapterById,
+    getProgress,
+  } = useLearnStore();
+
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [chapterLoadingId, setChapterLoadingId] = useState<string | null>(null);
   const [expandedChapters, setExpandedChapters] = useState<
     Record<string, boolean>
   >({});
 
+  // Scan root subjects map to isolate the active target subject
+  const targetSubject = useMemo(() => {
+    return Object.values(subjects).find((sub) => sub.slug === subjectSlug);
+  }, [subjects, subjectSlug]);
+
+  // DATA-MERGER PATTERN: Combines raw subject schemas with lazy-loaded store topics dynamically
+  const hydratedChapters = useMemo(() => {
+    if (!targetSubject?.chapters) return [];
+
+    return targetSubject.chapters.map((chapter) => {
+      const cachedStoreTopics = Object.values(storeTopics || {}).filter(
+        (topic) => {
+          return (
+            topic &&
+            (topic.chapterId === chapter.id ||
+              (topic as any).chapter_id === chapter.id)
+          );
+        },
+      );
+
+      const baselineTopics = chapter.topics || [];
+
+      const unifiedMap = new Map();
+      [...baselineTopics, ...cachedStoreTopics].forEach((t) => {
+        if (t && t.id) unifiedMap.set(t.id, t);
+      });
+
+      const finalizedTopics = Array.from(unifiedMap.values()).sort(
+        (a, b) => (a.order || 0) - (b.order || 0),
+      );
+
+      return {
+        ...chapter,
+        topics: finalizedTopics,
+      };
+    });
+  }, [targetSubject?.chapters, storeTopics]);
+
   useEffect(() => {
-    const hydrateSyllabusOverview = async () => {
+    const orchestrateDataHydration = async () => {
       try {
         setIsLoading(true);
-        // Simulating matching query payload: GET {{baseUrl}}/learn/subjects/{{subjectSlug}}
-        await new Promise((r) => setTimeout(r, 400));
+        await getSubjects();
+        await getProgress();
 
-        const mockData: ISubjectDetails = {
-          name: "Operating Systems",
-          slug: "operating-systems",
-          description:
-            "Master thread process synchronization, scheduling kernels, virtualization schemes, memory segmentation, and dynamic disk file management loops.",
-          chapters: [
-            {
-              id: "ch-cpu",
-              title: "01. CPU Scheduling Architecture",
-              description:
-                "Explore the low-level structures handling multi-threaded hardware thread queues.",
-              order: 1,
-              topics: [
-                {
-                  id: "tp-rr",
-                  title: "Round Robin Process Matrix",
-                  slug: "round-robin",
-                  estimatedTime: 15,
-                  isCompleted: true,
-                  summary:
-                    "Preemptive processing loop patterns utilizing context quantum switches.",
-                },
-                {
-                  id: "tp-srtf",
-                  title: "Shortest Remaining Time Vector",
-                  slug: "srtf-scheduling",
-                  estimatedTime: 20,
-                  isCompleted: false,
-                  summary:
-                    "Optimal priority boundary calculations for burst runtime arrays.",
-                },
-              ],
-            },
-            {
-              id: "ch-sync",
-              title: "02. Core Process Concurrency",
-              description:
-                "Demystify concurrent race conditions, instruction traps, and memory access blocks.",
-              order: 2,
-              topics: [
-                {
-                  id: "tp-mutex",
-                  title: "Mutex & Semaphores Mappings",
-                  slug: "mutex-semaphores",
-                  estimatedTime: 25,
-                  isCompleted: false,
-                  summary:
-                    "Atomic hardware flags blocking read/write overlapping data corruption loops.",
-                },
-                {
-                  id: "tp-phil",
-                  title: "Dining Philosophers Paradox",
-                  slug: "dining-philosophers",
-                  estimatedTime: 18,
-                  isCompleted: false,
-                  summary:
-                    "Classic deadlock scenario state evaluation mapping resource graphs.",
-                },
-              ],
-            },
-          ],
-        };
+        if (targetSubject) {
+          const subjectData = await getSubjectById(targetSubject.id);
 
-        setSubject(mockData);
-
-        // Open the first chapter layout section by default on mount initialization
-        if (mockData.chapters[0]) {
-          setExpandedChapters({ [mockData.chapters[0].id]: true });
+          // Lazy-load the first chapter by default on initial mount
+          if (subjectData?.chapters?.[0]) {
+            const firstChId = subjectData.chapters[0].id;
+            setChapterLoadingId(firstChId);
+            await getChapterById(firstChId);
+            setExpandedChapters({ [firstChId]: true });
+          }
         }
-      } catch {
-        toast.error("Failed to map course roadmap tree matrices.");
+      } catch (error) {
+        console.error("Failed to map course roadmap tree matrices:", error);
       } finally {
         setIsLoading(false);
+        setChapterLoadingId(null);
       }
     };
-    hydrateSyllabusOverview();
-  }, [subjectSlug]);
 
-  const toggleChapter = (chapterId: string) => {
+    orchestrateDataHydration();
+  }, [
+    subjectSlug,
+    targetSubject?.id,
+    getSubjects,
+    getSubjectById,
+    getChapterById,
+    getProgress,
+  ]);
+
+  const handleChapterToggle = async (chapterId: string) => {
+    const isOpening = !expandedChapters[chapterId];
+
+    if (isOpening) {
+      try {
+        setChapterLoadingId(chapterId);
+        await getChapterById(chapterId);
+      } catch (error) {
+        console.error(
+          "Failed to fetch topics for selected chapter node:",
+          error,
+        );
+      } finally {
+        setChapterLoadingId(null);
+      }
+    }
+
     setExpandedChapters((prev) => ({
       ...prev,
-      [chapterId]: !prev[chapterId],
+      [chapterId]: isOpening,
     }));
   };
 
-  // Compute aggregate percentage coordinates locally
+  // Telemetry computation gauges derived from our newly hydrated data block structure
   const progressionMetrics = useMemo(() => {
-    if (!subject) return { completed: 0, total: 0, percent: 0 };
+    if (!hydratedChapters || hydratedChapters.length === 0)
+      return { completed: 0, total: 0, percent: 0 };
+
     let total = 0;
     let completed = 0;
-    subject.chapters.forEach((ch) => {
-      ch.topics.forEach((tp) => {
-        total++;
-        if (tp.isCompleted) completed++;
-      });
+
+    // 💎 FIXED: Safe fallback dictionary instantiation to protect loops from early execution crashes
+    const safeProgress = progress || {};
+
+    hydratedChapters.forEach((ch) => {
+      if (ch && ch.topics) {
+        ch.topics.forEach((tp) => {
+          if (tp && tp.id) {
+            total++;
+            if (safeProgress[tp.id]?.completed) completed++;
+          }
+        });
+      }
     });
+
     return {
       completed,
       total,
       percent: total > 0 ? Math.round((completed / total) * 100) : 0,
     };
-  }, [subject]);
+  }, [hydratedChapters, progress]);
 
   if (isLoading) {
     return (
       <div className="w-full min-h-screen bg-bg-primary flex items-center justify-center font-mono text-xs text-text-muted select-none">
         <Loader2 size={13} className="animate-spin text-accent-gold mr-2" />
-        <span>Resolving structural roadmap nodes...</span>
+        <span>Resolving structural roadmap nodes from state registry...</span>
       </div>
     );
   }
 
-  if (!subject) {
+  if (!targetSubject) {
     return (
       <div className="w-full min-h-screen bg-bg-primary flex items-center justify-center font-mono text-xs text-text-muted select-none">
-        // Subject curriculum configuration parameters not verified.
+        // Subject curriculum configuration parameters not verified or indexed.
       </div>
     );
   }
 
   return (
     <div className="w-full min-h-screen bg-bg-primary text-text-primary px-4 py-8 md:px-8 max-w-4xl mx-auto font-sans antialiased flex flex-col gap-6 select-none">
-      {/* HEADER NAVIGATION & METRIC HUD OVERVIEW */}
+      {/* HEADER HUD METRICS BANNER MODULE */}
       <div className="space-y-4 border-b border-border-subtle pb-6">
         <Link
           to="/learn"
@@ -191,15 +192,14 @@ export const DocHubSubjectDetailsPage: React.FC = () => {
 
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-1">
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-text-primary">
-              {subject.name}
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-text-primary select-text">
+              {targetSubject.name}
             </h1>
-            <p className="text-xs md:text-sm text-text-secondary leading-relaxed max-w-2xl opacity-85 select-text">
-              {subject.description}
+            <p className="text-xs md:text-sm text-text-secondary leading-relaxed max-w-2xl opacity-85 select-text font-sans">
+              {targetSubject.description}
             </p>
           </div>
 
-          {/* PROGRESS CIRCLE GAUGE BADGE CONTAINER */}
           <div className="px-4 py-3 rounded-xl border border-border-subtle bg-bg-secondary/30 flex items-center gap-3 shadow-3xs shrink-0 self-start font-mono text-[10px]">
             <Award size={14} className="text-accent-gold" />
             <div className="space-y-0.5">
@@ -215,43 +215,55 @@ export const DocHubSubjectDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* SYLLABUS HIGH-FIDELITY ACCORDION WRAPPER TRACKS */}
+      {/* SYLLABUS HIGH-FIDELITY ACCORDION SECTION */}
       <div className="space-y-3.5">
         <h3 className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-secondary opacity-50 pl-0.5">
           // Syllabus Framework Structure
         </h3>
 
-        {subject.chapters.map((chapter) => {
+        {hydratedChapters.map((chapter) => {
           const isExpanded = !!expandedChapters[chapter.id];
+          const isChapterFetching = chapterLoadingId === chapter.id;
+
           return (
             <div
               key={chapter.id}
               className="rounded-xl border border-border-subtle bg-bg-secondary/10 overflow-hidden shadow-3xs"
             >
-              {/* ACCORDION BAR HEADER TRIGGER */}
+              {/* HEADER TRIGGER BAR */}
               <button
                 type="button"
-                onClick={() => toggleChapter(chapter.id)}
-                className="w-full px-5 py-4 flex items-center justify-between gap-4 bg-bg-secondary/20 hover:bg-bg-secondary/40 transition-colors border-b border-border-subtle/30 text-left cursor-pointer focus:outline-hidden"
+                disabled={isChapterFetching}
+                onClick={() => handleChapterToggle(chapter.id)}
+                className="w-full px-5 py-4 flex items-center justify-between gap-4 bg-bg-secondary/20 hover:bg-bg-secondary/40 disabled:hover:bg-bg-secondary/20 transition-colors border-b border-border-subtle/30 text-left cursor-pointer focus:outline-hidden"
               >
-                <div className="space-y-0.5 min-w-0">
-                  <h4 className="font-semibold text-xs md:text-sm tracking-tight text-text-primary truncate">
+                <div className="space-y-0.5 min-w-0 flex-1">
+                  <h4 className="font-semibold text-xs md:text-sm tracking-tight text-text-primary truncate select-text">
                     {chapter.title}
                   </h4>
-                  <p className="text-[11px] text-text-secondary truncate opacity-70 font-sans">
+                  <p className="text-[11px] text-text-secondary truncate opacity-70 font-sans select-text">
                     {chapter.description}
                   </p>
                 </div>
-                <motion.div
-                  animate={{ rotate: isExpanded ? 180 : 0 }}
-                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-text-muted p-1 rounded-md shrink-0 border border-transparent"
-                >
-                  <ChevronDown size={14} />
-                </motion.div>
+
+                <div className="text-text-muted p-1 rounded-md shrink-0 flex items-center justify-center min-w-[1.5rem]">
+                  {isChapterFetching ? (
+                    <Loader2
+                      size={12}
+                      className="animate-spin text-accent-gold"
+                    />
+                  ) : (
+                    <motion.div
+                      animate={{ rotate: isExpanded ? 180 : 0 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <ChevronDown size={14} />
+                    </motion.div>
+                  )}
+                </div>
               </button>
 
-              {/* DYNAMIC CHILD LANE DRAWER PANEL */}
+              {/* ACCORDION EXPANSION DRAWER LAYER */}
               <AnimatePresence initial={false}>
                 {isExpanded && (
                   <motion.div
@@ -262,54 +274,64 @@ export const DocHubSubjectDetailsPage: React.FC = () => {
                     className="overflow-hidden"
                   >
                     <div className="p-2 bg-bg-primary/10 divide-y divide-border-subtle/30">
-                      {chapter.topics.map((topic) => (
-                        <div
-                          key={topic.id}
-                          className="p-3 sm:px-4 flex items-center justify-between gap-6 hover:bg-bg-secondary/20 rounded-lg transition-colors group"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            {/* MARKER VERIFICATION FLAG METERS */}
-                            <div className="shrink-0 flex items-center justify-center">
-                              {topic.isCompleted ? (
-                                <BookmarkCheck
-                                  size={14}
-                                  className="text-emerald-400 stroke-[2.5]"
-                                />
-                              ) : (
-                                <div className="h-3.5 w-3.5 rounded-full border border-border-subtle bg-bg-primary" />
-                              )}
-                            </div>
+                      {chapter.topics && chapter.topics.length > 0 ? (
+                        chapter.topics.map((topic) => {
+                          // 💎 FIXED: Safe progress fallback object assignment mapping inline
+                          const isTopicCompleted = !!(progress || {})[topic.id]
+                            ?.completed;
 
-                            <div className="min-w-0 space-y-0.5 select-text">
-                              <h5 className="font-medium text-xs text-text-primary group-hover:text-accent-gold transition-colors truncate">
-                                {topic.title}
-                              </h5>
-                              <p className="text-[11px] text-text-secondary leading-normal line-clamp-1 opacity-70 font-sans">
-                                {topic.summary}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* ACTION LAUNCH LAUNCHER TRIGGER */}
-                          <div className="flex items-center gap-3 shrink-0 font-mono text-[10px]">
-                            <span className="text-text-muted/50 hidden sm:inline-flex items-center gap-1">
-                              <Clock size={11} /> {topic.estimatedTime}m
-                            </span>
-                            <Link
-                              /* 💎 DEEP LINKS ROUTED TO WORKSPACE VIEW: `/learn/:subjectSlug/:topicId` */
-                              to={`/learn/${subject.slug}/${topic.id}`}
+                          return (
+                            <div
+                              key={topic.id}
+                              className="p-3 sm:px-4 flex items-center justify-between gap-6 hover:bg-bg-secondary/20 rounded-lg transition-colors group"
                             >
-                              <Button className="h-7 px-2.5 bg-bg-secondary border border-border-subtle hover:border-accent-gold/20 text-text-secondary group-hover:text-accent-gold font-mono text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-3xs">
-                                <span>Launch</span>
-                                <Play
-                                  size={8}
-                                  className="fill-current stroke-none"
-                                />
-                              </Button>
-                            </Link>
-                          </div>
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="shrink-0 flex items-center justify-center select-none">
+                                  {isTopicCompleted ? (
+                                    <BookmarkCheck
+                                      size={14}
+                                      className="text-emerald-400 stroke-[2.5]"
+                                    />
+                                  ) : (
+                                    <div className="h-3.5 w-3.5 rounded-full border border-border-subtle bg-bg-primary" />
+                                  )}
+                                </div>
+
+                                <div className="min-w-0 space-y-0.5">
+                                  <h5 className="font-medium text-xs text-text-primary group-hover:text-accent-gold transition-colors truncate select-text">
+                                    {topic.title}
+                                  </h5>
+                                  <p className="text-[11px] text-text-secondary leading-normal line-clamp-1 opacity-70 font-sans select-text">
+                                    {topic.summary}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-3 shrink-0 font-mono text-[10px]">
+                                <span className="text-text-muted/50 hidden sm:inline-flex items-center gap-1 select-none">
+                                  <Clock size={11} />{" "}
+                                  {topic.estimatedTime || 15}m
+                                </span>
+                                <Link
+                                  to={`/learn/${targetSubject.slug}/${topic.id}`}
+                                >
+                                  <Button className="h-7 px-2.5 bg-bg-secondary border border-border-subtle hover:border-accent-gold/20 text-text-secondary group-hover:text-accent-gold font-mono text-[9px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-3xs pt-0.5">
+                                    <span>Launch</span>
+                                    <Play
+                                      size={8}
+                                      className="fill-current stroke-none mt-[-1px]"
+                                    />
+                                  </Button>
+                                </Link>
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div className="p-4 text-center font-mono text-[10px] text-text-muted/60 italic select-none">
+                          // No active topics mapped to this block yet.
                         </div>
-                      ))}
+                      )}
                     </div>
                   </motion.div>
                 )}

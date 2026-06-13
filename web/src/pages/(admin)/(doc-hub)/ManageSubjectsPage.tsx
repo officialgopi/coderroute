@@ -1,5 +1,5 @@
 // src/pages/(admin)/dochub/ManageSubjectsPage.tsx
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, useMemo, memo } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -10,98 +10,106 @@ import {
   Loader2,
   Trash2,
   AlertCircle,
+  Hash,
+  Edit3,
+  Cpu,
+  CornerDownRight,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
-// High-fidelity UI Components synced with your modular design language
-import { Button } from "@/components/ui/button";
-import { CommandModal } from "@/components/ui/CommandModal";
-
-interface ISubject {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  order: number;
-}
+import { useLearnStore } from "@/store/learn.store";
+import CommandModal from "@/components/ui/CommandModal";
 
 export const ManageSubjectsPage: React.FC = () => {
-  const [subjects, setSubjects] = useState<ISubject[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const {
+    subjects: storeSubjects,
+    isSubjectsLoading,
+    getSubjects,
+    createSubject,
+    updateSubject,
+    deleteSubject,
+  } = useLearnStore();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Destructive Action Guard Tracking States
   const [subjectToDelete, setSubjectToDelete] = useState<string | null>(null);
+  const [editingSubjectId, setEditingSubjectId] = useState<string | null>(null);
 
-  // Form State Elements
+  // Form Fields State Matrices
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [order, setOrder] = useState(0);
 
   useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        setIsLoading(true);
-        // Simulation mirroring GET {{baseUrl}}/learn/subjects pipeline execution
-        await new Promise((r) => setTimeout(r, 400));
-        setSubjects([
-          {
-            id: "sub-os",
-            name: "Operating Systems",
-            slug: "operating-system",
-            description: "Learn processes, memory mapping, and kernels.",
-            order: 1,
-          },
-          {
-            id: "sub-db",
-            name: "Database Internals",
-            slug: "database-internals",
-            description:
-              "Explore B-Trees, transaction isolation, and engine designs.",
-            order: 2,
-          },
-        ]);
-      } catch {
-        toast.error("Failed to recover course subject registries.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchSubjects();
-  }, []);
+    getSubjects();
+  }, [getSubjects]);
 
-  const handleCreateSubject = async (e: React.FormEvent) => {
+  const sortedSubjectsList = useMemo(() => {
+    return Object.values(storeSubjects || {}).sort((a, b) => {
+      if ((a.order ?? 0) !== (b.order ?? 0)) {
+        return (a.order ?? 0) - (b.order ?? 0);
+      }
+      return a.name.localeCompare(b.name);
+    });
+  }, [storeSubjects]);
+
+  const handleOpenEditModal = (subject: any) => {
+    setEditingSubjectId(subject.id);
+    setName(subject.name);
+    setSlug(subject.slug);
+    setDescription(subject.description || "");
+    setOrder(subject.order ?? 0);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingSubjectId(null);
+    setName("");
+    setSlug("");
+    setDescription("");
+    setOrder(0);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !slug)
-      return toast.error("Please supply name and slug namespace data keys.");
+    if (!name.trim() || !slug.trim())
+      return toast.error("Missing valid identifiers or namespace targets.");
 
     try {
       setIsSubmitting(true);
-      // Simulation mirroring POST {{baseUrl}}/admin/subjects pipeline execution
-      await new Promise((r) => setTimeout(r, 500));
+      let success = false;
 
-      const newSub: ISubject = {
-        id: `sub-${Date.now()}`,
-        name,
-        slug,
-        description: description || null,
-        order: Number(order),
-      };
-      setSubjects((prev) =>
-        [...prev, newSub].sort((a, b) => a.order - b.order),
-      );
-      toast.success("Learning subject vector integrated successfully.");
-      setIsModalOpen(false);
+      if (editingSubjectId) {
+        success = await updateSubject(editingSubjectId, {
+          name: name.trim(),
+          slug: slug.trim(),
+          description: description.trim() || null,
+          order: Number(order),
+        });
+      } else {
+        success = await createSubject({
+          name: name.trim(),
+          slug: slug.trim(),
+          description: description.trim() || null,
+          order: Number(order),
+        });
+      }
 
-      // Wipe Form Buffer Inputs
-      setName("");
-      setSlug("");
-      setDescription("");
-      setOrder(0);
+      if (success) {
+        toast.success(
+          editingSubjectId
+            ? "Subject directory records updated successfully."
+            : "New educational core module matrix fully deployed.",
+        );
+        handleCloseModal();
+      } else {
+        toast.error("Failed to compile layout adjustments.");
+      }
     } catch {
-      toast.error("Failed to commit subject payload.");
+      toast.error("An unexpected execution channel interruption occurred.");
     } finally {
       setIsSubmitting(false);
     }
@@ -109,51 +117,68 @@ export const ManageSubjectsPage: React.FC = () => {
 
   const handleDeleteSubject = async (id: string) => {
     try {
-      // Simulation mirroring DELETE {{baseUrl}}/admin/subjects/:id pipeline execution
-      await new Promise((r) => setTimeout(r, 350));
-      setSubjects((prev) => prev.filter((s) => s.id !== id));
-      toast.success("Subject vector unlinked from global syllabus.");
-      setSubjectToDelete(null);
+      setIsSubmitting(true);
+      const success = await deleteSubject(id);
+
+      if (success) {
+        toast.success(
+          "Subject node completely purged from local schema blocks.",
+        );
+        setSubjectToDelete(null);
+      } else {
+        toast.error("Server cluster rejected deletion transaction.");
+      }
     } catch {
-      toast.error("Failed to purge target system node registry.");
+      toast.error("Failed to broadcast secure purge instruction sequence.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="w-full space-y-6 font-sans text-xs text-text-primary antialiased select-none relative">
-      {/* 1. HIGH-DENSITY ACTION CONTROLS RAIL HEADER */}
-      <div className="w-full p-4 rounded-xl border border-border-subtle bg-bg-secondary/40 flex items-center justify-between gap-4 shadow-3xs backdrop-blur-xs">
-        <div className="flex flex-col gap-0.5">
-          <span className="font-mono text-[10px] text-text-secondary opacity-70">
-            // Core Repository Node
-          </span>
-          <span className="text-[11px] font-medium text-text-muted">
-            Syllabus Framework Modules Manager
-          </span>
+    <div className="w-full space-y-8 font-sans text-xs text-text-primary antialiased select-none relative max-w-5xl mx-auto px-4 py-6">
+      {/* 1. FUTURISTIC HUD CONTROL CENTER DECK */}
+      <div className="w-full p-5 rounded-2xl border border-border-subtle bg-gradient-to-r from-bg-secondary/40 via-bg-secondary/20 to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-md backdrop-blur-xl relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-accent-gold/5 rounded-full blur-3xl pointer-events-none transition-opacity group-hover:opacity-80" />
+
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="w-11 h-11 rounded-xl bg-bg-secondary border border-border-subtle flex items-center justify-center text-accent-gold shadow-md shadow-black/40 ring-1 ring-white/5">
+            <Cpu size={16} className="animate-pulse" />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5 font-mono text-[9px] font-bold tracking-widest uppercase text-text-muted">
+              <Sparkles size={9} className="text-accent-gold" />
+              <span>Core Registry Pipeline</span>
+            </div>
+            <h1 className="text-sm sm:text-base font-bold text-text-primary tracking-tight uppercase font-mono">
+              Syllabus Architecture Deck
+            </h1>
+          </div>
         </div>
 
-        <Button
+        <button
+          type="button"
           onClick={() => setIsModalOpen(true)}
-          className="h-8 px-3.5 bg-text-primary text-bg-primary rounded-lg font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-3xs transition-transform duration-150 active:scale-98"
+          className="h-9 px-5 bg-white text-black hover:bg-neutral-200 font-mono text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg active:scale-95 transition-all duration-200 rounded-xl cursor-pointer shrink-0 border-none outline-hidden"
         >
-          <Plus size={12} strokeWidth={2.5} />
-          <span>Add Subject</span>
-        </Button>
+          <Plus size={14} strokeWidth={2.5} />
+          <span>Deploy New Subject</span>
+        </button>
       </div>
 
-      {/* 2. MAIN DATAGRID ITERATIVE WORKSPACE RENDER CHANNELS */}
-      {isLoading ? (
-        <div className="space-y-3">
-          {[...Array(2)].map((_, i) => (
+      {/* 2. PREMIUM DATAGRID ITERATIVE WORKSPACE */}
+      {isSubjectsLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[...Array(4)].map((_, i) => (
             <div
-              key={`skeleton-node-${i}`}
-              className="h-16 rounded-xl bg-bg-secondary/20 border border-border-subtle animate-pulse"
+              key={`skeleton-grid-${i}`}
+              className="h-28 rounded-2xl bg-bg-secondary/10 border border-border-subtle/50 animate-pulse"
             />
           ))}
         </div>
-      ) : subjects.length === 0 ? (
-        <div className="w-full py-16 text-center border border-dashed border-border-subtle rounded-xl font-mono text-text-muted opacity-60">
-          // Empty system cache matrix. Zero subject vectors tracking.
+      ) : sortedSubjectsList.length === 0 ? (
+        <div className="w-full py-24 text-center border border-dashed border-border-subtle rounded-2xl font-mono text-text-muted opacity-50 bg-bg-secondary/5 tracking-wide">
+          // No live subject vectors currently tracking inside core cache maps.
         </div>
       ) : (
         <motion.div
@@ -161,89 +186,119 @@ export const ManageSubjectsPage: React.FC = () => {
           animate="visible"
           variants={{
             hidden: { opacity: 0 },
-            visible: { opacity: 1, transition: { staggerChildren: 0.03 } },
+            visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
           }}
-          className="rounded-xl border border-border-subtle bg-bg-secondary/10 overflow-hidden divide-y divide-border-subtle shadow-3xs"
+          className="grid grid-cols-1 md:grid-cols-2 gap-4.5"
         >
-          {subjects.map((subject) => (
+          {sortedSubjectsList.map((subject) => (
             <motion.div
               key={subject.id}
               variants={{
-                hidden: { opacity: 0, y: 6 },
+                hidden: { opacity: 0, y: 12 },
                 visible: {
                   opacity: 1,
                   y: 0,
-                  transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] },
+                  transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
                 },
               }}
-              whileHover={{ x: 2 }}
-              className="p-4 flex items-center justify-between gap-6 hover:bg-bg-secondary/20 transition-all duration-150"
+              className="p-5 rounded-2xl border border-border-subtle bg-bg-secondary/10 hover:bg-bg-secondary/30 hover:border-accent-gold/40 transition-all duration-300 flex flex-col justify-between h-36 relative overflow-hidden group shadow-2xs shadow-black/10 backdrop-blur-xs"
             >
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="w-8 h-8 rounded-lg bg-bg-primary border border-border-subtle flex items-center justify-center text-text-secondary shrink-0 shadow-3xs group-hover:border-accent-gold/20 transition-colors">
-                  <BookOpen size={13} className="opacity-80" />
-                </div>
-                <div className="min-w-0 space-y-0.5 select-text">
-                  <h3 className="font-semibold text-sm tracking-tight text-text-primary truncate">
-                    {subject.name}
-                  </h3>
-                  <p className="text-text-secondary font-mono text-[10px] opacity-50 truncate">
-                    slug: {subject.slug} • Priority:{" "}
-                    <span className="text-accent-gold font-bold">
-                      {subject.order}
-                    </span>
-                  </p>
-                </div>
+              {/* Dynamic Priority Watermark Indicator */}
+              <div className="absolute -top-3 -right-3 text-bg-secondary/30 font-mono text-5xl font-black italic tracking-tighter pointer-events-none select-none group-hover:text-accent-gold/5 transition-colors duration-300">
+                {(subject.order ?? 0).toString().padStart(2, "0")}
               </div>
 
-              {/* ACTION CHANNEL BAR LIST CONTROLS */}
-              <div className="flex items-center gap-2 shrink-0">
-                <Link
-                  to={`/admin-panel/dochub/subjects/${subject.id}/chapters`}
-                  className="h-7.5 px-3 border border-border-subtle bg-bg-primary text-text-secondary hover:text-accent-gold hover:border-accent-gold/20 rounded-md font-mono text-[10px] flex items-center gap-1.5 transition-all shadow-3xs cursor-pointer group"
-                >
-                  <span>Chapters</span>
-                  <ArrowRight
-                    size={11}
-                    className="transition-transform duration-200 ease-out group-hover:translate-x-0.5"
-                  />
-                </Link>
+              <div className="space-y-2 relative z-10 min-w-0">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-7 h-7 rounded-lg bg-bg-primary border border-border-subtle flex items-center justify-center text-text-secondary group-hover:text-accent-gold group-hover:border-accent-gold/20 transition-all duration-300 shadow-3xs shrink-0">
+                      <BookOpen size={12} />
+                    </div>
+                    <h3 className="font-semibold text-xs sm:text-sm tracking-tight text-text-primary truncate select-text">
+                      {subject.name}
+                    </h3>
+                  </div>
+                </div>
 
-                <button
-                  type="button"
-                  onClick={() => setSubjectToDelete(subject.id)}
-                  className="h-7.5 w-7.5 rounded-md border border-transparent hover:border-accent-crimson/20 bg-bg-primary/20 text-text-muted hover:text-accent-crimson hover:bg-accent-crimson/5 transition-all duration-150 flex items-center justify-center cursor-pointer shadow-3xs"
-                  title="Purge subject entry"
-                >
-                  <Trash2 size={12} />
-                </button>
+                <p className="text-[11px] text-text-secondary line-clamp-2 leading-relaxed opacity-75 group-hover:opacity-95 transition-opacity pr-6 font-sans font-medium select-text">
+                  {subject.description ||
+                    "// No supplementary description documentation assigned."}
+                </p>
+              </div>
+
+              {/* FLOATING ACTION CONTROL DOCK CONTAINER */}
+              <div className="flex items-center justify-between gap-4 border-t border-border-subtle/40 pt-3 mt-2 font-mono text-[9px] relative z-10 select-none">
+                <div className="flex items-center gap-1.5 opacity-50 group-hover:opacity-90 transition-opacity">
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border border-border-subtle bg-bg-primary font-bold text-[8px] tracking-widest text-accent-gold">
+                    <Hash size={7} />
+                    IDX: {subject.order ?? 0}
+                  </span>
+                  <span className="text-[9px] text-text-muted truncate hidden sm:inline max-w-[5.5rem]">
+                    /{subject.slug}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Link
+                    to={`/admin-panel/dochub/subjects/${subject.id}/chapters`}
+                    className="h-7 px-3 border border-border-subtle bg-bg-primary text-text-secondary hover:text-white hover:border-text-primary rounded-xl font-bold flex items-center gap-1 transition-all group/btn outline-hidden active:scale-95"
+                  >
+                    <span>Chapters</span>
+                    <ArrowRight
+                      size={11}
+                      className="transition-transform duration-200 ease-out group-hover/btn:translate-x-0.5"
+                    />
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => handleOpenEditModal(subject)}
+                    className="h-7 w-7 rounded-xl border border-border-subtle bg-bg-primary text-text-secondary hover:text-accent-gold hover:border-accent-gold/30 transition-all flex items-center justify-center cursor-pointer outline-hidden active:scale-95"
+                    title="Modify parameters"
+                  >
+                    <Edit3 size={11} />
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isSubmitting}
+                    onClick={() => setSubjectToDelete(subject.id)}
+                    className="h-7 w-7 rounded-xl border border-transparent hover:border-red-500/20 bg-bg-secondary/40 text-text-muted hover:text-red-400 hover:bg-red-500/10 transition-all flex items-center justify-center cursor-pointer disabled:opacity-40 outline-hidden active:scale-95"
+                    title="Purge subject entry"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                </div>
               </div>
             </motion.div>
           ))}
         </motion.div>
       )}
 
-      {/* 3. MUTATION DIALOG MODAL LAYOUT CHANNELS */}
+      {/* 3. CORE SUBMISSION/EDIT CONTROL MODAL */}
       <AnimatePresence>
         {isModalOpen && (
-          <CommandModal
-            open={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          >
-            {/* 💎 FIX: DEFENSIVE INNER VIEWPORT PADDING INJECTION */}
-            <div className="p-5 sm:p-6 space-y-4 w-full">
-              <div className="flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase text-text-secondary border-b border-border-subtle pb-2.5">
-                <Layers size={12} className="text-accent-gold" />
-                <span>Initialize Subject Registry</span>
+          <CommandModal open={isModalOpen} onClose={handleCloseModal}>
+            <div className="p-6 space-y-6 w-full bg-bg-primary/95 backdrop-blur-2xl rounded-2xl font-sans text-xs border border-white/5 shadow-2xl relative">
+              <div className="absolute top-0 left-12 right-12 h-[1px] bg-gradient-to-r from-transparent via-accent-gold/40 to-transparent" />
+
+              <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-wider text-text-secondary border-b border-border-subtle/80 pb-3 select-none">
+                <Layers
+                  size={13}
+                  className="text-accent-gold animate-spin-slow"
+                />
+                <span>
+                  {editingSubjectId
+                    ? "Update System Vector Node"
+                    : "Register Schema Entity"}
+                </span>
               </div>
 
-              <form
-                onSubmit={handleCreateSubject}
-                className="space-y-3.5 font-mono text-[11px]"
-              >
-                <div className="space-y-1">
-                  <label className="text-text-muted font-medium">
-                    Subject Display Name
+              <form onSubmit={handleSubmit} className="space-y-4.5">
+                <div className="space-y-1.5">
+                  <label className="text-text-muted font-bold tracking-wide uppercase text-[9px] select-none flex items-center gap-1">
+                    <CornerDownRight size={10} className="text-accent-gold" />
+                    <span>Subject Display Label</span>
                   </label>
                   <input
                     type="text"
@@ -251,70 +306,79 @@ export const ManageSubjectsPage: React.FC = () => {
                     value={name}
                     onChange={(e) => {
                       setName(e.target.value);
-                      setSlug(
-                        e.target.value
-                          .toLowerCase()
-                          .replace(/[^a-z0-9]+/g, "-"),
-                      );
+                      if (!editingSubjectId) {
+                        setSlug(
+                          e.target.value
+                            .toLowerCase()
+                            .replace(/[^a-z0-9]+/g, "-"),
+                        );
+                      }
                     }}
-                    placeholder="e.g., Computer Networks"
-                    className="w-full h-8 px-3 bg-bg-secondary/50 border border-border-subtle rounded-md text-text-primary placeholder:text-text-muted/30 focus:outline-hidden focus:border-accent-gold/30 transition-colors"
+                    placeholder="e.g., Database Internals"
+                    className="w-full h-9.5 px-3 bg-bg-secondary/40 border border-border-subtle hover:border-border-subtle/80 focus:border-text-primary/30 rounded-xl text-text-primary text-xs placeholder:text-text-muted/20 focus:outline-hidden transition-all shadow-inner font-sans"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-text-muted font-medium">
-                    Slug Namespace (Automatic)
+                <div className="space-y-1.5">
+                  <label className="text-text-muted font-bold tracking-wide uppercase text-[9px] select-none flex items-center gap-1">
+                    <CornerDownRight size={10} className="text-text-muted/40" />
+                    <span>Slug Target Routing Namespace</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
-                    className="w-full h-8 px-3 bg-bg-secondary/50 border border-border-subtle rounded-md text-text-primary focus:outline-hidden focus:border-accent-gold/30 transition-colors text-text-secondary"
+                    className="w-full h-9.5 px-3 bg-bg-secondary/20 border border-border-subtle rounded-xl text-text-secondary focus:outline-hidden transition-all text-xs font-mono tracking-tight"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-text-muted font-medium">
-                    Overview Matrix Summary
+                <div className="space-y-1.5">
+                  <label className="text-text-muted font-bold tracking-wide uppercase text-[9px] select-none flex items-center gap-1">
+                    <CornerDownRight size={10} className="text-accent-gold" />
+                    <span>Overview Matrix Summary</span>
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    rows={2}
-                    className="w-full p-2 bg-bg-secondary/50 border border-border-subtle rounded-md text-text-primary placeholder:text-text-muted/30 focus:outline-hidden focus:border-accent-gold/30 transition-colors resize-none leading-relaxed"
-                    placeholder="Provide description abstract..."
+                    rows={3}
+                    className="w-full p-3 bg-bg-secondary/40 border border-border-subtle hover:border-border-subtle/80 focus:border-text-primary/30 rounded-xl text-text-primary text-xs placeholder:text-text-muted/20 focus:outline-hidden transition-all resize-none leading-relaxed shadow-inner font-sans font-medium"
+                    placeholder="Provide deep architectural overview details, hardware design properties, or abstract summaries..."
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-text-muted font-medium">
-                    Sequence Order Priority Index
+                <div className="space-y-1.5">
+                  <label className="text-text-muted font-bold tracking-wide uppercase text-[9px] select-none flex items-center gap-1">
+                    <CornerDownRight size={10} className="text-text-muted/40" />
+                    <span>Sequence Position Priority</span>
                   </label>
                   <input
                     type="number"
                     value={order}
                     onChange={(e) => setOrder(Number(e.target.value))}
-                    className="w-full h-8 px-3 bg-bg-secondary/50 border border-border-subtle rounded-md text-text-primary focus:outline-hidden focus:border-accent-gold/30 transition-colors"
+                    className="w-full h-9.5 px-3 bg-bg-secondary/40 border border-border-subtle hover:border-border-subtle/80 focus:border-text-primary/30 rounded-xl text-text-primary text-xs focus:outline-hidden transition-all shadow-inner font-mono"
                   />
                 </div>
 
-                <div className="pt-2">
-                  <Button
+                <div className="pt-3">
+                  <button
                     disabled={isSubmitting}
                     type="submit"
-                    className="w-full h-8.5 bg-text-primary text-bg-primary rounded-md font-mono text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-3xs pt-0.5"
+                    className="w-full h-10 bg-white text-black hover:bg-neutral-200 disabled:bg-neutral-700 disabled:text-neutral-400 rounded-xl font-mono text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5 shadow-lg active:scale-[0.98] transition-all pt-0.5 cursor-pointer outline-hidden border-none"
                   >
                     {isSubmitting ? (
-                      <Loader2
-                        size={12}
-                        className="animate-spin text-bg-primary"
-                      />
+                      <Loader2 size={13} className="animate-spin text-black" />
                     ) : (
-                      <span>Commit Entry Node</span>
+                      <>
+                        <span>
+                          {editingSubjectId
+                            ? "Save Configurations"
+                            : "Deploy Component"}
+                        </span>
+                        <ArrowRight size={11} strokeWidth={2.5} />
+                      </>
                     )}
-                  </Button>
+                  </button>
                 </div>
               </form>
             </div>
@@ -329,35 +393,41 @@ export const ManageSubjectsPage: React.FC = () => {
             open={!!subjectToDelete}
             onClose={() => setSubjectToDelete(null)}
           >
-            {/* 💎 FIX: DEFENSIVE INNER VIEWPORT PADDING INJECTION */}
-            <div className="p-5 sm:p-6 space-y-4 w-full font-sans text-xs">
-              <div className="flex items-center gap-2 text-accent-crimson font-mono text-[10px] font-bold uppercase border-b border-border-subtle pb-2.5">
-                <AlertCircle size={13} />
+            <div className="p-6 space-y-4 w-full font-sans text-xs bg-bg-primary/95 backdrop-blur-2xl rounded-2xl border border-white/5 shadow-2xl relative">
+              <div className="absolute top-0 left-12 right-12 h-[1px] bg-gradient-to-r from-transparent via-red-500/40 to-transparent" />
+
+              <div className="flex items-center gap-2 text-red-400 font-mono text-[10px] font-bold uppercase border-b border-border-subtle/80 pb-3 select-none">
+                <AlertCircle size={14} />
                 <span>Security Checkpoint Exception</span>
               </div>
 
-              <p className="text-text-secondary leading-relaxed">
+              <p className="text-text-secondary text-xs leading-relaxed select-text font-medium">
                 Are you completely sure you want to drop this subject vector?
                 This cascading cycle will purge all subordinate chapters,
                 topics, and code sections instantly.
               </p>
 
-              <div className="flex items-center justify-end gap-2 pt-2 font-mono text-[10px] font-bold uppercase">
+              <div className="flex items-center justify-end gap-2.5 pt-3 font-mono text-[10px] font-bold uppercase select-none">
                 <button
                   type="button"
                   onClick={() => setSubjectToDelete(null)}
-                  className="h-8 px-3.5 rounded-lg border border-border-subtle text-text-secondary bg-bg-secondary/40 hover:text-text-primary transition-colors cursor-pointer"
+                  className="h-8.5 px-4 rounded-xl border border-border-subtle text-text-primary bg-bg-secondary hover:bg-bg-secondary/80 transition-all cursor-pointer active:scale-[0.97] outline-hidden"
                 >
                   Abort
                 </button>
                 <button
                   type="button"
+                  disabled={isSubmitting}
                   onClick={() =>
                     subjectToDelete && handleDeleteSubject(subjectToDelete)
                   }
-                  className="h-8 px-3.5 rounded-lg bg-accent-crimson text-white hover:opacity-90 transition-opacity cursor-pointer"
+                  className="h-8.5 px-4 rounded-xl bg-red-600 text-white hover:bg-red-500 transition-colors flex items-center justify-center min-w-[6.5rem] cursor-pointer shadow-sm shadow-red-900/20 active:scale-[0.97] outline-hidden border-none"
                 >
-                  Purge Matrix
+                  {isSubmitting ? (
+                    <Loader2 size={11} className="animate-spin text-white" />
+                  ) : (
+                    <span>Purge Matrix</span>
+                  )}
                 </button>
               </div>
             </div>

@@ -11,26 +11,11 @@ import {
   BookmarkCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-// 💎 IMPORT THE DECOUPLED CUSTOM MDX COMPILER LAYER
+// 💎 IMPORT THE UNIFIED COMPILER AND CENTRALIZED CACHE MATRIX
 import MdxRenderer from "@/components/ui/MdxRenderer";
-
-interface ISection {
-  id: string;
-  title: string;
-  markdownContent: string;
-}
-
-interface ITopicDetails {
-  id: string;
-  title: string;
-  summary: string;
-  estimatedTime: number;
-  sections: ISection[];
-  isCompleted: boolean;
-}
+import { useLearnStore } from "@/store/learn.store";
 
 export const DocHubTopicReadingPage: React.FC = () => {
   const { subjectSlug, topicId, sectionId } = useParams<{
@@ -42,120 +27,113 @@ export const DocHubTopicReadingPage: React.FC = () => {
   const navigate = useNavigate();
   const { setContext } = useOutletContext<{ setContext: (ctx: any) => void }>();
 
-  const [topic, setTopic] = useState<ITopicDetails | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Bind reactive global states directly from your store layer hooks
+  const {
+    topics,
+    progress,
+    isTopicLoading,
+    getTopicById,
+    updateTopicProgress,
+    getProgress,
+  } = useLearnStore();
+
   const [marking, setMarking] = useState(false);
 
+  // Ingest topic structural parameters from the state map slice
+  const currentTopic = useMemo(() => topics[topicId || ""], [topics, topicId]);
+
+  const sortedSections = useMemo(() => {
+    if (!currentTopic?.sections) return [];
+    return [...currentTopic.sections].sort(
+      (a, b) => (a.order || 0) - (b.order || 0),
+    );
+  }, [currentTopic]);
+
+  // Synchronize topic and progress state hydration on path changes
   useEffect(() => {
-    const fetchTopicContent = async () => {
-      try {
-        setLoading(true);
-        // Simulation parsing standard content blocks streams: GET {{baseUrl}}/learn/topics/{{topicId}}
-        await new Promise((r) => setTimeout(r, 300));
-
-        setTopic({
-          id: topicId!,
-          title: "Round Robin Process Matrix",
-          summary:
-            "Preemptive algorithmic execution engine scheduling paradigm utilizing uniform time-slice quanta mappings.",
-          estimatedTime: 15,
-          isCompleted: false,
-          sections: [
-            {
-              id: "preemptive-mechanics",
-              title: "01. Preemptive Context Mechanics",
-              markdownContent: `
-# Core Context Scheduling Loops
-
-Round-Robin (RR) scheduling passes processes sequentially down a circular FIFO tracking queue. The kernel assigns a fixed microsecond execution frame called a **Time Quantum**.
-
-<mdxanalogycard title="The Card Dealer Layout">
-  Think of Round-Robin like a card dealer distributing chips down around a circular poker table. Instead of dumping all chips onto one player until they finish, the dealer drops exactly one token to each person sequentially, looping back immediately until the table requests conclude.
-</mdxanalogycard>
-
-If a thread exceeds its allocated chunk boundary, context vectors execute hardware traps to freeze process spaces into ready stacks safely.
-
-\`\`\`c
-void executeRoundRobin(Process proc[], int n, int quantum) {
-  int remaining_time[proc.id];
-  while(1) {
-    bool done = true;
-    for(int i = 0; i < n; i++) {
-      if(remaining_time[i] > 0) {
-        done = false;
-        // Check execution quanta boundaries
-      }
-    }
-    if (done == true) break;
-  }
-}
-\`\`\`
-
-<mdxinterviewbox 
-  prompt="What structural issues occur inside runtime scheduler pipelines if the defined Time Quantum approaches zero?" 
-  expected="Execution overhead collapses under continuous hardware state changes as the kernel context switches constantly."
-/>
-              `,
-            },
-          ],
-        });
-
-        if (!sectionId && topic?.sections.length) {
-          navigate(`/learn/${subjectSlug}/${topicId}/${topic.sections[0].id}`, {
-            replace: true,
-          });
-        }
-      } finally {
-        setLoading(false);
+    const hydrateActiveTopic = async () => {
+      if (topicId) {
+        await getTopicById(topicId);
+        await getProgress(); // Safely keep tracking maps calibrated
       }
     };
-    fetchTopicContent();
-  }, [topicId, subjectSlug]);
+    hydrateActiveTopic();
+  }, [topicId, getTopicById, getProgress]);
 
+  // Direct route parsing lookups to clear unaligned trailing path fragments
   useEffect(() => {
-    if (topic) {
+    if (
+      !isTopicLoading &&
+      currentTopic &&
+      sortedSections.length > 0 &&
+      !sectionId
+    ) {
+      navigate(`/learn/${subjectSlug}/${topicId}/${sortedSections[0].id}`, {
+        replace: true,
+      });
+    }
+  }, [
+    isTopicLoading,
+    currentTopic,
+    sortedSections,
+    sectionId,
+    navigate,
+    subjectSlug,
+    topicId,
+  ]);
+
+  // Bubble context maps layout coordinates back up to the persistent layout sidebar rail
+  useEffect(() => {
+    if (currentTopic && sortedSections.length > 0) {
       setContext({
-        sections: topic.sections.map((s) => ({ id: s.id, title: s.title })),
-        activeSectionId: sectionId || topic.sections[0]?.id,
+        sections: sortedSections.map((s) => ({ id: s.id, title: s.title })),
+        activeSectionId: sectionId || sortedSections[0].id,
       });
     }
     return () => setContext(null);
-  }, [topic, sectionId, setContext]);
+  }, [currentTopic, sortedSections, sectionId, setContext]);
 
   const activeIdx = useMemo(() => {
-    return topic?.sections.findIndex((s) => s.id === sectionId) ?? 0;
-  }, [topic, sectionId]);
+    return sortedSections.findIndex((s) => s.id === sectionId) ?? 0;
+  }, [sortedSections, sectionId]);
 
-  const currentSection = topic?.sections[activeIdx];
+  const currentSection = sortedSections[activeIdx];
 
   const syncSectionIndexNavigation = (directionOffset: number) => {
-    const nextSection = topic?.sections[activeIdx + directionOffset];
+    const nextSection = sortedSections[activeIdx + directionOffset];
     if (nextSection) {
       navigate(`/learn/${subjectSlug}/${topicId}/${nextSection.id}`);
     }
   };
 
+  // Lock progress keys securely directly up through your core global store action loop
   const handleComplete = async () => {
+    if (!topicId) return;
     try {
       setMarking(true);
-      await new Promise((r) => setTimeout(r, 400));
-      setTopic((prev) => (prev ? { ...prev, isCompleted: true } : null));
-      toast.success("Topic course progression saved successfully!");
+      await updateTopicProgress(topicId, true);
     } catch {
-      toast.error("Failed to commit progress keys.");
+      // Catch exceptions silently or let sonner handle error logging inside the store
     } finally {
       setMarking(false);
     }
   };
 
-  if (loading)
+  // 💎 FIXED DEFENSIVE LOOKUP: Protects the rendering loop thread from reading values of undefined properties
+  const isTopicCompleted = useMemo(() => {
+    const safeProgress = progress || {};
+    return !!safeProgress[topicId || ""]?.completed;
+  }, [progress, topicId]);
+
+  if (isTopicLoading && !currentSection)
     return (
       <div className="flex-1 flex items-center justify-center font-mono text-xs text-text-muted animate-pulse select-none">
         <Loader2 size={13} className="animate-spin text-accent-gold mr-2" />
         <span>Parsing Markdown abstract structures...</span>
       </div>
     );
-  if (!topic || !currentSection) return null;
+
+  if (!currentTopic || !currentSection) return null;
 
   return (
     <>
@@ -166,7 +144,7 @@ void executeRoundRobin(Process proc[], int n, int quantum) {
             <div className="flex items-center gap-2 font-mono text-[9px] text-text-secondary opacity-50 uppercase font-bold tracking-wider">
               <Clock size={10} />
               <span>
-                Section {activeIdx + 1} of {topic.sections.length}
+                Section {activeIdx + 1} of {sortedSections.length}
               </span>
               <span>•</span>
               <ShieldCheck size={10} className="text-accent-gold" />
@@ -177,10 +155,8 @@ void executeRoundRobin(Process proc[], int n, int quantum) {
             </h1>
           </div>
 
-          {/* 💎 CLEAN RENDER EXTRACTION POINT:
-              Bypasses the strict dictionary object layout limitations cleanly using our isolated MdxRenderer canvas wrapper.
-          */}
-          <MdxRenderer content={currentSection.markdownContent} />
+          {/* RENDERING CANVAS PORTAL LAYER */}
+          <MdxRenderer content={currentSection.content?.value || ""} />
         </article>
       </main>
 
@@ -194,20 +170,20 @@ void executeRoundRobin(Process proc[], int n, int quantum) {
           <ArrowLeft size={11} strokeWidth={2.5} /> <span>Back</span>
         </Button>
 
-        {activeIdx === topic.sections.length - 1 && (
+        {activeIdx === sortedSections.length - 1 && (
           <Button
-            disabled={topic.isCompleted || marking}
+            disabled={isTopicCompleted || marking}
             onClick={handleComplete}
             className={cn(
-              "h-8 px-4 font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-3xs transition-all border",
-              topic.isCompleted
+              "h-8 px-4 font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-3xs transition-all border pt-0.5",
+              isTopicCompleted
                 ? "bg-bg-secondary border-border-subtle text-emerald-400"
                 : "bg-text-primary text-bg-primary border-transparent hover:opacity-90",
             )}
           >
             {marking ? (
               <Loader2 size={11} className="animate-spin" />
-            ) : topic.isCompleted ? (
+            ) : isTopicCompleted ? (
               <>
                 <CheckSquare size={11} className="stroke-[2.5]" />
                 <span>Topic Completed</span>
@@ -223,7 +199,7 @@ void executeRoundRobin(Process proc[], int n, int quantum) {
 
         <Button
           onClick={() => syncSectionIndexNavigation(1)}
-          disabled={activeIdx === topic.sections.length - 1}
+          disabled={activeIdx === sortedSections.length - 1}
           className="h-8 px-3 bg-text-primary text-bg-primary font-mono text-[10px] font-bold uppercase tracking-wider disabled:opacity-20 flex items-center gap-1 shadow-3xs"
         >
           <span>Next</span> <ArrowRight size={11} strokeWidth={2.5} />

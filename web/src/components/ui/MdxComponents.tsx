@@ -73,13 +73,16 @@ export const MdxAnalogyCard: React.FC<MdxAnalogyCardProps> = memo(
 MdxAnalogyCard.displayName = "MdxAnalogyCard";
 
 // BLOCK C: COMPONENT NOTE CALLOUT
+// src/components/ui/MdxComponents.tsx
+
 interface MdxNoteProps {
   variant?: "info" | "warning" | "danger";
   children: React.ReactNode;
 }
 export const MdxNote: React.FC<MdxNoteProps> = memo(
   ({ variant = "info", children }) => {
-    const styles = {
+    // 💎 FIXED: Defensive lookup dictionary mapping with safe fallback bindings
+    const styleMap = {
       info: {
         bg: "from-blue-500/[0.02]",
         border: "border-blue-500/10",
@@ -98,7 +101,12 @@ export const MdxNote: React.FC<MdxNoteProps> = memo(
         text: "text-red-400",
         icon: Terminal,
       },
-    }[variant];
+    };
+
+    // Normalize variant input string to block syntax mismatches gracefully
+    const selectedVariant =
+      (variant?.toLowerCase() as "info" | "warning" | "danger") || "info";
+    const styles = styleMap[selectedVariant] || styleMap.info;
     const Icon = styles.icon;
 
     return (
@@ -118,7 +126,6 @@ export const MdxNote: React.FC<MdxNoteProps> = memo(
   },
 );
 MdxNote.displayName = "MdxNote";
-
 // BLOCK D: COMPLEXITY BAR
 interface MdxComplexityProps {
   time: string;

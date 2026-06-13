@@ -10,96 +10,82 @@ import {
   GraduationCap,
   ChevronRight,
   Trophy,
+  Loader2,
 } from "lucide-react";
 
-interface ISubjectSummary {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  chapterCount: number;
-  progressPercent: number; // Hydrated from user's /progress endpoints
-}
+// 💎 INGEST THE CACHING ZUSTAND STATE MATRIX
+import { useLearnStore } from "@/store/learn.store";
 
 export const DocHubDashboardPage: React.FC = () => {
-  const [subjects, setSubjects] = useState<ISubjectSummary[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  useEffect(() => {
-    const hydrateDocHubCatalog = async () => {
-      try {
-        setIsLoading(true);
-        // Simultaneously fetching: GET {{baseUrl}}/learn/subjects & GET {{baseUrl}}/progress
-        await new Promise((r) => setTimeout(r, 450));
+  // Bind properties directly out of the normalized state layer hooks
+  const { subjects, progress, isSubjectsLoading, getSubjects, getProgress } =
+    useLearnStore();
 
-        setSubjects([
-          {
-            id: "sub-os",
-            name: "Operating Systems",
-            slug: "operating-systems",
-            description:
-              "Master thread process synchronization, scheduling kernels, virtualization schemes, memory segmentation, and dynamic disk file management loops.",
-            chapterCount: 8,
-            progressPercent: 65,
-          },
-          {
-            id: "sub-db",
-            name: "Database Internals",
-            slug: "database-internals",
-            description:
-              "Demystify B-Trees, write-ahead logs (WAL), ACID transactional concurrency control models, page layout optimization, and memory cache buffer pools.",
-            chapterCount: 6,
-            progressPercent: 20,
-          },
-          {
-            id: "sub-cn",
-            name: "Computer Networks",
-            slug: "computer-networks",
-            description:
-              "Trace packet framing flows, physical layer modulation, TCP state sliding window congestion controllers, DNS resolution topologies, and application routing architectures.",
-            chapterCount: 10,
-            progressPercent: 0,
-          },
-        ]);
-      } catch (error) {
-        console.error(
-          "Failed to map course registry metadata from DocHub streams:",
-          error,
+  // Trigger aggregate ingestion on mount cycle execution lanes
+  useEffect(() => {
+    getSubjects();
+    getProgress();
+  }, [getSubjects, getProgress]);
+
+  // 💎 REACTIVE CALIBRATION LOGIC: Converts the hash map records into arrays and maps live telemetry percentage markers
+  const hydratedSubjectsSummary = useMemo(() => {
+    return Object.values(subjects).map((subject) => {
+      // Look inside the subject container to scan child chapters/topics parameters
+      const subjectTopics =
+        subject.chapters?.flatMap((ch) => ch.topics || []) || [];
+      const totalTopicsCount = subjectTopics.length;
+
+      let calculatedPercent = 0;
+      if (totalTopicsCount > 0) {
+        const completedTopicsCount = subjectTopics.filter(
+          (topic) => progress[topic.id]?.completed,
+        ).length;
+        calculatedPercent = Math.round(
+          (completedTopicsCount / totalTopicsCount) * 100,
         );
-      } finally {
-        setIsLoading(false);
       }
-    };
-    hydrateDocHubCatalog();
-  }, []);
+
+      return {
+        id: subject.id,
+        name: subject.name,
+        slug: subject.slug,
+        description: subject.description ?? null,
+        chapterCount: subject.chapters?.length ?? 0,
+        progressPercent: calculatedPercent,
+      };
+    });
+  }, [subjects, progress]);
 
   // Filtered Subject Computation Logic
   const filteredSubjects = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
-    if (!normalizedQuery) return subjects;
+    if (!normalizedQuery) return hydratedSubjectsSummary;
 
-    return subjects.filter(
+    return hydratedSubjectsSummary.filter(
       (s) =>
         s.name.toLowerCase().includes(normalizedQuery) ||
         (s.description?.toLowerCase() || "").includes(normalizedQuery),
     );
-  }, [subjects, searchQuery]);
+  }, [hydratedSubjectsSummary, searchQuery]);
 
-  // Overall aggregate workspace metrics calculations
-  const totalChapters = useMemo(
-    () => subjects.reduce((acc, s) => acc + s.chapterCount, 0),
-    [subjects],
+  // Aggregate stats calculations driven directly from active store parameters
+  const totalChaptersCount = useMemo(
+    () => hydratedSubjectsSummary.reduce((acc, s) => acc + s.chapterCount, 0),
+    [hydratedSubjectsSummary],
   );
 
-  const completedStats = useMemo(() => {
-    if (subjects.length === 0) return 0;
-    const totalProgress = subjects.reduce(
+  const averageCompletionStats = useMemo(() => {
+    if (hydratedSubjectsSummary.length === 0) return 0;
+    const totalProgressAccumulator = hydratedSubjectsSummary.reduce(
       (acc, s) => acc + s.progressPercent,
       0,
     );
-    return Math.round(totalProgress / subjects.length);
-  }, [subjects]);
+    return Math.round(
+      totalProgressAccumulator / hydratedSubjectsSummary.length,
+    );
+  }, [hydratedSubjectsSummary]);
 
   return (
     <div className="w-full min-h-screen bg-bg-primary text-text-primary px-4 py-8 md:px-8 max-w-6xl mx-auto font-sans antialiased selection:bg-accent-gold/20 flex flex-col gap-6">
@@ -110,10 +96,10 @@ export const DocHubDashboardPage: React.FC = () => {
             <GraduationCap size={12} className="text-accent-gold" />
             <span>CoderRoute Core Repository</span>
           </div>
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-text-primary">
+          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-text-primary select-text">
             Engineering DocHub
           </h1>
-          <p className="text-xs text-text-secondary max-w-xl opacity-85 leading-relaxed">
+          <p className="text-xs text-text-secondary max-w-xl opacity-85 leading-relaxed select-text">
             Deep-dive into structural platform internals, low-level OS
             structures, and architectural trade-offs written directly by
             technical staff.
@@ -130,7 +116,7 @@ export const DocHubDashboardPage: React.FC = () => {
             <span>
               Syllabus Modules:{" "}
               <span className="text-text-primary font-bold">
-                {totalChapters}
+                {totalChaptersCount}
               </span>
             </span>
           </div>
@@ -139,7 +125,7 @@ export const DocHubDashboardPage: React.FC = () => {
             <span>
               Total Sync:{" "}
               <span className="text-accent-gold font-bold">
-                {completedStats}%
+                {averageCompletionStats}%
               </span>
             </span>
           </div>
@@ -162,14 +148,10 @@ export const DocHubDashboardPage: React.FC = () => {
       </div>
 
       {/* 3. CORE INTERACTIVE GRID LANES */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {[...Array(3)].map((_, i) => (
-            <div
-              key={`subject-skeleton-${i}`}
-              className="h-48 rounded-xl border border-border-subtle bg-bg-secondary/20 animate-pulse"
-            />
-          ))}
+      {isSubjectsLoading ? (
+        <div className="w-full flex flex-col items-center justify-center py-24 gap-3 font-mono text-xs text-text-muted">
+          <Loader2 size={16} className="animate-spin text-accent-gold" />
+          <span>Synchronizing normalized course schema registries...</span>
         </div>
       ) : filteredSubjects.length === 0 ? (
         <div className="w-full py-16 text-center border border-dashed border-border-subtle rounded-xl font-mono text-text-muted select-none opacity-60">
@@ -188,7 +170,6 @@ export const DocHubDashboardPage: React.FC = () => {
           {filteredSubjects.map((subject) => (
             <Link
               key={subject.id}
-              /* 💎 FIX: Directs route matching to intermediate chapter overview catalog timeline path */
               to={`/learn/${subject.slug}`}
               className="group relative block rounded-xl border border-border-subtle bg-bg-secondary/20 hover:bg-bg-secondary/40 hover:border-accent-gold/20 transition-all duration-300 p-5 flex flex-col justify-between h-52 overflow-hidden shadow-3xs cursor-pointer focus:outline-hidden"
             >
@@ -203,10 +184,10 @@ export const DocHubDashboardPage: React.FC = () => {
 
                 {/* TEXT FIELDS BLOCKS */}
                 <div className="space-y-1">
-                  <h3 className="text-sm font-semibold tracking-tight text-text-primary group-hover:text-accent-gold transition-colors duration-150 truncate">
+                  <h3 className="text-sm font-semibold tracking-tight text-text-primary group-hover:text-accent-gold transition-colors duration-150 truncate select-text">
                     {subject.name}
                   </h3>
-                  <p className="text-xs text-text-secondary leading-relaxed line-clamp-3 select-text opacity-85 font-sans">
+                  <p className="text-xs text-text-secondary leading-relaxed line-clamp-3 opacity-85 font-sans select-text">
                     {subject.description}
                   </p>
                 </div>
