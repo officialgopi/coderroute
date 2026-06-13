@@ -9,9 +9,11 @@ import {
   Loader2,
   CheckSquare,
   BookmarkCheck,
+  Cpu,
+  Sparkles,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 // 💎 IMPORT THE UNIFIED COMPILER AND CENTRALIZED CACHE MATRIX
 import MdxRenderer from "@/components/ui/MdxRenderer";
@@ -113,13 +115,13 @@ export const DocHubTopicReadingPage: React.FC = () => {
       setMarking(true);
       await updateTopicProgress(topicId, true);
     } catch {
-      // Catch exceptions silently or let sonner handle error logging inside the store
+      // Exceptions caught gracefully at centralized store boundaries
     } finally {
       setMarking(false);
     }
   };
 
-  // 💎 FIXED DEFENSIVE LOOKUP: Protects the rendering loop thread from reading values of undefined properties
+  // FIXED DEFENSIVE LOOKUP: Protects the rendering loop thread from reading values of undefined properties
   const isTopicCompleted = useMemo(() => {
     const safeProgress = progress || {};
     return !!safeProgress[topicId || ""]?.completed;
@@ -127,8 +129,8 @@ export const DocHubTopicReadingPage: React.FC = () => {
 
   if (isTopicLoading && !currentSection)
     return (
-      <div className="flex-1 flex items-center justify-center font-mono text-xs text-text-muted animate-pulse select-none">
-        <Loader2 size={13} className="animate-spin text-accent-gold mr-2" />
+      <div className="flex-1 flex items-center justify-center font-mono text-xs text-text-muted animate-pulse select-none bg-bg-primary">
+        <Loader2 size={14} className="animate-spin text-accent-gold mr-2.5" />
         <span>Parsing Markdown abstract structures...</span>
       </div>
     );
@@ -137,73 +139,105 @@ export const DocHubTopicReadingPage: React.FC = () => {
 
   return (
     <>
-      <main className="flex-1 overflow-y-auto px-4 sm:px-8 md:px-12 py-8 custom-scrollbar bg-bg-primary">
-        <article className="max-w-3xl mx-auto space-y-6 pb-12">
-          {/* CRUMB METRICS TITLE BLOCK */}
-          <div className="space-y-1.5 border-b border-border-subtle pb-4 select-none">
-            <div className="flex items-center gap-2 font-mono text-[9px] text-text-secondary opacity-50 uppercase font-bold tracking-wider">
-              <Clock size={10} />
-              <span>
-                Section {activeIdx + 1} of {sortedSections.length}
-              </span>
-              <span>•</span>
-              <ShieldCheck size={10} className="text-accent-gold" />
-              <span>Verified CoderRoute Core</span>
+      {/* Dynamic Workspace Container Field Canvas */}
+      <main className="flex-1 overflow-y-auto px-6 sm:px-12 md:px-16 py-10 custom-scrollbar bg-bg-primary relative">
+        {/* Subtle Ambient Background Mesh Glow Accent */}
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-accent-gold/[0.02] rounded-full blur-3xl pointer-events-none" />
+
+        <article className="max-w-3xl mx-auto space-y-8 pb-16 relative z-10">
+          {/* 💎 HIGH-DENSITY PREMIUM HUD TITLE BLOCK HEADER */}
+          <div className="p-5 sm:p-6 rounded-2xl border border-border-subtle bg-gradient-to-b from-bg-secondary/40 to-bg-secondary/10 flex flex-col gap-3.5 shadow-2xs select-none backdrop-blur-xs">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-3 font-mono text-[9px] font-bold uppercase tracking-widest text-text-secondary opacity-60">
+                <span className="flex items-center gap-1">
+                  <Layers size={11} className="text-accent-gold" />
+                  <span>
+                    Module Frame: {activeIdx + 1}/{sortedSections.length}
+                  </span>
+                </span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <Clock size={11} className="text-text-muted" />
+                  <span>Topic Stream Reading</span>
+                </span>
+              </div>
+
+              <div className="flex items-center gap-1 font-mono text-[9px] font-black uppercase tracking-widest text-accent-gold px-2 py-0.5 rounded border border-accent-gold/10 bg-accent-gold/5">
+                <ShieldCheck size={10} strokeWidth={2.5} />
+                <span>CoderRoute Verified Core</span>
+              </div>
             </div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-text-primary select-text">
-              {currentSection.title}
-            </h1>
+
+            <div className="space-y-1">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-text-primary font-sans select-text leading-tight">
+                {currentSection.title}
+              </h1>
+            </div>
           </div>
 
-          {/* RENDERING CANVAS PORTAL LAYER */}
-          <MdxRenderer content={currentSection.content?.value || ""} />
+          {/* RENDERING CANVAS PORTAL MODULE LAYER */}
+          <div className="w-full max-w-full overflow-x-hidden pt-2 text-justify select-text">
+            <MdxRenderer content={currentSection.content?.value || ""} />
+          </div>
         </article>
       </main>
 
-      {/* --- FOOTER PACED CONTROLLER STRIPBAR --- */}
-      <footer className="h-14 border-t border-border-subtle bg-bg-secondary/10 px-4 sm:px-8 md:px-12 flex items-center justify-between shrink-0 select-none backdrop-blur-xs">
-        <Button
-          onClick={() => syncSectionIndexNavigation(-1)}
+      {/* --- PREMIUM FOOTER PACED CONTROLLER STRIPBAR --- */}
+      <footer className="h-14.5 border-t border-border-subtle bg-bg-secondary/30 px-6 sm:px-12 md:px-16 flex items-center justify-between shrink-0 select-none backdrop-blur-xl relative z-20">
+        {/* Back Link Navigation Trigger */}
+        <button
+          type="button"
           disabled={activeIdx === 0}
-          className="h-8 px-3 border border-border-subtle bg-bg-primary text-text-secondary hover:text-text-primary font-mono text-[10px] font-bold uppercase tracking-wider disabled:opacity-20 flex items-center gap-1 shadow-3xs"
+          onClick={() => syncSectionIndexNavigation(-1)}
+          className="h-8.5 px-4 border border-border-subtle bg-bg-secondary hover:bg-bg-secondary/80 text-text-primary hover:text-white rounded-xl font-mono text-[10px] font-bold uppercase tracking-widest disabled:opacity-20 flex items-center gap-1.5 shadow-3xs active:scale-95 transition-all duration-150 cursor-pointer outline-hidden"
         >
-          <ArrowLeft size={11} strokeWidth={2.5} /> <span>Back</span>
-        </Button>
+          <ArrowLeft size={12} strokeWidth={2.5} />
+          <span>Back</span>
+        </button>
 
+        {/* Unified Completion Centralized Control Button Trigger */}
         {activeIdx === sortedSections.length - 1 && (
-          <Button
+          <button
+            type="button"
             disabled={isTopicCompleted || marking}
             onClick={handleComplete}
             className={cn(
-              "h-8 px-4 font-mono text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-3xs transition-all border pt-0.5",
+              "h-8.5 px-5 font-mono text-[10px] font-bold uppercase tracking-widest flex items-center gap-2 shadow-md transition-all duration-200 rounded-xl outline-hidden border pt-0.5 cursor-pointer active:scale-95",
               isTopicCompleted
-                ? "bg-bg-secondary border-border-subtle text-emerald-400"
-                : "bg-text-primary text-bg-primary border-transparent hover:opacity-90",
+                ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400 font-black shadow-inner shadow-emerald-950/20 cursor-default"
+                : "bg-white text-black border-none hover:bg-neutral-200",
             )}
           >
             {marking ? (
-              <Loader2 size={11} className="animate-spin" />
+              <Loader2 size={12} className="animate-spin text-current" />
             ) : isTopicCompleted ? (
               <>
-                <CheckSquare size={11} className="stroke-[2.5]" />
+                <CheckSquare
+                  size={12}
+                  strokeWidth={2.5}
+                  className="text-emerald-400"
+                />
                 <span>Topic Completed</span>
               </>
             ) : (
               <>
                 <span>Complete Topic</span>
-                <BookmarkCheck size={11} className="stroke-[2.5]" />
+                <BookmarkCheck size={12} strokeWidth={2.5} />
               </>
             )}
-          </Button>
+          </button>
         )}
 
-        <Button
-          onClick={() => syncSectionIndexNavigation(1)}
+        {/* Forward Next Segment Navigation Trigger */}
+        <button
+          type="button"
           disabled={activeIdx === sortedSections.length - 1}
-          className="h-8 px-3 bg-text-primary text-bg-primary font-mono text-[10px] font-bold uppercase tracking-wider disabled:opacity-20 flex items-center gap-1 shadow-3xs"
+          onClick={() => syncSectionIndexNavigation(1)}
+          className="h-8.5 px-4 bg-white text-black hover:bg-neutral-200 disabled:bg-bg-secondary disabled:text-text-muted border-none rounded-xl font-mono text-[10px] font-bold uppercase tracking-widest disabled:opacity-20 flex items-center gap-1.5 shadow-md active:scale-95 transition-all duration-150 cursor-pointer outline-hidden"
         >
-          <span>Next</span> <ArrowRight size={11} strokeWidth={2.5} />
-        </Button>
+          <span>Next</span>
+          <ArrowRight size={12} strokeWidth={2.5} />
+        </button>
       </footer>
     </>
   );

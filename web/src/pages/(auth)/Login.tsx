@@ -1,19 +1,14 @@
+// src/pages/(auth)/LoginPage.tsx
 import { env } from "@/env";
-import { useThemeStore } from "@/lib/theme.lib";
 import { motion } from "motion/react";
 import { useNavigate, Link } from "react-router-dom";
-import {
-  ArrowLeft,
-  Moon,
-  Sun,
-  ShieldCheck,
-  Github,
-  Sparkles,
-} from "lucide-react";
+import { ArrowLeft, ShieldCheck, Github, Sparkles } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 
+// 💎 INGEST REUSABLE CORE TOGGLE DECK MODULE
+import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
+
 export const LoginPage = () => {
-  const { theme, toggleTheme } = useThemeStore();
   const navigate = useNavigate();
 
   const handleGoogleAuth = () => {
@@ -56,17 +51,10 @@ export const LoginPage = () => {
           <ArrowLeft size={16} strokeWidth={2.5} />
         </button>
 
-        <button
-          onClick={() => toggleTheme()}
-          className="p-2.5 rounded-xl border border-border-subtle dark:border-border-subtle 
-            bg-surface-panel/80 dark:bg-surface-panel/40 backdrop-blur-md text-text-secondary dark:text-text-secondary 
-            hover:text-text-primary dark:hover:text-text-primary hover:border-border-intense dark:hover:border-border-intense
-            hover:bg-surface-card dark:hover:bg-surface-card transition-all duration-200 cursor-pointer pointer-events-auto shadow-xs
-            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
-          aria-label="Toggle visual theme state"
-        >
-          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
+        {/* 💎 FIXED MODULARIZED ATOMIC THEME TRIGGER CONTROLLER CONTAINER */}
+        <div className="pointer-events-auto shrink-0">
+          <ThemeToggleButton />
+        </div>
       </nav>
 
       {/* --- THE CODERROUTE PREMIUM AUTHENTICATION CARD CONTAINER --- */}

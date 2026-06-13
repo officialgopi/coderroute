@@ -1,11 +1,13 @@
 // src/components/layout/MainNavbar.tsx
 import { useEffect, useState, memo } from "react";
-import { useThemeStore } from "@/lib/theme.lib";
 import { useAuthStore } from "@/store/auth.store";
-import { motion } from "framer-motion"; // Cleaned namespace reference matching framer updates
+import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Moon, Sun, ShieldAlert, GraduationCap } from "lucide-react";
+import { Menu, X, ShieldAlert, GraduationCap } from "lucide-react";
 import { UserAvatarDropdown } from "./UserAvatarDropdown";
+
+// 💎 INGEST EXTRACTED TRANSACT THEME SWITCH LAYER
+import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
 
 interface NavItem {
   href: string;
@@ -15,7 +17,6 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  /* 💎 ENHANCED: DOCHUB ACADEMY ENTRY POINT ADDED AT POSITION 0 */
   { href: "/learn", label: "Learn", isAcademy: true },
   { href: "/problems", label: "Problems" },
   { href: "/discussions", label: "Discussions" },
@@ -25,7 +26,6 @@ const NAV_ITEMS: NavItem[] = [
 
 export const MainNavbar = () => {
   const { user } = useAuthStore();
-  const { theme, toggleTheme } = useThemeStore();
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   const location = useLocation();
@@ -113,20 +113,15 @@ export const MainNavbar = () => {
 
         {/* --- RIGHT SEGMENT: ACTIONS DECK --- */}
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => toggleTheme()}
-            className="p-2 rounded-xl border border-border-subtle bg-bg-secondary text-text-secondary hover:text-text-primary hover:border-text-muted/20 transition-all duration-150 cursor-pointer shadow-3xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent-gold/40"
-            aria-label="Toggle system interface style theme"
-          >
-            {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
-          </button>
+          {/* 💎 INJECTED REUSABLE CORE TOGGLE DECK MODULE */}
+          <ThemeToggleButton />
 
           {/* INTEGRATED PORTAL DROPDOWN SUITE ENTRY POINT */}
           {user ? (
             <UserAvatarDropdown user={user} />
           ) : (
             <Link to="/login">
-              <button className="h-8 px-3.5 text-xs font-mono font-bold uppercase tracking-wider rounded-lg bg-text-primary text-bg-primary transition-all duration-150 hover:opacity-90 active:scale-98 cursor-pointer shadow-3xs">
+              <button className="h-8 px-3.5 text-xs font-mono font-bold uppercase tracking-wider rounded-lg bg-text-primary text-bg-primary transition-all duration-150 hover:opacity-90 active:scale-98 cursor-pointer shadow-3xs border-none outline-hidden">
                 Login
               </button>
             </Link>

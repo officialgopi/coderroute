@@ -1,11 +1,13 @@
-// src/components/layout/Navbar.tsx
+// src/pages/(landing)/Navbar.tsx
 import { useState, memo } from "react";
 import { motion, AnimatePresence, type Transition } from "motion/react";
-import { Menu, X, Sun, Moon, Loader2 } from "lucide-react";
-import { useThemeStore } from "@/lib/theme.lib";
+import { Menu, X, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "@/store/auth.store";
 import { UserAvatarDropdown } from "@/components/shared/UserAvatarDropdown";
+
+// 💎 INGEST REUSABLE TRANSACT THEME SWITCH LAYER
+import { ThemeToggleButton } from "@/components/ui/ThemeToggleButton";
 
 const NAV_LINKS = [
   { label: "Social Proofs", href: "#social-proofs" },
@@ -17,7 +19,6 @@ const NAV_LINKS = [
 ] as const;
 
 export const Navbar = () => {
-  const { theme, toggleTheme } = useThemeStore();
   const { user, isAuthLoading } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -36,7 +37,6 @@ export const Navbar = () => {
     >
       <div className="mx-auto h-full max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-full items-center justify-between gap-4">
-
           {/* LOGO & PLATFORM TITLE CHANNELS */}
           <a
             href="/#hero"
@@ -77,7 +77,11 @@ export const Navbar = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 180, damping: 26 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 180,
+                        damping: 26,
+                      }}
                       className="absolute inset-0 z-0 rounded-lg bg-bg-secondary border border-border-subtle/50"
                     />
                   )}
@@ -88,35 +92,8 @@ export const Navbar = () => {
 
           {/* GLOBAL CONFIGURATION HUB RAIL ACTIONS */}
           <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={() => toggleTheme()}
-              aria-label="Toggle platform theme"
-              className="relative flex h-8 w-8 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-border-subtle bg-bg-secondary text-text-secondary hover:text-text-primary hover:border-text-muted/20 transition-colors focus-visible:outline-2 focus-visible:outline-accent-gold shadow-3xs"
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                {theme === "dark" ? (
-                  <motion.div
-                    key="dark-icon"
-                    initial={{ y: 12, opacity: 0, rotate: -20 }}
-                    animate={{ y: 0, opacity: 1, rotate: 0 }}
-                    exit={{ y: -12, opacity: 0, rotate: 20 }}
-                    transition={smoothTransition}
-                  >
-                    <Moon size={14} className="stroke-[2.2]" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="light-icon"
-                    initial={{ y: 12, opacity: 0, rotate: 20 }}
-                    animate={{ y: 0, opacity: 1, rotate: 0 }}
-                    exit={{ y: -12, opacity: 0, rotate: -20 }}
-                    transition={smoothTransition}
-                  >
-                    <Sun size={14} className="stroke-[2.2]" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </button>
+            {/* 💎 FIXED MODULARIZED ATOMIC THEME TRIGGER CONTROLLER */}
+            <ThemeToggleButton />
 
             <div className="h-3.5 w-px bg-border-subtle" />
 
@@ -131,8 +108,7 @@ export const Navbar = () => {
               <Link to="/login">
                 <motion.button
                   whileHover={{ opacity: 0.9 }}
-                  transition={smoothTransition}
-                  className="h-8 cursor-pointer px-3.5 text-[11px] font-bold tracking-wider uppercase rounded-lg bg-bg-primary text-text-primary dark:bg-bg-primary dark:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-gold font-mono"
+                  className="h-8 cursor-pointer px-4 text-[10px] font-bold tracking-widest uppercase rounded-lg bg-white text-black hover:bg-neutral-200 font-mono shadow-md border-none active:scale-95 transition-all outline-hidden"
                 >
                   Sign In
                 </motion.button>
@@ -142,18 +118,20 @@ export const Navbar = () => {
 
           {/* RESPONSIVE HAMBURGER TRIGGERS */}
           <div className="flex md:hidden items-center gap-2">
+            {/* Mobile Theme Component Integration */}
+            <ThemeToggleButton />
+
             <button
-              onClick={() => toggleTheme()}
-              className="p-2 rounded-lg border border-border-subtle text-text-secondary bg-bg-secondary"
-            >
-              {theme === "dark" ? <Moon size={14} /> : <Sun size={14} />}
-            </button>
-            <button
+              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle mobile navigation menu"
-              className="p-2 rounded-lg border border-border-subtle text-text-secondary bg-bg-secondary hover:bg-bg-primary transition-colors"
+              className="p-2 rounded-xl border border-border-subtle text-text-secondary bg-bg-secondary hover:bg-bg-primary transition-colors outline-hidden cursor-pointer"
             >
-              {isMobileMenuOpen ? <X size={15} /> : <Menu size={15} />}
+              {isMobileMenuOpen ? (
+                <X size={14} strokeWidth={2.5} />
+              ) : (
+                <Menu size={14} strokeWidth={2.5} />
+              )}
             </button>
           </div>
         </div>
@@ -169,7 +147,7 @@ export const Navbar = () => {
             transition={smoothTransition}
             className="md:hidden border-b border-border-subtle bg-bg-secondary backdrop-blur-2xl overflow-hidden"
           >
-            <div className="px-4 pt-2 pb-6 space-y-0.5">
+            <div className="px-4 pt-2 pb-6 space-y-0.5 select-none">
               {NAV_LINKS.map((link) => (
                 <a
                   key={link.label}
@@ -184,7 +162,7 @@ export const Navbar = () => {
               {!user && !isAuthLoading && (
                 <div className="pt-4 px-3">
                   <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                    <button className="w-full h-9 text-xs font-bold uppercase tracking-wider rounded-lg bg-text-primary text-bg-primary font-mono">
+                    <button className="w-full h-9.5 text-[10px] font-bold uppercase tracking-widest rounded-xl bg-white text-black font-mono border-none outline-hidden cursor-pointer active:scale-95 hover:bg-neutral-200 transition-all">
                       Sign In to Platform
                     </button>
                   </Link>
