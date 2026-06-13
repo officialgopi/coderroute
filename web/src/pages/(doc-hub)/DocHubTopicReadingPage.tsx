@@ -9,8 +9,6 @@ import {
   Loader2,
   CheckSquare,
   BookmarkCheck,
-  Cpu,
-  Sparkles,
   Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

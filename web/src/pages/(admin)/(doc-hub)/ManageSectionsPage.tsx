@@ -29,7 +29,6 @@ import {
   ListOrdered,
   Table,
   Code,
-  CornerDownRight,
   Save,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -103,7 +102,6 @@ export const ManageSectionsPage: React.FC = () => {
     currentType: SectionType,
   ) => {
     if (!topicId) return;
-    const navigate = useNavigate();
     const typeSequence: SectionType[] = [
       "THEORY",
       "EXAMPLE",
