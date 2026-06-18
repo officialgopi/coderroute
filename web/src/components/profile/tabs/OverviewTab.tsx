@@ -1,85 +1,73 @@
-import { memo } from "react";
+// src/components/shared/OverviewTab.tsx
+import { useEffect, useMemo, memo } from "react";
 import { motion } from "framer-motion";
-// import { useProblemStore } from "@/store/problem.store";
-// import { useDiscussionStore } from "@/store/discussion.store";
+import { Loader2, AlertCircle } from "lucide-react";
+
+// 💎 BIND CENTRALIZED USER TRANSACTION STATE CORE HOOK MATRIX
+import { useUserStore } from "@/store/user.store";
+
 import { StatsCards } from "../elements/StatsCards";
 import { ActivityHeatmap } from "../elements/ActivityHeatmap";
 import { RecentSolvedProblems } from "../elements/RecentSolvedProblems";
 
-// Type definitions ensuring contract safety across store and fallback limits
-// interface SolvedMetrics {
-//   totalSolved: number;
-//   successRate: string | number;
-//   globalRank: number;
-//   discussionsPosted?: number;
-//}
-
 export const OverviewTab = () => {
-  // 1. Centralized Server/Store State Hooks Track
-  // const {
-  //   solvedMetrics: storeMetrics,
-  //   activityLogs: storeActivity,
-  //   recentProblemsIndex: storeProblems,
-  // } = useProblemStore();
-  // const { userThreadsCount: storeThreads } = useDiscussionStore();
+  // 1. Bind reactive values and data fetch lifecycles straight from your store layer
+  const {
+    metrics,
+    solvedProblems,
+    isProfileLoading,
+    isMetricsLoading,
+    isSolvedLoading,
+    getProfile,
+    getMetrics,
+    getSolvedProblems,
+  } = useUserStore();
 
-  const storeMetrics = undefined; // Placeholder for actual store hook
-  const storeActivity = undefined;
-  const storeProblems = undefined;
-  const storeThreads = undefined;
+  // 2. Synchronize store hydration pipelines safely on mounting loops
+  useEffect(() => {
+    const orchestrateDashboardHydration = async () => {
+      // Parallelize network requests across system boundary lanes
+      await Promise.all([getProfile(), getMetrics(), getSolvedProblems()]);
+    };
+    orchestrateDashboardHydration();
+  }, [getProfile, getMetrics, getSolvedProblems]);
 
-  // 2. Production Sandbox Fallback Data (Active if global state context hasn't hydrated)
-  const DEMO_DATA = {
-    userThreadsCount: 58,
-    solvedMetrics: {
-      totalSolved: 142,
-      successRate: 74.2, // Float representation
-      globalRank: 4210,
-      discussionsPosted: 58,
-    },
-    activityLogs: [
-      { date: "2024-06-01", count: 3 },
-      { date: "2024-06-02", count: 5 },
-      { date: "2024-06-03", count: 2 },
-      { date: "2024-06-04", count: 4 },
-      { date: "2024-06-05", count: 1 },
-      { date: "2024-06-06", count: 0 },
-      { date: "2024-06-07", count: 6 },
-    ],
-    recentProblemsIndex: [
-      { id: 1, title: "Two Sum", difficulty: "Easy", solvedAt: "2024-06-07" },
-      {
-        id: 2,
-        title: "Longest Substring Without Repeating Characters",
-        difficulty: "Medium",
-        solvedAt: "2024-06-06",
-      },
-      {
-        id: 3,
-        title: "Median of Two Sorted Arrays",
-        difficulty: "Hard",
-        solvedAt: "2024-06-05",
-      },
-    ],
-  };
+  // 3. Normalize metrics payload properties securely to map data safely to StatsCards
+  const platformStatsPayload = useMemo(() => {
+    const safeMetrics = metrics || {
+      solvedProblemsCount: 0,
+      currentStreak: 0,
+      longestStreak: 0,
+      points: 0,
+    };
 
-  // 3. Resolve active telemetry arrays
-  const resolvedMetrics = storeMetrics ?? DEMO_DATA.solvedMetrics;
-  const resolvedThreads = storeThreads ?? DEMO_DATA.userThreadsCount;
-  const resolvedActivity = storeActivity ?? DEMO_DATA.activityLogs;
-  const resolvedProblems = storeProblems ?? DEMO_DATA.recentProblemsIndex;
+    // Fallback index tracking handles edge sequences where backend returns null records
+    return {
+      totalSolved: safeMetrics.solvedProblemsCount,
+      globalRank: safeMetrics.rank ?? 0,
+      discussionsPosted: safeMetrics.points, // maps out point weights for display indicators
+      successRate:
+        safeMetrics.currentStreak > 0
+          ? `${safeMetrics.currentStreak} Day Streak`
+          : "0 Day Streak",
+    };
+  }, [metrics]);
 
-  // 4. Normalize metrics payload properties securely to protect structural interface rules
-  const platformStatsPayload = {
-    totalSolved: resolvedMetrics.totalSolved,
-    globalRank: resolvedMetrics.globalRank,
-    discussionsPosted: resolvedMetrics.discussionsPosted ?? resolvedThreads,
-    // Dynamic serialization guarantees unit symbol strings won't crash text processors
-    successRate:
-      typeof resolvedMetrics.successRate === "number"
-        ? `${resolvedMetrics.successRate}%`
-        : resolvedMetrics.successRate,
-  };
+  // Combined Loading Lifecycles State Flag
+  const isTabHydrating =
+    isProfileLoading || isMetricsLoading || isSolvedLoading;
+
+  /* -------------------------------------------------------------------------- */
+  /* RENDER LIFE CYCLE GUARD: SHOW INTUATIVE SKELETON LOADING FRAME             */
+  /* -------------------------------------------------------------------------- */
+  if (isTabHydrating && !metrics) {
+    return (
+      <div className="w-full h-64 border border-border-subtle/40 dark:border-zinc-900 bg-bg-secondary/10 rounded-2xl flex flex-col items-center justify-center font-mono text-[10px] text-text-muted opacity-60 select-none animate-pulse gap-2">
+        <Loader2 size={14} className="animate-spin text-accent-gold" />
+        <span>Hydrating transactional core telemetry matrices...</span>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -98,7 +86,7 @@ export const OverviewTab = () => {
         <h3 className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-secondary opacity-40 select-none mb-4 px-1">
           Submission Frequency Matrix
         </h3>
-        <ActivityHeatmap activity={resolvedActivity} />
+        <ActivityHeatmap />
       </section>
 
       {/* --- LOWER ROW: RECENCY COMPILATION TRACKER LOGS --- */}
@@ -106,7 +94,17 @@ export const OverviewTab = () => {
         <h3 className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-secondary opacity-40 select-none px-1">
           Recent Delta Compilation Activities
         </h3>
-        <RecentSolvedProblems problems={resolvedProblems} />
+
+        {solvedProblems.length === 0 ? (
+          <div className="w-full p-8 text-center border border-dashed border-border-subtle rounded-xl font-mono text-[10px] text-text-muted/60 flex items-center justify-center gap-2 select-none">
+            <AlertCircle size={12} className="opacity-40" />
+            <span>
+              // No algorithmic node submittal activities recorded yet.
+            </span>
+          </div>
+        ) : (
+          <RecentSolvedProblems problems={solvedProblems} />
+        )}
       </section>
     </motion.div>
   );

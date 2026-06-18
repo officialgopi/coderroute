@@ -1,3 +1,4 @@
+// src/components/shared/TabPanel.tsx
 import { memo, type ReactNode } from "react";
 import { motion } from "framer-motion";
 
@@ -10,11 +11,16 @@ export const TabPanel = ({ children }: TabPanelProps) => {
     <motion.div
       role="tabpanel"
       tabIndex={0}
-      initial={{ opacity: 0, y: 4 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -4 }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
-      className="w-full focus:outline-none focus-visible:ring-1 focus-visible:ring-amber-500/30 rounded-xl"
+      exit={{ opacity: 0, y: -6 }}
+      transition={{
+        type: "spring",
+        stiffness: 380,
+        damping: 28,
+        mass: 0.8,
+      }}
+      className="w-full focus:outline-hidden focus-visible:ring-1 focus-visible:ring-accent-gold/20 rounded-2xl outline-hidden pt-1"
     >
       {children}
     </motion.div>

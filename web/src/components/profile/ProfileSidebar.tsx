@@ -1,12 +1,20 @@
-import { memo } from "react";
+// src/components/shared/ProfileSidebar.tsx
+import { useState, memo } from "react";
+import { AnimatePresence } from "motion/react";
 import { UserAvatarCard } from "./elements/UserAvatarCard";
 import { EditProfileButton } from "./elements/EditProfileButton";
 import { UserLinks } from "./elements/UserLinks";
 import { UserTags } from "./elements/UserTags";
 
+// 💎 BIND PRESERVED WORKSPACE COMPILATION WINDOWS
+import { EditProfileModal } from "./elements/EditProfileModal";
+
 export const ProfileSidebar = () => {
+  // 💎 LOCAL LIFECYCLE OPEN STATE TRACKER
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   return (
-    <div className="w-full flex flex-col gap-4 font-sans text-text-primary">
+    <div className="w-full flex flex-col gap-4 font-sans text-text-primary relative">
       {/* --- IDENTITY FOCUS SECTION --- */}
       <div className="w-full pb-1">
         <UserAvatarCard />
@@ -14,7 +22,8 @@ export const ProfileSidebar = () => {
 
       {/* --- ACTION GATEWAYS --- */}
       <div className="w-full">
-        <EditProfileButton />
+        {/* Pass down modal trigger handle to catch active button click bounds */}
+        <EditProfileButton onTriggerAction={() => setIsEditModalOpen(true)} />
       </div>
 
       {/* --- EXTERNAL CHANNELS BLOCK INDEX --- */}
@@ -32,6 +41,16 @@ export const ProfileSidebar = () => {
         </h3>
         <UserTags />
       </div>
+
+      {/* --- 💎 SEAMLESS WORKSPACE DIALOG LIFECYCLE DECK --- */}
+      <AnimatePresence>
+        {isEditModalOpen && (
+          <EditProfileModal
+            isOpen={isEditModalOpen}
+            onClose={() => setIsEditModalOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };

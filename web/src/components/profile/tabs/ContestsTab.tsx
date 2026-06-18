@@ -1,143 +1,65 @@
-import { memo } from "react";
+// src/components/shared/ContestsTab.tsx
+import { useEffect, memo } from "react";
 import { motion } from "framer-motion";
-import { Trophy, Award, TrendingUp, Calendar } from "lucide-react";
+import { Wrench, ShieldAlert, Sparkles, AlertCircle } from "lucide-react";
 
-// Mock competitive analytics data payload
-const CONTESTS_MOCK = {
-  metrics: {
-    rating: 1842,
-    globalRank: "Top 4.2%",
-    attended: 28,
-    bestRank: 114,
-  },
-  history: [
-    {
-      id: "c1",
-      title: "Weekly Competitive Arena 84",
-      rank: "242 / 8500",
-      ratingDelta: "+34",
-      isPositive: true,
-      date: "May 24, 2026",
-    },
-    {
-      id: "c2",
-      title: "Bi-Weekly Speed Sprint 41",
-      rank: "512 / 6200",
-      ratingDelta: "-12",
-      isPositive: false,
-      date: "May 10, 2026",
-    },
-    {
-      id: "c3",
-      title: "Global Grandmaster Open 2026",
-      rank: "114 / 12400",
-      ratingDelta: "+58",
-      isPositive: true,
-      date: "Apr 26, 2026",
-    },
-  ],
-};
+// 💎 BIND CENTRALIZED STATE HOOK MATRIX FROM THE CORE STORE LAYER
+import { useUserStore } from "@/store/user.store";
 
 export const ContestsTab = () => {
-  const { metrics, history } = CONTESTS_MOCK;
+  // Bind store variables and metrics hydration triggers safely
+  const { metrics, getMetrics } = useUserStore();
+
+  // Force store data alignment cleanly on component mounting loops
+  useEffect(() => {
+    getMetrics();
+  }, [getMetrics]);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15 }}
-      className="w-full space-y-6 font-sans text-text-primary"
+      className="w-full space-y-6 font-sans text-text-primary antialiased select-none"
     >
-      {/* --- RATING & PLACEMENT CONSOLE METRICS --- */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 select-none">
-        {[
-          {
-            label: "Platform Rating",
-            val: metrics.rating,
-            color: "text-amber-500",
-            icon: Trophy,
-          },
-          {
-            label: "Global Percentile",
-            val: metrics.globalRank,
-            color: "text-text-primary",
-            icon: Award,
-          },
-          {
-            label: "Contests Attended",
-            val: metrics.attended,
-            color: "text-text-primary",
-            icon: Calendar,
-          },
-          {
-            label: "Personal Best Rank",
-            val: `#${metrics.bestRank}`,
-            color: "text-emerald-500",
-            icon: TrendingUp,
-          },
-        ].map((block, i) => {
-          const Icon = block.icon;
-          return (
-            <div
-              key={`contest-metric-${i}`}
-              className="p-4 rounded-xl border border-border-subtle/40 dark:border-zinc-900 bg-surface-card/30 dark:bg-zinc-950/20 flex flex-col justify-between h-20 shadow-3xs"
-            >
-              <div className="flex items-center justify-between w-full opacity-50">
-                <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-secondary">
-                  {block.label}
-                </span>
-                <Icon size={11} className="text-text-secondary stroke-[2.2]" />
-              </div>
-              <span
-                className={`text-xl font-bold tracking-tight font-mono ${block.color}`}
-              >
-                {block.val}
-              </span>
+      {/* --- PREMIUM HUD HEADER NOTIFICATION MODULE --- */}
+      <div className="w-full p-5 rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/[0.04] via-transparent to-transparent flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-3xs backdrop-blur-xs relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/[0.01] rounded-full blur-2xl pointer-events-none" />
+
+        <div className="flex items-center gap-3.5 relative z-10">
+          <div className="w-9 h-9 rounded-xl bg-bg-secondary border border-amber-500/20 flex items-center justify-center text-amber-500 shadow-md shadow-black/20 ring-1 ring-white/5">
+            <Wrench size={14} className="animate-pulse" />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5 font-mono text-[9px] font-black tracking-widest uppercase text-amber-500">
+              <ShieldAlert size={10} />
+              <span>System Layer Exception</span>
             </div>
-          );
-        })}
+            <h1 className="text-xs sm:text-sm font-bold text-text-primary tracking-tight uppercase font-mono">
+              Competitive Engine Under Maintenance
+            </h1>
+          </div>
+        </div>
+
+        {metrics?.points && (
+          <div className="flex items-center gap-1 font-mono text-[9px] font-bold text-text-muted bg-bg-secondary border border-border-subtle px-2 py-1 rounded-lg shadow-inner">
+            <Sparkles size={9} className="text-accent-gold" />
+            <span>XP Tracker Index: {metrics.points}</span>
+          </div>
+        )}
       </div>
 
-      {/* --- CONTEST TIMELINE LEDGER --- */}
-      <div className="space-y-2">
-        <h3 className="font-mono text-[10px] font-bold uppercase tracking-wider text-text-secondary opacity-40 select-none px-1">
-          Performance History Compilations
-        </h3>
-
-        <div className="flex flex-col gap-2.5">
-          {history.map((node) => (
-            <div
-              key={node.id}
-              className="w-full rounded-xl border border-border-subtle/40 dark:border-zinc-900 bg-surface-card/20 dark:bg-zinc-900/5 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors shadow-3xs group hover:border-border-intense dark:hover:border-zinc-800"
-            >
-              {/* Left Details Block */}
-              <div className="min-w-0 space-y-0.5">
-                <h4 className="text-xs font-semibold text-text-primary truncate max-w-xl group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
-                  {node.title}
-                </h4>
-                <div className="flex items-center gap-2 font-mono text-[10px] text-text-secondary opacity-50">
-                  <span className="font-sans font-medium text-text-primary opacity-80">
-                    Rank: {node.rank}
-                  </span>
-                  <span>•</span>
-                  <span>{node.date}</span>
-                </div>
-              </div>
-
-              {/* Right Rating Adjustment Badge */}
-              <div className="flex items-center sm:justify-end shrink-0 select-none">
-                <span
-                  className={`font-mono text-xs font-bold px-2 py-0.5 rounded border leading-none tracking-tight ${
-                    node.isPositive
-                      ? "bg-emerald-500/5 text-emerald-500 border-emerald-500/20"
-                      : "bg-rose-500/5 text-rose-500 border-rose-500/20"
-                  }`}
-                >
-                  {node.ratingDelta} Delta
-                </span>
-              </div>
-            </div>
-          ))}
+      {/* --- CINEMATIC DISPATCH SKELETON REPOS PANEL --- */}
+      <div className="w-full py-16 text-center border border-dashed border-border-subtle rounded-2xl font-mono text-text-muted/40 bg-bg-secondary/5 flex flex-col items-center justify-center gap-2.5 px-6">
+        <AlertCircle size={16} className="opacity-30 text-amber-500/60" />
+        <div className="space-y-1">
+          <p className="text-[10px] tracking-wide max-w-sm leading-relaxed">
+            // Arena rating tracking bounds and leaderboard delta pipelines are
+            currently undergoing structural optimizations.
+          </p>
+          <p className="text-[9px] text-text-muted/30 uppercase font-bold tracking-widest pt-1">
+            Expected System Sync: Trailing Deployment Lifecycle
+          </p>
         </div>
       </div>
     </motion.div>
