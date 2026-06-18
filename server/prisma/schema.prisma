@@ -122,6 +122,7 @@ model User {
   username                     String       @unique
   email                        String       @unique
   avatar                       String?
+  bio                          String?
   role                         USER_ROLE    @default(USER)
   authProvider                 AUTH_PROVIDER @default(GOOGLE)
   password                     String?

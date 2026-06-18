@@ -10,9 +10,11 @@ import { sheetRouter } from "./sheet/sheet.route";
 import { aiRouter } from "./ai/ai.route";
 import { manualDb } from "./manual-db/discussion/manual-db.route";
 import { dochubRouter } from "./doc-hub/doc-hub.route";
+import { userDetailsRouter } from "./user-details/user-details.route";
 const allRoutes = Router();
 
 allRoutes.use("/auth", authRouter);
+allRoutes.use("/user", userDetailsRouter);
 allRoutes.use("/problem", problemRouter);
 allRoutes.use("/submission", submissionRouter);
 allRoutes.use("/code-execution", rateLimitting(), codeExecutionRouter);
